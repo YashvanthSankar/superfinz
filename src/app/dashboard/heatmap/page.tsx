@@ -54,7 +54,7 @@ export default function HeatmapPage() {
 
   const cells = buildCalendar(data);
   const max = Math.max(...data.map((d) => d.total), 1);
-  const totalSpend = data.reduce((s, d) => s + d.total, 0);
+  const totalSpend = data.reduce((s: number, d) => s + d.total, 0);
   const activeDays = data.filter((d) => d.total > 0).length;
   const avgPerActiveDay = activeDays > 0 ? totalSpend / activeDays : 0;
 

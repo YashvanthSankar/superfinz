@@ -48,7 +48,7 @@ export default async function DashboardPage() {
   ]);
 
   // ── Monthly stats ──────────────────────────────────────────────────
-  const monthlySpend = monthTx.reduce((s, t) => s + t.amount, 0);
+  const monthlySpend = monthTx.reduce((s: number, t) => s + t.amount, 0);
   const budget       = user.profile?.monthlyBudget ?? 0;
   const income       = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
   const goalAmt      = user.profile?.savingsGoal ?? 0;
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
   const w5Days = Math.max(0, daysInMonth - 28);
   wWeights[4] = wWeights[4] * (w5Days / 7);
 
-  const totalWeight = wWeights.reduce((a, b) => a + b, 0);
+  const totalWeight = wWeights.reduce((a: number, b: number) => a + b, 0);
   const weekBudgets = totalWeight > 0 ? wWeights.map(w => (w / totalWeight) * budget) : [0,0,0,0,0];
 
   // Current strict week index (0 to 4)
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
     const strictWeekSpend = monthTx.filter(tx => {
       const txDaysFromStart = Math.floor((new Date(tx.date).getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       return txDaysFromStart > i * 7 && txDaysFromStart <= (i + 1) * 7;
-    }).reduce((s, t) => s + t.amount, 0);
+    }).reduce((s: number, t) => s + t.amount, 0);
     completedWeeksSpend += strictWeekSpend;
 
     if (i === completedWeeks - 1) { // keep track of the most recently finished week
@@ -108,7 +108,7 @@ export default async function DashboardPage() {
       const txDaysFromStart = Math.floor((new Date(tx.date).getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       return txDaysFromStart >= currentWeekStartDay && txDaysFromStart <= daysElapsed;
     })
-    .reduce((s, t) => s + t.amount, 0);
+    .reduce((s: number, t) => s + t.amount, 0);
 
   const dailyAvg     = daysElapsed > 0 ? monthlySpend / daysElapsed : 0;
 
@@ -166,7 +166,7 @@ export default async function DashboardPage() {
   
   const shortfallMonth  = budget > 0 ? Math.max(0, monthlySpend - budget) : 0;
   const shortfallWeek   = weeklyBudget > 0 ? Math.max(0, weeklySpend - weeklyBudget) : 0;
-  const totalSaved      = goalsAll.reduce((s, g) => s + g.savedAmount, 0);
+  const totalSaved      = goalsAll.reduce((s: number, g) => s + g.savedAmount, 0);
 
   const onPace  = budget > 0 && monthlySpend <= dailyBudget * daysElapsed;
   const noSpends = monthTx.length === 0;
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
   const retirementScore = Math.round(corpusGapPct * 0.5 + Math.min(investPct * 3, 100) * 0.3 + Math.min(investPct * 5, 100) * 0.2);
   const scoreLabel    = retirementScore >= 70 ? "On Track" : retirementScore >= 40 ? "Needs Work" : "At Risk";
   const scoreColor    = retirementScore >= 70 ? "#16a34a" : retirementScore >= 40 ? "#d97706" : "#dc2626";
-  const unnecessarySpend = monthTx.filter(t => t.isNecessary === false).reduce((s, t) => s + t.amount, 0);
+  const unnecessarySpend = monthTx.filter(t => t.isNecessary === false).reduce((s: number, t) => s + t.amount, 0);
   const fireDelayMonths  = monthlySip > 0 ? Math.round(unnecessarySpend / monthlySip) : 0;
   const fmtCrore = (n: number) => n >= 10000000 ? `₹${(n / 10000000).toFixed(1)}Cr` : `₹${(n / 100000).toFixed(0)}L`;
 
