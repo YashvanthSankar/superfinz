@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "outline";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
 }
@@ -15,15 +15,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] disabled:opacity-50 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
           {
-            "bg-[#00ff88] text-black hover:bg-[#00e07a] focus:ring-[#00ff88]": variant === "primary",
-            "bg-[#1a1a24] text-white border border-[#2a2a3a] hover:border-[#00ff88] hover:text-[#00ff88] focus:ring-[#2a2a3a]": variant === "secondary",
-            "bg-transparent text-[#8888aa] hover:text-white hover:bg-[#1a1a24] focus:ring-[#2a2a3a]": variant === "ghost",
-            "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 focus:ring-red-500": variant === "danger",
-            "px-3 py-1.5 text-sm": size === "sm",
-            "px-5 py-2.5 text-sm": size === "md",
-            "px-7 py-3.5 text-base": size === "lg",
+            "bg-[#0f172a] text-white hover:bg-[#1e293b] shadow-sm": variant === "primary",
+            "bg-white text-[#0f172a] border border-[#e2e8f0] hover:bg-[#f8fafc] shadow-sm": variant === "secondary",
+            "bg-[#eef2ff] text-[#6366f1] border border-[#e0e7ff] hover:bg-[#e0e7ff]": variant === "outline",
+            "bg-transparent text-[#64748b] hover:text-[#0f172a] hover:bg-[#f1f5f9]": variant === "ghost",
+            "bg-[#fef2f2] text-red-600 border border-red-100 hover:bg-red-50": variant === "danger",
+            "px-3 py-1.5 text-xs": size === "sm",
+            "px-4 py-2.5 text-sm": size === "md",
+            "px-6 py-3 text-sm": size === "lg",
           },
           className
         )}
@@ -31,15 +32,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <span className="flex items-center gap-2">
-            <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
             </svg>
             {children}
           </span>
-        ) : (
-          children
-        )}
+        ) : children}
       </button>
     );
   }

@@ -4,10 +4,7 @@ import { HTMLAttributes } from "react";
 export function Card({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "bg-[#111118] border border-[#2a2a3a] rounded-2xl p-5",
-        className
-      )}
+      className={cn("bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-sm", className)}
       {...props}
     >
       {children}
@@ -17,7 +14,7 @@ export function Card({ className, children, ...props }: HTMLAttributes<HTMLDivEl
 
 export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn("text-base font-semibold text-white", className)} {...props}>
+    <h3 className={cn("text-sm font-semibold text-[#0f172a]", className)} {...props}>
       {children}
     </h3>
   );

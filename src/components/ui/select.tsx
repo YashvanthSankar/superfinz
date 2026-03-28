@@ -8,29 +8,22 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, label, error, id, children, ...props }, ref) => {
-    return (
-      <div className="flex flex-col gap-1.5">
-        {label && (
-          <label htmlFor={id} className="text-sm font-medium text-[#8888aa]">
-            {label}
-          </label>
+  ({ className, label, error, id, children, ...props }, ref) => (
+    <div className="flex flex-col gap-1.5">
+      {label && <label htmlFor={id} className="text-xs font-medium text-[#374151]">{label}</label>}
+      <select
+        ref={ref} id={id}
+        className={cn(
+          "w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#e2e8f0] text-[#0f172a] text-sm transition-all focus:outline-none focus:border-[#6366f1] focus:ring-2 focus:ring-[#6366f1]/10 appearance-none cursor-pointer",
+          error && "border-red-400",
+          className
         )}
-        <select
-          ref={ref}
-          id={id}
-          className={cn(
-            "w-full px-4 py-3 rounded-xl bg-[#1a1a24] border border-[#2a2a3a] text-white text-sm transition-colors focus:outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88] appearance-none cursor-pointer",
-            error && "border-red-500",
-            className
-          )}
-          {...props}
-        >
-          {children}
-        </select>
-        {error && <p className="text-xs text-red-400">{error}</p>}
-      </div>
-    );
-  }
+        {...props}
+      >
+        {children}
+      </select>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  )
 );
 Select.displayName = "Select";
