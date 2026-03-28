@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
 type UserType = "SCHOOL_STUDENT" | "COLLEGE_STUDENT" | "PROFESSIONAL";
-
 const STEPS = ["Who are you?", "Your details", "Set limits"] as const;
 
 const INCOME_SOURCES = [
@@ -40,10 +39,11 @@ export default function OnboardingPage() {
   });
 
   const set = (k: string, v: string | string[]) => setForm((f) => ({ ...f, [k]: v }));
-  const toggleSource = (val: string) =>
-    set("incomeSources", form.incomeSources.includes(val)
+  const toggleSrc = (val: string) => set("incomeSources",
+    form.incomeSources.includes(val)
       ? form.incomeSources.filter((s) => s !== val)
-      : [...form.incomeSources, val]);
+      : [...form.incomeSources, val]
+  );
 
   const isStudent = form.userType === "SCHOOL_STUDENT" || form.userType === "COLLEGE_STUDENT";
 
@@ -53,7 +53,7 @@ export default function OnboardingPage() {
     return !!form.monthlyBudget;
   };
 
-  const handleSubmit = async () => {
+  const submit = async () => {
     setLoading(true);
     setError("");
     try {
@@ -84,80 +84,112 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="text-3xl font-black text-white">
-            Super<span className="text-[#00ff88]">Finz</span>
+          <span className="text-2xl font-black text-[#0f172a]">
+            Super<span className="text-indigo-600">Finz</span>
           </span>
           {session?.user && (
             <div className="flex items-center justify-center gap-2 mt-3">
               {session.user.image && (
-                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-2 ring-white shadow-sm" />
               )}
-              <p className="text-[#8888aa] text-sm">hey {session.user.name?.split(" ")[0]} 👋 let&apos;s set you up</p>
+              <p className="text-[#64748b] text-sm">
+                Hey {session.user.name?.split(" ")[0]} 👋 quick setup, then you&apos;re in!
+              </p>
             </div>
           )}
         </div>
 
-        {/* Steps */}
-        <div className="flex items-center gap-1 mb-8">
+        {/* Step bar */}
+        <div className="flex items-center mb-8 gap-2">
           {STEPS.map((s, i) => (
-            <div key={s} className="flex items-center gap-1 flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
-                i < step ? "bg-[#00ff88] text-black" : i === step ? "bg-[#00ff88]/20 border border-[#00ff88] text-[#00ff88]" : "bg-[#1a1a24] border border-[#2a2a3a] text-[#4a4a6a]"
+            <div key={s} className="flex items-center gap-2 flex-1">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
+                i < step ? "bg-indigo-600 text-white" :
+                i === step ? "bg-white border-2 border-indigo-600 text-indigo-600" :
+                "bg-white border border-[#e2e8f0] text-[#94a3b8]"
               }`}>
                 {i < step ? "✓" : i + 1}
               </div>
-              <span className={`text-xs truncate ${i === step ? "text-white font-medium" : "text-[#4a4a6a]"}`}>{s}</span>
-              {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 rounded ${i < step ? "bg-[#00ff88]" : "bg-[#2a2a3a]"}`} />}
+              <span className={`text-xs truncate ${i === step ? "text-[#0f172a] font-medium" : "text-[#94a3b8]"}`}>{s}</span>
+              {i < STEPS.length - 1 && (
+                <div className={`flex-1 h-px ${i < step ? "bg-indigo-600" : "bg-[#e2e8f0]"}`} />
+              )}
             </div>
           ))}
         </div>
 
-        <div className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-6">
-          {/* Step 0: Who are you */}
+        <div className="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-7">
+
+          {/* Step 0 */}
           {step === 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white">Who are you?</h2>
-              <p className="text-[#8888aa] text-sm">Helps us personalize everything for you</p>
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-lg font-bold text-[#0f172a]">Who are you?</h2>
+                <p className="text-[#64748b] text-sm mt-0.5 font-light">Helps us personalise everything</p>
+              </div>
               <Input label="Your age" type="number" placeholder="20" value={form.age} onChange={(e) => set("age", e.target.value)} />
-              {(["SCHOOL_STUDENT", "COLLEGE_STUDENT", "PROFESSIONAL"] as const).map((type) => {
-                const opts = {
-                  SCHOOL_STUDENT: { emoji: "🎒", label: "School Student", sub: "Pocket money, school stuff" },
-                  COLLEGE_STUDENT: { emoji: "🎓", label: "College Student", sub: "Hostel, food, subscriptions" },
-                  PROFESSIONAL: { emoji: "💼", label: "Working Professional", sub: "Salary, investments, EMIs" },
-                }[type];
-                return (
-                  <button key={type} onClick={() => set("userType", type)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${form.userType === type ? "border-[#00ff88] bg-[#00ff88]/5" : "border-[#2a2a3a] hover:border-[#3a3a4a]"}`}>
-                    <span className="text-2xl">{opts.emoji}</span>
-                    <div>
-                      <p className="font-semibold text-white">{opts.label}</p>
-                      <p className="text-xs text-[#8888aa]">{opts.sub}</p>
+              <div className="space-y-2">
+                {([
+                  { value: "SCHOOL_STUDENT", emoji: "🎒", label: "School Student", sub: "Pocket money, school expenses" },
+                  { value: "COLLEGE_STUDENT", emoji: "🎓", label: "College Student", sub: "Hostel, food, subscriptions" },
+                  { value: "PROFESSIONAL",    emoji: "💼", label: "Working Professional", sub: "Salary, investments, EMIs" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => set("userType", opt.value)}
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
+                      form.userType === opt.value
+                        ? "border-indigo-300 bg-indigo-50"
+                        : "border-[#e2e8f0] hover:border-[#c7d2e2] bg-white"
+                    }`}
+                  >
+                    <span className="text-xl">{opt.emoji}</span>
+                    <div className="flex-1">
+                      <p className={`text-sm font-semibold ${form.userType === opt.value ? "text-indigo-700" : "text-[#0f172a]"}`}>{opt.label}</p>
+                      <p className="text-xs text-[#94a3b8] font-light">{opt.sub}</p>
                     </div>
-                    {form.userType === type && <span className="ml-auto text-[#00ff88]">✓</span>}
+                    {form.userType === opt.value && (
+                      <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Step 1: Details */}
+          {/* Step 1 */}
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white">{isStudent ? "Student details" : "Work details"}</h2>
+              <div>
+                <h2 className="text-lg font-bold text-[#0f172a]">{isStudent ? "Student details" : "Work details"}</h2>
+                <p className="text-[#64748b] text-sm mt-0.5 font-light">Tell us a bit more</p>
+              </div>
               {isStudent ? (
                 <>
                   <Input label="Institution" placeholder="IIITDM Kancheepuram" value={form.institution} onChange={(e) => set("institution", e.target.value)} />
                   <Input label="Monthly allowance (₹)" type="number" placeholder="5000" value={form.monthlyAllowance} onChange={(e) => set("monthlyAllowance", e.target.value)} />
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-[#8888aa]">Income sources</p>
-                    <div className="flex flex-wrap gap-2">
+                    <p className="text-xs font-medium text-[#374151]">Income sources</p>
+                    <div className="flex flex-wrap gap-1.5">
                       {INCOME_SOURCES.map((src) => (
-                        <button key={src.value} type="button" onClick={() => toggleSource(src.value)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${form.incomeSources.includes(src.value) ? "border-[#00ff88] bg-[#00ff88]/10 text-[#00ff88]" : "border-[#2a2a3a] text-[#8888aa] hover:border-[#3a3a4a]"}`}>
+                        <button
+                          key={src.value}
+                          onClick={() => toggleSrc(src.value)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                            form.incomeSources.includes(src.value)
+                              ? "bg-indigo-50 border-indigo-200 text-indigo-700"
+                              : "bg-white border-[#e2e8f0] text-[#64748b] hover:border-[#c7d2e2]"
+                          }`}
+                        >
                           {src.label}
                         </button>
                       ))}
@@ -170,8 +202,8 @@ export default function OnboardingPage() {
                   <Input label="Monthly salary (₹)" type="number" placeholder="50000" value={form.monthlySalary} onChange={(e) => set("monthlySalary", e.target.value)} />
                   <Select label="Industry" value={form.industry} onChange={(e) => set("industry", e.target.value)}>
                     <option value="">Select industry</option>
-                    {["Tech", "Finance", "Healthcare", "Education", "Manufacturing", "Retail", "Other"].map((i) => (
-                      <option key={i} value={i}>{i}</option>
+                    {["Tech", "Finance", "Healthcare", "Education", "Manufacturing", "Retail", "Other"].map((v) => (
+                      <option key={v} value={v}>{v}</option>
                     ))}
                   </Select>
                 </>
@@ -179,31 +211,37 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: Budget */}
+          {/* Step 2 */}
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white">Set your limits 🎯</h2>
-              <p className="text-[#8888aa] text-sm">We&apos;ll roast you when you overshoot 😅</p>
+              <div>
+                <h2 className="text-lg font-bold text-[#0f172a]">Set your limits 🎯</h2>
+                <p className="text-[#64748b] text-sm mt-0.5 font-light">We&apos;ll track against these every month</p>
+              </div>
               <Input label="Monthly budget (₹)" type="number" placeholder={isStudent ? "5000" : "30000"} value={form.monthlyBudget} onChange={(e) => set("monthlyBudget", e.target.value)} />
               <Input label="Monthly savings goal (₹)" type="number" placeholder={isStudent ? "500" : "5000"} value={form.savingsGoal} onChange={(e) => set("savingsGoal", e.target.value)} />
               {form.monthlyBudget && form.savingsGoal && (
-                <div className="bg-[#00ff88]/5 border border-[#00ff88]/20 rounded-xl p-4 text-sm">
-                  <p className="text-[#00ff88] font-medium">Looking good 🎯</p>
-                  <p className="text-[#8888aa] mt-1">
-                    Save ₹{form.savingsGoal}/mo → ₹{(parseFloat(form.savingsGoal) * 12).toLocaleString("en-IN")} in a year
+                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+                  <p className="text-emerald-700 font-semibold text-sm">Looks good 🎯</p>
+                  <p className="text-emerald-600 text-xs mt-1 font-light">
+                    ₹{form.savingsGoal}/mo → ₹{(parseFloat(form.savingsGoal) * 12).toLocaleString("en-IN")} in a year
                   </p>
                 </div>
               )}
             </div>
           )}
 
-          {error && <p className="mt-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
+          {error && (
+            <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">{error}</p>
+          )}
 
-          <div className="flex gap-3 mt-6">
-            {step > 0 && <Button variant="secondary" onClick={() => setStep(step - 1)} className="flex-1">Back</Button>}
+          <div className="flex gap-2.5 mt-6">
+            {step > 0 && (
+              <Button variant="secondary" onClick={() => setStep(step - 1)} className="flex-1">← Back</Button>
+            )}
             {step < 2
               ? <Button onClick={() => setStep(step + 1)} disabled={!canNext()} className="flex-1">Continue →</Button>
-              : <Button onClick={handleSubmit} loading={loading} disabled={!canNext()} className="flex-1">Start tracking 🚀</Button>
+              : <Button onClick={submit} loading={loading} disabled={!canNext()} className="flex-1">Start tracking 🚀</Button>
             }
           </div>
         </div>

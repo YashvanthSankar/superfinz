@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 
 type HeatDay = { date: string; total: number; count: number };
@@ -10,12 +9,12 @@ function getIntensity(amount: number, max: number): number {
   return Math.ceil((amount / max) * 4);
 }
 
-const INTENSITY_COLORS = [
-  "bg-[#1a1a24]",       // 0 - no spend
-  "bg-[#00ff88]/20",    // 1
-  "bg-[#00ff88]/40",    // 2
-  "bg-[#00ff88]/65",    // 3
-  "bg-[#00ff88]",       // 4 - max
+const INTENSITY_CLASSES = [
+  "bg-[#f1f5f9]",        // 0 - no spend
+  "bg-indigo-100",       // 1
+  "bg-indigo-200",       // 2
+  "bg-indigo-400",       // 3
+  "bg-indigo-600",       // 4 - max
 ];
 
 function buildCalendar(days: HeatDay[]) {
@@ -28,7 +27,6 @@ function buildCalendar(days: HeatDay[]) {
   start.setDate(1);
 
   const cells: (HeatDay & { empty?: boolean })[] = [];
-  // Fill blank days to align to Sunday
   const startDay = start.getDay();
   for (let i = 0; i < startDay; i++) cells.push({ date: "", total: 0, count: 0, empty: true });
 
@@ -60,42 +58,42 @@ export default function HeatmapPage() {
   const activeDays = data.filter((d) => d.total > 0).length;
   const avgPerActiveDay = activeDays > 0 ? totalSpend / activeDays : 0;
 
+  const STATS = [
+    { label: "Total spent (3mo)", value: formatCurrency(totalSpend) },
+    { label: "Active spend days", value: activeDays.toString() },
+    { label: "Avg per spend day", value: formatCurrency(avgPerActiveDay) },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Spending Heatmap 🗓️</h1>
-        <p className="text-[#8888aa] text-sm mt-0.5">your last 3 months at a glance</p>
+        <h1 className="text-2xl font-bold text-[#0f172a]">Spending Heatmap</h1>
+        <p className="text-[#94a3b8] text-sm mt-0.5 font-light">Your last 3 months at a glance</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <p className="text-xs text-[#8888aa] mb-1">Total spent (3mo)</p>
-          <p className="text-lg font-bold text-white">{formatCurrency(totalSpend)}</p>
-        </Card>
-        <Card>
-          <p className="text-xs text-[#8888aa] mb-1">Active days</p>
-          <p className="text-lg font-bold text-white">{activeDays}</p>
-        </Card>
-        <Card>
-          <p className="text-xs text-[#8888aa] mb-1">Avg per spend day</p>
-          <p className="text-lg font-bold text-white">{formatCurrency(avgPerActiveDay)}</p>
-        </Card>
+        {STATS.map((s) => (
+          <div key={s.label} className="bg-white rounded-2xl border border-[#e2e8f0] p-5 shadow-sm">
+            <p className="text-xs text-[#94a3b8] font-medium uppercase tracking-wide mb-2">{s.label}</p>
+            <p className="text-xl font-bold text-[#0f172a]">{s.value}</p>
+          </div>
+        ))}
       </div>
 
-      <Card>
-        <CardTitle className="mb-4">Activity</CardTitle>
+      <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-[#0f172a] mb-5">Activity</h2>
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-6 h-6 border-2 border-[#00ff88] border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <>
             {/* Day labels */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
+            <div className="grid grid-cols-7 gap-1 mb-1.5">
               {DAYS.map((d) => (
-                <div key={d} className="text-center text-xs text-[#4a4a6a]">{d}</div>
+                <div key={d} className="text-center text-[10px] text-[#94a3b8] font-medium">{d}</div>
               ))}
             </div>
 
@@ -107,7 +105,7 @@ export default function HeatmapPage() {
                 return (
                   <div
                     key={cell.date}
-                    className={`aspect-square rounded-sm cursor-pointer transition-all hover:ring-1 hover:ring-[#00ff88] ${INTENSITY_COLORS[intensity]}`}
+                    className={`aspect-square rounded-sm cursor-pointer transition-all hover:ring-2 hover:ring-indigo-400 hover:ring-offset-1 ${INTENSITY_CLASSES[intensity]}`}
                     onMouseEnter={() => setTooltip(cell)}
                     onMouseLeave={() => setTooltip(null)}
                     title={`${cell.date}: ${formatCurrency(cell.total)} (${cell.count} tx)`}
@@ -117,31 +115,40 @@ export default function HeatmapPage() {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-2 mt-4 justify-end">
-              <span className="text-xs text-[#4a4a6a]">Less</span>
-              {INTENSITY_COLORS.map((c, i) => (
-                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-[#2a2a3a]`} />
+            <div className="flex items-center gap-1.5 mt-4 justify-end">
+              <span className="text-[10px] text-[#94a3b8]">Less</span>
+              {INTENSITY_CLASSES.map((c, i) => (
+                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-[#e2e8f0]`} />
               ))}
-              <span className="text-xs text-[#4a4a6a]">More</span>
+              <span className="text-[10px] text-[#94a3b8]">More</span>
             </div>
 
-            {/* Tooltip */}
+            {/* Tooltip info */}
             {tooltip && tooltip.total > 0 && (
-              <div className="mt-4 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl p-3 text-sm">
-                <p className="text-white font-medium">
+              <div className="mt-4 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-4 text-sm">
+                <p className="font-semibold text-[#0f172a]">
                   {new Date(tooltip.date).toLocaleDateString("en-IN", {
-                    weekday: "long", day: "numeric", month: "long"
+                    weekday: "long", day: "numeric", month: "long",
                   })}
                 </p>
-                <p className="text-[#8888aa] mt-0.5">
-                  Spent <span className="text-[#00ff88] font-semibold">{formatCurrency(tooltip.total)}</span> across{" "}
-                  {tooltip.count} transaction{tooltip.count !== 1 ? "s" : ""}
+                <p className="text-[#64748b] mt-0.5 font-light">
+                  Spent{" "}
+                  <span className="text-indigo-600 font-semibold">{formatCurrency(tooltip.total)}</span>{" "}
+                  across {tooltip.count} transaction{tooltip.count !== 1 ? "s" : ""}
                 </p>
+              </div>
+            )}
+
+            {data.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-3xl mb-2">📅</p>
+                <p className="text-[#64748b] text-sm">No transaction data yet</p>
+                <p className="text-[#94a3b8] text-xs mt-1 font-light">Log some spends to see your heatmap</p>
               </div>
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

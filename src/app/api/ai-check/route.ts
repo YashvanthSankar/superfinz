@@ -10,7 +10,9 @@ const schema = z.object({
   description: z.string(),
 });
 
-const ROASTS: Record<string, string[]> = {
+const ESSENTIAL = ["Rent", "Utilities", "Health", "Education", "Transport"];
+
+const FALLBACK_ROASTS: Record<string, string[]> = {
   Food: [
     "bro you literally ate out {prev} times this week, your wallet is crying fr 💸",
     "another {category} spend? ngl ur stomach > ur savings rn 😭",
@@ -18,7 +20,7 @@ const ROASTS: Record<string, string[]> = {
   ],
   Entertainment: [
     "you've spent ₹{weekSpend} on {category} this week... is it giving or is it going? 💀",
-    "bro the subscriptions are multiplying, freeze this one and put it in goals instead 🙏",
+    "bro the subscriptions are multiplying, freeze this one instead 🙏",
     "entertainment budget is cooked rn, maybe touch grass (free) instead? 🌿",
   ],
   Shopping: [
@@ -38,17 +40,43 @@ const ROASTS: Record<string, string[]> = {
   ],
 };
 
-function fillTemplate(
-  template: string,
-  vars: Record<string, string | number>
-): string {
+function fillTemplate(template: string, vars: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? ""));
 }
 
-function pickRoast(category: string, vars: Record<string, string | number>): string {
-  const pool = ROASTS[category] ?? ROASTS.default;
-  const template = pool[Math.floor(Math.random() * pool.length)];
-  return fillTemplate(template, vars);
+function pickFallbackRoast(category: string, vars: Record<string, string | number>): string {
+  const pool = FALLBACK_ROASTS[category] ?? FALLBACK_ROASTS.default;
+  const idx = Math.floor((vars.amount as number + (vars.prev as number)) % pool.length);
+  return fillTemplate(pool[idx], vars);
+}
+
+async function callOpenRouter(prompt: string): Promise<string | null> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+        "X-Title": "SuperFinz",
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3.1-8b-instruct:free",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 80,
+        temperature: 0.8,
+      }),
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -66,7 +94,6 @@ export async function POST(req: NextRequest) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  // Get same-category spends in last 7 days
   const recentSame = await prisma.transaction.findMany({
     where: {
       userId: session.userId,
@@ -80,7 +107,6 @@ export async function POST(req: NextRequest) {
   const weekSpend = recentSame.reduce((s, t) => s + t.amount, 0) + amount;
   const prevCount = recentSame.length;
 
-  // Get monthly budget for this category
   const now = new Date();
   const budget = await prisma.budget.findUnique({
     where: {
@@ -93,38 +119,40 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Determine necessity
-  const ESSENTIAL = ["Rent", "Utilities", "Health", "Education", "Transport"];
   let isNecessary = ESSENTIAL.includes(category);
 
   if (!isNecessary) {
     if (budget) {
       const usedPct = (budget.spent + amount) / budget.limit;
-      if (usedPct > 0.8) isNecessary = false;
-      else if (prevCount <= 1) isNecessary = true;
-      else isNecessary = false;
+      isNecessary = usedPct <= 0.8 && prevCount <= 1;
     } else {
       isNecessary = prevCount === 0;
     }
   }
 
   const hour = now.getHours();
-  const timeLabel =
-    hour < 6 ? "3am" : hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "midnight";
+  const timeLabel = hour < 6 ? "3am" : hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "midnight";
 
-  const aiNote = isNecessary
-    ? `looks necessary! ₹${amount} for ${description} — noted 🫡`
-    : pickRoast(category, {
-        amount,
-        category,
-        weekSpend: weekSpend.toFixed(0),
-        prev: prevCount,
-        count: prevCount + 1,
-        time: timeLabel,
-        description,
-      });
+  const vars = {
+    amount,
+    category,
+    weekSpend: weekSpend.toFixed(0),
+    prev: prevCount,
+    count: prevCount + 1,
+    time: timeLabel,
+    description,
+  };
 
-  // Patch the transaction with AI assessment
+  let aiNote: string;
+
+  if (isNecessary) {
+    aiNote = `looks necessary! ₹${amount} for ${description} — tracked 🫡`;
+  } else {
+    const prompt = `You are a Gen Z finance buddy for Indian students/professionals. A user just spent ₹${amount} on "${description}" (category: ${category}). They've spent on ${category} ${prevCount} times this week (total ₹${weekSpend.toFixed(0)} this week). Write ONE short (max 15 words), funny, Gen Z roast/warning about this spend. Use Indian context. Use 1 emoji. Be helpful not mean.`;
+    const llmNote = await callOpenRouter(prompt);
+    aiNote = llmNote ?? pickFallbackRoast(category, vars);
+  }
+
   await prisma.transaction.update({
     where: { id: transactionId },
     data: { isNecessary, aiNote },

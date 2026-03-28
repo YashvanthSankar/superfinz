@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 
 const API_KEY = process.env.NEWS_API_KEY;
-const BASE_URL = "https://gnews.io/api/v4/search";
+const BASE_URL = "https://newsdata.io/api/1/news";
 
-// Fallback mock news for when API key is not set
 const MOCK_NEWS = [
   {
     title: "RBI keeps repo rate unchanged at 6.5% — what it means for your EMIs",
@@ -67,13 +66,31 @@ export async function GET() {
   }
 
   try {
-    const url = `${BASE_URL}?q=india+finance+investing+stock+market&lang=en&country=in&max=10&apikey=${API_KEY}`;
+    const url = `${BASE_URL}?apikey=${API_KEY}&q=finance+investing+money&country=in&language=en&category=business&size=10`;
     const res = await fetch(url, { next: { revalidate: 1800 } });
 
-    if (!res.ok) throw new Error("News API error");
+    if (!res.ok) throw new Error("NewsData API error");
 
     const data = await res.json();
-    return NextResponse.json({ articles: data.articles ?? [], source: "live" });
+    const articles = (data.results ?? []).map((a: {
+      title: string;
+      description: string | null;
+      link: string;
+      image_url: string | null;
+      pubDate: string;
+      source_name: string;
+      category: string[] | null;
+    }) => ({
+      title: a.title,
+      description: a.description ?? "",
+      url: a.link,
+      image: a.image_url,
+      publishedAt: a.pubDate,
+      source: { name: a.source_name },
+      category: a.category?.[0] ?? "Markets",
+    }));
+
+    return NextResponse.json({ articles, source: "live" });
   } catch {
     return NextResponse.json({ articles: MOCK_NEWS, source: "mock" });
   }

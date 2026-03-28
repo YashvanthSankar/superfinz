@@ -5,44 +5,40 @@ import { useState } from "react";
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
-  const handleGoogle = async () => {
+  const go = async () => {
     setLoading(true);
     await signIn("google", { callbackUrl: "/onboarding" });
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#00ff88]/5 rounded-full blur-[120px]" />
-      </div>
-
-      <div className="w-full max-w-sm relative z-10">
+    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
         <div className="text-center mb-10">
-          <span className="text-4xl font-black text-white tracking-tight">
-            Super<span className="text-[#00ff88]">Finz</span>
+          <span className="text-3xl font-black text-[#0f172a]">
+            Super<span className="text-indigo-600">Finz</span>
           </span>
-          <p className="text-[#8888aa] text-sm mt-2">your money, your rules 💸</p>
+          <p className="text-[#64748b] text-sm mt-2 font-light">your money, your rules</p>
         </div>
 
-        <div className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-8 text-center space-y-6">
-          <div>
-            <h2 className="text-xl font-bold text-white">Get started</h2>
-            <p className="text-[#8888aa] text-sm mt-1">Sign in to track, plan, and grow your money</p>
+        <div className="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-8 space-y-6">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-[#0f172a]">Welcome back</h1>
+            <p className="text-[#64748b] text-sm mt-1 font-light">Sign in to continue to your dashboard</p>
           </div>
 
           <button
-            onClick={handleGoogle}
+            onClick={go}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-white text-gray-900 font-semibold text-sm hover:bg-gray-100 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-[#0f172a] text-white font-semibold text-sm hover:bg-[#1e293b] transition-all disabled:opacity-60 shadow-sm"
           >
             {loading ? (
-              <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24">
+              <svg width="18" height="18" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
@@ -52,13 +48,18 @@ export default function LoginPage() {
             Continue with Google
           </button>
 
-          <p className="text-xs text-[#4a4a6a] leading-relaxed">
-            By continuing, you agree to our terms. We only access your name and email.
-          </p>
+          <div className="text-center">
+            <p className="text-xs text-[#94a3b8]">
+              Only your name and email are accessed. No passwords stored.
+            </p>
+          </div>
         </div>
 
-        <p className="text-center text-[#4a4a6a] text-xs mt-6">
-          No password. No spam. Just finance.
+        <p className="text-center text-[#94a3b8] text-xs mt-6">
+          New here?{" "}
+          <a href="/onboarding" className="text-indigo-600 hover:underline font-medium">
+            Get started free
+          </a>
         </p>
       </div>
     </div>

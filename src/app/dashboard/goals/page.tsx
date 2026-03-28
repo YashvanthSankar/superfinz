@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
@@ -65,8 +64,8 @@ export default function GoalsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Goals 🎯</h1>
-          <p className="text-[#8888aa] text-sm mt-0.5">stack your Ls into Ws</p>
+          <h1 className="text-2xl font-bold text-[#0f172a]">Goals</h1>
+          <p className="text-[#94a3b8] text-sm mt-0.5 font-light">Stack your savings towards what matters</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ New goal"}
@@ -74,27 +73,27 @@ export default function GoalsPage() {
       </div>
 
       {showForm && (
-        <Card>
-          <CardTitle className="mb-4">Create a goal</CardTitle>
+        <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-[#0f172a] mb-5">Create a goal</h2>
           <form onSubmit={handleAdd} className="space-y-4">
             <Input label="Goal name" placeholder="New laptop, Trip to Goa..." value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
             <Input label="Target amount (₹)" type="number" placeholder="20000" value={form.targetAmount} onChange={(e) => setForm((f) => ({ ...f, targetAmount: e.target.value }))} required />
             <Input label="Deadline (optional)" type="date" value={form.deadline} onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value }))} />
             <Button type="submit" loading={submitting} className="w-full">Set goal 🎯</Button>
           </form>
-        </Card>
+        </div>
       )}
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-6 h-6 border-2 border-[#00ff88] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : active.length === 0 && !showForm ? (
-        <div className="text-center py-16">
-          <p className="text-5xl mb-3">🎯</p>
-          <p className="text-white font-semibold">No goals yet</p>
-          <p className="text-[#8888aa] text-sm mt-1">Set a goal and start saving towards it</p>
-          <Button onClick={() => setShowForm(true)} className="mt-4">Create first goal</Button>
+        <div className="bg-white rounded-2xl border border-[#e2e8f0] p-6 shadow-sm text-center py-16">
+          <p className="text-4xl mb-3">🎯</p>
+          <p className="text-[#64748b] font-medium">No goals yet</p>
+          <p className="text-[#94a3b8] text-sm mt-1 font-light">Set a goal and start saving towards it</p>
+          <Button onClick={() => setShowForm(true)} className="mt-5">Create first goal</Button>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
@@ -102,31 +101,31 @@ export default function GoalsPage() {
             const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
             const remaining = goal.targetAmount - goal.savedAmount;
             return (
-              <Card key={goal.id}>
-                <div className="flex items-start justify-between mb-3">
+              <div key={goal.id} className="bg-white rounded-2xl border border-[#e2e8f0] p-5 shadow-sm">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-white">{goal.title}</h3>
+                    <h3 className="font-semibold text-[#0f172a]">{goal.title}</h3>
                     {goal.deadline && (
-                      <p className="text-xs text-[#4a4a6a] mt-0.5">
+                      <p className="text-xs text-[#94a3b8] mt-0.5 font-light">
                         by {new Date(goal.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     )}
                   </div>
-                  <span className="text-2xl">{pct >= 100 ? "🎉" : pct >= 50 ? "🔥" : "🌱"}</span>
+                  <span className="text-xl">{pct >= 100 ? "🎉" : pct >= 50 ? "🔥" : "🌱"}</span>
                 </div>
 
-                <div className="space-y-1 mb-4">
+                <div className="space-y-1.5 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#8888aa]">{formatCurrency(goal.savedAmount)} saved</span>
-                    <span className="text-white font-medium">{formatCurrency(goal.targetAmount)}</span>
+                    <span className="text-[#64748b] font-light">{formatCurrency(goal.savedAmount)} saved</span>
+                    <span className="text-[#0f172a] font-semibold">{formatCurrency(goal.targetAmount)}</span>
                   </div>
-                  <div className="h-2.5 bg-[#2a2a3a] rounded-full overflow-hidden">
+                  <div className="h-2 bg-[#f1f5f9] rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#7c3aed] transition-all duration-500"
+                      className="h-full rounded-full bg-indigo-500 transition-all duration-500"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <p className="text-xs text-[#4a4a6a]">{pct.toFixed(1)}% — {formatCurrency(remaining)} to go</p>
+                  <p className="text-xs text-[#94a3b8] font-light">{pct.toFixed(1)}% — {formatCurrency(remaining)} to go</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -134,19 +133,20 @@ export default function GoalsPage() {
                     <button
                       key={amt}
                       onClick={() => addSavings(goal.id, goal.savedAmount, amt)}
-                      className="flex-1 text-xs py-2 rounded-lg border border-[#2a2a3a] text-[#8888aa] hover:border-[#00ff88] hover:text-[#00ff88] transition-all"
+                      className="flex-1 text-xs py-2 rounded-lg border border-[#e2e8f0] text-[#64748b] hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all font-medium"
                     >
-                      +₹{(amt / 100).toFixed(0)}00
+                      +₹{amt >= 1000 ? `${amt / 1000}k` : amt}
                     </button>
                   ))}
                   <button
                     onClick={() => markDone(goal.id)}
-                    className="px-3 py-2 rounded-lg border border-[#2a2a3a] text-xs text-[#4a4a6a] hover:border-green-500/30 hover:text-[#00ff88] transition-all"
+                    className="px-3 py-2 rounded-lg border border-[#e2e8f0] text-xs text-[#94a3b8] hover:border-emerald-200 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                    title="Mark as achieved"
                   >
                     ✓
                   </button>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
@@ -154,14 +154,14 @@ export default function GoalsPage() {
 
       {achieved.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-[#8888aa] mb-3">Achieved 🏆</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <h2 className="text-xs font-semibold text-[#94a3b8] uppercase tracking-wide mb-3">Achieved</h2>
+          <div className="grid md:grid-cols-2 gap-3">
             {achieved.map((goal) => (
-              <div key={goal.id} className="bg-[#111118] border border-[#00ff88]/20 rounded-2xl p-5 opacity-60">
+              <div key={goal.id} className="bg-white rounded-2xl border border-emerald-100 p-4 opacity-70">
                 <div className="flex items-center gap-2">
                   <span>🏆</span>
-                  <p className="text-white font-medium">{goal.title}</p>
-                  <span className="ml-auto text-[#00ff88] text-sm">{formatCurrency(goal.targetAmount)}</span>
+                  <p className="text-[#0f172a] font-medium text-sm">{goal.title}</p>
+                  <span className="ml-auto text-emerald-600 text-sm font-semibold">{formatCurrency(goal.targetAmount)}</span>
                 </div>
               </div>
             ))}
