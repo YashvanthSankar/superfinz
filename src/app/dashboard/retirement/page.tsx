@@ -96,24 +96,24 @@ export default function RetirementPage() {
       </div>
 
       {/* ── Summary banner ── */}
-      <div className={`rounded-2xl p-5 border-2 ${onTrack ? "bg-emerald-50 border-emerald-200" : "bg-[#713f12] border-amber-600"}`}>
+      <div className={`rounded-2xl p-5 border ${onTrack ? "bg-emerald-50 border-emerald-200" : "bg-[#fefce8] border-amber-400"}`}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
-            <p className={`text-[10px] font-semibold uppercase tracking-wider ${onTrack ? "text-emerald-600" : "text-amber-300"}`}>
+            <p className={`text-[10px] font-semibold uppercase tracking-wider ${onTrack ? "text-emerald-600" : "text-[#b45309]"}`}>
               {onTrack ? "You're on track 🎉" : "Gap to close 🔥"}
             </p>
-            <p className={`text-2xl font-black mt-1 ${onTrack ? "text-emerald-700" : "text-[#fefce8]"}`}>
+            <p className={`text-2xl font-black mt-1 ${onTrack ? "text-emerald-700" : "text-[#713f12]"}`}>
               {onTrack ? `${fmtCrore(projCorpus)} projected` : `${fmtCrore(corpusGap)} short`}
             </p>
-            <p className={`text-xs mt-1 font-light ${onTrack ? "text-emerald-600" : "text-amber-300/80"}`}>
+            <p className={`text-xs mt-1 font-light ${onTrack ? "text-emerald-600" : "text-[#b45309]"}`}>
               Freedom corpus needed by age {retireAge}: {fmtCrore(fireCorpus)}
             </p>
           </div>
           {!onTrack && (
-            <div className="shrink-0 bg-[#92400e]/40 rounded-xl px-4 py-3 text-center">
-              <p className="text-[10px] text-amber-300 uppercase tracking-wide font-semibold"><FinTip term="SIP">SIP</FinTip> needed</p>
-              <p className="text-xl font-black text-amber-300 mt-0.5">{formatCurrency(Math.round(requiredSip))}</p>
-              <p className="text-[10px] text-amber-400/70">per month to hit target</p>
+            <div className="shrink-0 bg-amber-100 border border-amber-300 rounded-xl px-4 py-3 text-center">
+              <p className="text-[10px] text-[#b45309] uppercase tracking-wide font-semibold"><FinTip term="SIP">SIP</FinTip> needed</p>
+              <p className="text-xl font-black text-amber-600 mt-0.5">{formatCurrency(Math.round(requiredSip))}</p>
+              <p className="text-[10px] text-[#b45309]">per month to hit target</p>
             </div>
           )}
         </div>
@@ -228,10 +228,10 @@ export default function RetirementPage() {
               highlight: false,
             },
           ].map(({ label, value, sub, highlight }) => (
-            <div key={label} className={`rounded-xl p-4 border ${highlight ? "bg-[#713f12] border-amber-600 text-[#fefce8]" : "bg-[#fef9c3] border-amber-400 text-[#713f12]"}`}>
-              <p className={`text-[10px] font-semibold uppercase tracking-wide ${highlight ? "text-amber-300" : "text-[#b45309]"}`}>{label}</p>
-              <p className={`text-xl font-black mt-1 ${highlight ? "text-amber-300" : "text-[#713f12]"}`}>{value}</p>
-              <p className={`text-[11px] mt-0.5 font-light ${highlight ? "text-amber-400/80" : "text-[#b45309]"}`}>{sub}</p>
+            <div key={label} className={`rounded-xl p-4 border ${highlight ? "bg-amber-100 border-amber-400" : "bg-[#fef9c3] border-amber-400"}`}>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#b45309]">{label}</p>
+              <p className={`text-xl font-black mt-1 ${highlight ? "text-amber-700" : "text-[#713f12]"}`}>{value}</p>
+              <p className="text-[11px] mt-0.5 font-light text-[#b45309]">{sub}</p>
             </div>
           ))}
         </div>

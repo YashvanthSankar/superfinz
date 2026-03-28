@@ -86,13 +86,13 @@ export default function TransactionsPage() {
                 ? `₹${(n / 100000).toFixed(1)}L`
                 : `₹${n.toLocaleString("en-IN")}`;
               return (
-                <div className="flex items-center gap-3 bg-[#713f12] rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3 bg-[#fef9c3] border border-amber-300 rounded-xl px-4 py-3">
                   <span className="text-lg">📈</span>
-                  <p className="text-xs text-amber-200 leading-relaxed">
-                    <span className="text-[#fefce8] font-bold">{fmt(amt)} today</span>
+                  <p className="text-xs text-[#b45309] leading-relaxed">
+                    <span className="text-[#713f12] font-bold">{fmt(amt)} today</span>
                     {" → "}
-                    <span className="text-amber-300 font-bold">{fmt(future)} in 25 years</span>
-                    <span className="text-amber-400/80"> if invested in NIFTY 50 (12% CAGR)</span>
+                    <span className="text-amber-600 font-bold">{fmt(future)} in 25 years</span>
+                    <span className="text-[#b45309]/80"> if invested in NIFTY 50 (12% CAGR)</span>
                   </p>
                 </div>
               );

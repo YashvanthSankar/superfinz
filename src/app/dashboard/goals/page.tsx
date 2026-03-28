@@ -66,72 +66,72 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   };
 
   return (
-    <div className="bg-[#713f12] rounded-2xl p-5 shadow-sm text-[#fefce8]">
+    <div className="bg-[#fefce8] border border-amber-400 rounded-2xl p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xl">🔥</span>
-        <h2 className="font-bold text-base">Your Freedom Number</h2>
-        <span className="ml-auto text-xs text-amber-300 font-light">FIRE Calculator</span>
+        <h2 className="font-bold text-base text-[#713f12]">Your Freedom Number</h2>
+        <span className="ml-auto text-xs text-[#b45309] font-light">FIRE Calculator</span>
       </div>
-      <p className="text-amber-300/80 text-xs mb-4">How much do you need to never work again?</p>
+      <p className="text-[#b45309] text-xs mb-4">How much do you need to never work again?</p>
 
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div>
-          <label className="text-[10px] text-amber-300 block mb-1">Monthly savings (₹)</label>
+          <label className="text-[10px] text-[#b45309] block mb-1">Monthly savings (₹)</label>
           <input
             type="number"
             placeholder="3000"
             value={monthly}
             onChange={(e) => setMonthly(e.target.value)}
-            className="w-full bg-[#92400e]/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-[#fefce8] placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#fef9c3] border border-amber-400 rounded-lg px-3 py-2 text-xs text-[#713f12] placeholder-[#b45309]/50 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div>
-          <label className="text-[10px] text-amber-300 block mb-1">Monthly expenses (₹)</label>
+          <label className="text-[10px] text-[#b45309] block mb-1">Monthly expenses (₹)</label>
           <input
             type="number"
             placeholder="15000"
             value={expenses}
             onChange={(e) => setExpenses(e.target.value)}
-            className="w-full bg-[#92400e]/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-[#fefce8] placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#fef9c3] border border-amber-400 rounded-lg px-3 py-2 text-xs text-[#713f12] placeholder-[#b45309]/50 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div>
-          <label className="text-[10px] text-amber-300 block mb-1">Your age</label>
+          <label className="text-[10px] text-[#b45309] block mb-1">Your age</label>
           <input
             type="number"
             placeholder="21"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            className="w-full bg-[#92400e]/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-[#fefce8] placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#fef9c3] border border-amber-400 rounded-lg px-3 py-2 text-xs text-[#713f12] placeholder-[#b45309]/50 focus:outline-none focus:border-amber-500"
           />
         </div>
       </div>
 
       <button
         onClick={recalc}
-        className="w-full py-2 rounded-xl bg-amber-500 text-[#713f12] text-xs font-bold hover:bg-amber-400 transition-all mb-3"
+        className="w-full py-2 rounded-xl bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition-all mb-3"
       >
         Recalculate
       </button>
 
       {result && (
-        <div className="bg-[#92400e]/40 rounded-xl p-4 space-y-2">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-amber-300">Freedom corpus needed</span>
-            <span className="font-bold text-amber-300 text-sm">{fmtCr(result.corpus)}</span>
+            <span className="text-xs text-[#b45309]">Freedom corpus needed</span>
+            <span className="font-bold text-[#713f12] text-sm">{fmtCr(result.corpus)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-amber-300">Retire at age</span>
-            <span className={`font-bold text-sm ${result.retireAt && result.retireAt <= 45 ? "text-emerald-300" : result.retireAt && result.retireAt <= 55 ? "text-amber-300" : "text-red-300"}`}>
+            <span className="text-xs text-[#b45309]">Retire at age</span>
+            <span className={`font-bold text-sm ${result.retireAt && result.retireAt <= 45 ? "text-emerald-600" : result.retireAt && result.retireAt <= 55 ? "text-amber-600" : "text-red-500"}`}>
               {result.retireAt ? `${result.retireAt} years` : "50+ years (save more!)"}
             </span>
           </div>
           {result.retireAt && result.retireAt > 50 && (
-            <p className="text-[10px] text-amber-400/80">Double your monthly savings to retire earlier — small increases compound massively</p>
+            <p className="text-[10px] text-[#b45309]">Double your monthly savings to retire earlier — small increases compound massively</p>
           )}
           <button
             onClick={() => onAddFund("Freedom Fund", result.corpus)}
-            className="w-full mt-1 py-1.5 rounded-lg border border-amber-500/50 text-amber-300 text-xs hover:bg-amber-500/20 transition-all"
+            className="w-full mt-1 py-1.5 rounded-lg border border-amber-400 text-[#b45309] text-xs hover:bg-amber-100 transition-all"
           >
             + Add as savings goal
           </button>
