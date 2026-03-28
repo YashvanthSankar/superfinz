@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
 import { SpendTrendChart, CategoryChart } from "@/components/dashboard/charts";
 import { HeatmapInline } from "@/components/dashboard/heatmap-inline";
+import { DashboardGrids } from "@/components/dashboard/grid-widgets";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -14,23 +15,42 @@ export default async function DashboardPage() {
   const month      = now.getMonth() + 1;
   const year       = now.getFullYear();
   const monthStart = new Date(year, month - 1, 1);
+  const weekStart  = new Date(now);
+  weekStart.setDate(weekStart.getDate() - 6);
+  weekStart.setHours(0, 0, 0, 0);
   const threeMonthsAgo = new Date(now);
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
   threeMonthsAgo.setDate(1);
   threeMonthsAgo.setHours(0, 0, 0, 0);
 
-  const [user, monthTx, goals, heatTx] = await Promise.all([
+  const holdings = [
+    { name: "Reliance Industries", ticker: "RELIANCE.NS", shares: 5, invested: 12500 },
+    { name: "Infosys",              ticker: "INFY.NS",     shares: 8, invested: 12800 },
+    { name: "HDFC Bank",            ticker: "HDFCBANK.NS", shares: 6, invested: 10800 },
+    { name: "Tata Motors",          ticker: "TATAMOTORS.NS", shares: 10, invested: 9200 },
+  ];
+
+  const newsUrl = new URL("/api/news", process.env.NEXTAUTH_URL ?? "http://localhost:3000");
+  const quoteUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${holdings.map((h) => h.ticker).join(",")}`;
+
+  const [user, monthTx, goalsAll, heatTx, weekTx, newsPayload, quotePayload] = await Promise.all([
     prisma.user.findUnique({ where: { id: session.userId }, include: { profile: true } }),
     prisma.transaction.findMany({
       where: { userId: session.userId, date: { gte: monthStart } },
       orderBy: { date: "asc" },
     }),
-    prisma.goal.findMany({ where: { userId: session.userId, achieved: false }, take: 3 }),
+    prisma.goal.findMany({ where: { userId: session.userId }, orderBy: { createdAt: "desc" } }),
     prisma.transaction.findMany({
       where: { userId: session.userId, date: { gte: threeMonthsAgo } },
       select: { amount: true, date: true },
       orderBy: { date: "asc" },
     }),
+    prisma.transaction.findMany({
+      where: { userId: session.userId, date: { gte: weekStart } },
+      orderBy: { date: "asc" },
+    }),
+    fetch(newsUrl.toString(), { cache: "no-store" }).then((r) => r.json()).catch(() => ({ articles: [] })),
+    fetch(quoteUrl, { next: { revalidate: 900 } }).then((r) => r.json()).catch(() => null),
   ]);
 
   if (!user) redirect("/login");
@@ -50,6 +70,32 @@ export default async function DashboardPage() {
   const dailyBudget  = budget > 0 ? budget / daysInMonth : 0;
   const dailyAvg     = daysElapsed > 0 ? monthlySpend / daysElapsed : 0;
   const projectedSpend = dailyAvg * daysInMonth;
+
+  const weeklySpend = weekTx.reduce((s, t) => s + t.amount, 0);
+  const weeklyBudget = budget > 0 ? budget / 4 : 0;
+
+  const buildSeries = (start: Date, days: number, txs: typeof monthTx) => {
+    const map: Record<string, number> = {};
+    for (const tx of txs) {
+      const key = new Date(tx.date).toISOString().slice(0, 10);
+      map[key] = (map[key] ?? 0) + tx.amount;
+    }
+    const series: { label: string; amount: number; date: string }[] = [];
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      series.push({
+        label: d.toLocaleDateString("en-IN", { day: "numeric", month: days > 10 ? "short" : undefined, weekday: days === 7 ? "short" : undefined }),
+        amount: map[key] ?? 0,
+        date: key,
+      });
+    }
+    return series;
+  };
+
+  const weekSeries = buildSeries(weekStart, 7, weekTx);
+  const monthSeries = buildSeries(monthStart, daysElapsed, monthTx);
 
   // Trend chart data
   const dailyMap: Record<number, number> = {};
@@ -83,6 +129,60 @@ export default async function DashboardPage() {
   }
   const heatData = Object.entries(heatMap).map(([date, v]) => ({ date, ...v }));
 
+  const milestoneMap = new Map<string, string>();
+  for (const g of goalsAll) {
+    if (g.deadline) {
+      const key = g.deadline.toISOString().slice(0, 10);
+      milestoneMap.set(key, g.title);
+    }
+  }
+  const calendarData = heatData.map((d) => ({ ...d, milestone: milestoneMap.get(d.date) ?? null }));
+
+  const autoSaveMonth   = budget > 0 ? Math.max(0, budget - monthlySpend) : 0;
+  const autoSaveWeek    = weeklyBudget > 0 ? Math.max(0, weeklyBudget - weeklySpend) : 0;
+  const shortfallMonth  = budget > 0 ? Math.max(0, monthlySpend - budget) : 0;
+  const shortfallWeek   = weeklyBudget > 0 ? Math.max(0, weeklySpend - weeklyBudget) : 0;
+  const totalSaved      = goalsAll.reduce((s, g) => s + g.savedAmount, 0);
+
+  const newsItems = (newsPayload?.articles ?? []).map((a: any) => ({
+    title: a.title,
+    url: a.url ?? a.link ?? "#",
+    source: a.source?.name ?? "News",
+    publishedAt: a.publishedAt ?? new Date().toISOString(),
+    category: a.category ?? "Markets",
+  }));
+
+  const quoteResults: Record<string, { price: number; changePct: number }> = {};
+  try {
+    const parsed = quotePayload?.quoteResponse?.result ?? [];
+    for (const q of parsed) {
+      quoteResults[q.symbol] = {
+        price: q.regularMarketPrice ?? q.ask ?? 0,
+        changePct: q.regularMarketChangePercent ?? 0,
+      };
+    }
+  } catch {
+    // ignore quote errors
+  }
+
+  const investments = holdings.map((h) => {
+    const quote = quoteResults[h.ticker];
+    const price = quote?.price ?? (h.invested / Math.max(h.shares, 1));
+    const current = price * h.shares;
+    const gainLossPct = h.invested > 0 ? ((current - h.invested) / h.invested) * 100 : 0;
+    return {
+      name: h.name,
+      ticker: h.ticker,
+      shares: h.shares,
+      invested: h.invested,
+      current,
+      changePct: quote?.changePct ?? gainLossPct,
+    };
+  });
+
+  const activeGoals = goalsAll.filter((g) => !g.achieved);
+  const goals = activeGoals.slice(0, 3);
+
   const onPace  = budget > 0 && monthlySpend <= dailyBudget * daysElapsed;
   const noSpends = monthTx.length === 0;
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
@@ -110,6 +210,33 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* New grid widgets */}
+      <DashboardGrids
+        spend={{
+          weekTotal: weeklySpend,
+          monthTotal: monthlySpend,
+          weekBudget: weeklyBudget,
+          monthBudget: budget,
+          weekData: weekSeries,
+          monthData: monthSeries,
+        }}
+        savings={{
+          autoSaveWeek,
+          autoSaveMonth,
+          budgetWeek: weeklyBudget,
+          budgetMonth: budget,
+          shortfallWeek,
+          shortfallMonth,
+          savingsRate,
+          totalSaved,
+          goalTarget: goalAmt,
+        }}
+        plans={activeGoals}
+        calendar={calendarData}
+        investments={investments}
+        news={newsItems}
+      />
 
       {/* ── Stat cards ──────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
