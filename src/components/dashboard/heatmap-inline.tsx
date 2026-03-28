@@ -118,7 +118,7 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
       {/* Tooltip */}
       {tip && tip.date && (
         <div
-          className="fixed z-50 pointer-events-none bg-[#fefce8] border border-[#fde68a] rounded-xl px-3 py-2 text-xs shadow-lg"
+          className="fixed z-50 pointer-events-none bg-[#fefce8] border border-amber-400 rounded-xl px-3 py-2 text-xs shadow-lg"
           style={{ left: tip.x + 20, top: tip.y - 10 }}
         >
           <p className="font-semibold text-[#713f12]">

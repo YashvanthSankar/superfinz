@@ -12,7 +12,7 @@ Deadline: 29 March 2026, 9:00 PM.
 | Framework | Next.js 15 (App Router, TypeScript) |
 | Styling | Tailwind CSS v4 |
 | Database | PostgreSQL via Prisma ORM |
-| Auth | JWT (httpOnly cookies, bcryptjs) |
+| Auth | NextAuth|
 | Charts | Recharts |
 | UI Primitives | Radix UI |
 | Icons | Lucide React |

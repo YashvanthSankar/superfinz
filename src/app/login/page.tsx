@@ -20,7 +20,7 @@ export default function LoginPage() {
           <p className="text-[#78350f] text-sm mt-2 font-light">your money, your rules</p>
         </div>
 
-        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] shadow-sm p-8 space-y-6">
+        <div className="bg-[#fefce8] rounded-2xl border border-amber-400 shadow-sm p-8 space-y-6">
           <div className="text-center">
             <h1 className="text-xl font-bold text-[#713f12]">Welcome back</h1>
             <p className="text-[#78350f] text-sm mt-1 font-light">Sign in to continue to your dashboard</p>

@@ -52,7 +52,7 @@ export default function NewsPage() {
       {loading ? (
         <div className="grid md:grid-cols-2 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-[#fefce8] border border-[#fde68a] rounded-2xl p-5 animate-pulse shadow-sm">
+            <div key={i} className="bg-[#fefce8] border border-amber-400 rounded-2xl p-5 animate-pulse shadow-sm">
               <div className="h-3 bg-[#fef9c3] rounded w-1/4 mb-4" />
               <div className="h-4 bg-[#fef9c3] rounded w-3/4 mb-3" />
               <div className="h-3 bg-[#fef9c3] rounded w-full mb-2" />
@@ -70,7 +70,7 @@ export default function NewsPage() {
               rel="noopener noreferrer"
               className="block group"
             >
-              <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
+              <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
                 {article.category && (
                   <span
                     className={`inline-block text-[10px] px-2.5 py-1 rounded-lg font-semibold uppercase tracking-wide border mb-3 ${

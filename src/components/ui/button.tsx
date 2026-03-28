@@ -18,7 +18,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
           {
             "bg-[#78350f] text-[#fefce8] hover:bg-[#92400e] shadow-sm": variant === "primary",
-            "bg-[#fefce8] text-[#713f12] border border-[#fde68a] hover:bg-[#fef9c3] shadow-sm": variant === "secondary",
+            "bg-[#fefce8] text-[#713f12] border border-amber-400 hover:bg-[#fef9c3] shadow-sm": variant === "secondary",
             "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100": variant === "outline",
             "bg-transparent text-[#78350f] hover:text-[#713f12] hover:bg-[#fef9c3]": variant === "ghost",
             "bg-[#fef2f2] text-red-600 border border-red-100 hover:bg-red-50": variant === "danger",

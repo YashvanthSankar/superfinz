@@ -68,7 +68,7 @@ export default function TransactionsPage() {
       </div>
 
       {showForm && (
-        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-6 shadow-sm">
+        <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-[#713f12] mb-5">Log a spend</h2>
           <form onSubmit={handleAdd} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -77,6 +77,27 @@ export default function TransactionsPage() {
                 {SPENDING_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </Select>
             </div>
+
+            {/* Compound interest callout */}
+            {parseFloat(form.amount) > 0 && (() => {
+              const amt = parseFloat(form.amount);
+              const future = Math.round(amt * Math.pow(1.12, 25));
+              const fmt = (n: number) => n >= 100000
+                ? `₹${(n / 100000).toFixed(1)}L`
+                : `₹${n.toLocaleString("en-IN")}`;
+              return (
+                <div className="flex items-center gap-3 bg-[#713f12] rounded-xl px-4 py-3">
+                  <span className="text-lg">📈</span>
+                  <p className="text-xs text-amber-200 leading-relaxed">
+                    <span className="text-[#fefce8] font-bold">{fmt(amt)} today</span>
+                    {" → "}
+                    <span className="text-amber-300 font-bold">{fmt(future)} in 25 years</span>
+                    <span className="text-amber-400/80"> if invested in NIFTY 50 (12% CAGR)</span>
+                  </p>
+                </div>
+              );
+            })()}
+
             <Input label="Description" placeholder="Biryani at Murugan's" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} required />
             <Input label="Date" type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} />
             <Button type="submit" loading={submitting} className="w-full">Log spend</Button>
@@ -95,7 +116,7 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] shadow-sm overflow-hidden">
+      <div className="bg-[#fefce8] rounded-2xl border border-amber-400 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-[#fef9c3]">
           <h2 className="text-sm font-semibold text-[#713f12]">All transactions</h2>
         </div>
@@ -112,7 +133,7 @@ export default function TransactionsPage() {
           <div className="divide-y divide-[#fefce8]">
             {transactions.map((tx) => (
               <div key={tx.id} className="flex items-center gap-3 px-5 py-4 hover:bg-[#fefce8] transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-[#fefce8] border border-[#fde68a] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-[#fefce8] border border-amber-400 flex items-center justify-center shrink-0">
                   <span className="text-[10px] font-bold text-[#78350f] uppercase">{tx.category.slice(0, 2)}</span>
                 </div>
                 <div className="flex-1 min-w-0">

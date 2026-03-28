@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Logo } from "@/components/ui/logo";
+import { formatCurrency } from "@/lib/utils";
+import { financePlanError, summarizeFinancePlan } from "@/lib/finance";
 
 type UserType = "SCHOOL_STUDENT" | "COLLEGE_STUDENT" | "PROFESSIONAL";
 const STEPS = ["Who are you?", "Your details", "Set limits"] as const;
@@ -20,8 +21,7 @@ const INCOME_SOURCES = [
 ];
 
 export default function OnboardingPage() {
-  const router = useRouter();
-  const { data: session, update } = useSession();
+  const { data: session } = useSession();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,17 +47,28 @@ export default function OnboardingPage() {
   );
 
   const isStudent = form.userType === "SCHOOL_STUDENT" || form.userType === "COLLEGE_STUDENT";
+  const monthlyIncome = isStudent
+    ? (parseFloat(form.monthlyAllowance) || 0)
+    : (parseFloat(form.monthlySalary) || 0);
+  const monthlyBudget = parseFloat(form.monthlyBudget) || 0;
+  const savingsGoal = parseFloat(form.savingsGoal) || 0;
+  const plan = summarizeFinancePlan({ monthlyIncome, monthlyBudget, savingsGoal });
+  const planError = financePlanError({ monthlyIncome, monthlyBudget, savingsGoal });
 
   const canNext = () => {
     if (step === 0) return !!form.userType && !!form.age;
     if (step === 1) return isStudent ? !!form.monthlyAllowance : !!form.monthlySalary;
-    return !!form.monthlyBudget;
+    return !!form.monthlyBudget && !planError;
   };
 
   const submit = async () => {
     setLoading(true);
     setError("");
     try {
+      if (planError) {
+        throw new Error(planError);
+      }
+
       const res = await fetch("/api/profile/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,7 +124,7 @@ export default function OnboardingPage() {
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
                 i < step ? "bg-amber-600 text-[#713f12]" :
                 i === step ? "bg-[#fefce8] border-2 border-amber-600 text-amber-600" :
-                "bg-[#fefce8] border border-[#fde68a] text-[#b45309]"
+                "bg-[#fefce8] border border-amber-400 text-[#b45309]"
               }`}>
                 {i < step ? "✓" : i + 1}
               </div>
@@ -125,7 +136,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] shadow-sm p-7">
+        <div className="bg-[#fefce8] rounded-2xl border border-amber-400 shadow-sm p-7">
 
           {/* Step 0 */}
           {step === 0 && (
@@ -221,7 +232,25 @@ export default function OnboardingPage() {
               </div>
               <Input label="Monthly budget (₹)" type="number" placeholder={isStudent ? "5000" : "30000"} value={form.monthlyBudget} onChange={(e) => set("monthlyBudget", e.target.value)} />
               <Input label="Monthly savings goal (₹)" type="number" placeholder={isStudent ? "500" : "5000"} value={form.savingsGoal} onChange={(e) => set("savingsGoal", e.target.value)} />
-              {form.monthlyBudget && form.savingsGoal && (
+              {(monthlyIncome > 0 || monthlyBudget > 0 || savingsGoal > 0) && (
+                <div className={`rounded-xl p-4 border ${plan.overspent ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-100"}`}>
+                  <p className={`text-sm font-semibold ${plan.overspent ? "text-red-700" : "text-emerald-700"}`}>
+                    Monthly Money Plan
+                  </p>
+                  <div className={`mt-2 text-xs space-y-1 ${plan.overspent ? "text-red-600" : "text-emerald-700"}`}>
+                    <p>Total income: {formatCurrency(plan.monthlyIncome)}</p>
+                    <p>Spending budget: {formatCurrency(plan.monthlyBudget)}</p>
+                    <p>Savings goal: {formatCurrency(plan.savingsGoal)}</p>
+                    <p>Left after plan: {formatCurrency(plan.remaining)}</p>
+                  </div>
+                  {plan.overspent && (
+                    <p className="text-xs mt-2 text-red-700 font-medium">
+                      You are planning to spend/save more than your income. Reduce budget or savings goal.
+                    </p>
+                  )}
+                </div>
+              )}
+              {form.monthlyBudget && form.savingsGoal && !plan.overspent && (
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                   <p className="text-emerald-700 font-semibold text-sm">Looking good</p>
                   <p className="text-emerald-600 text-xs mt-1 font-light">

@@ -5,6 +5,142 @@ import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import type { Goal } from "@prisma/client";
 
+function retireAge(currentAge: number, monthlySavings: number, corpus: number): number | null {
+  if (monthlySavings <= 0) return null;
+  const r = 0.12 / 12;
+  for (let n = 1; n <= 600; n++) {
+    const fv = monthlySavings * (Math.pow(1 + r, n) - 1) / r;
+    if (fv >= corpus) return currentAge + Math.ceil(n / 12);
+  }
+  return null;
+}
+
+function fmtCr(n: number) {
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)} Cr`;
+  return `₹${(n / 100000).toFixed(1)}L`;
+}
+
+function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) => void }) {
+  const [monthly, setMonthly] = useState("");
+  const [expenses, setExpenses] = useState("");
+  const [age, setAge] = useState("");
+  const [result, setResult] = useState<{ corpus: number; retireAt: number | null } | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  // Auto-fill from profile
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then(({ user }) => {
+        if (!user) return;
+        if (user.age) setAge(String(user.age));
+        const income = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
+        const savings = user.profile?.savingsGoal ?? 0;
+        if (savings > 0) setMonthly(String(savings));
+        // Estimate expenses = income - savings
+        if (income > 0 && income > savings) setExpenses(String(income - savings));
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  // Auto-calculate once data is loaded
+  useEffect(() => {
+    if (!loaded) return;
+    const m = parseFloat(monthly);
+    const e = parseFloat(expenses);
+    const a = parseInt(age);
+    if (m > 0 && e > 0 && a > 0) {
+      const corpus = e * 12 * 25;
+      setResult({ corpus, retireAt: retireAge(a, m, corpus) });
+    }
+  }, [loaded, monthly, expenses, age]);
+
+  const recalc = () => {
+    const m = parseFloat(monthly);
+    const e = parseFloat(expenses);
+    const a = parseInt(age);
+    if (!m || !e || !a) return;
+    const corpus = e * 12 * 25;
+    setResult({ corpus, retireAt: retireAge(a, m, corpus) });
+  };
+
+  return (
+    <div className="bg-[#713f12] rounded-2xl p-5 shadow-sm text-[#fefce8]">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-xl">🔥</span>
+        <h2 className="font-bold text-base">Your Freedom Number</h2>
+        <span className="ml-auto text-xs text-amber-300 font-light">FIRE Calculator</span>
+      </div>
+      <p className="text-amber-300/80 text-xs mb-4">How much do you need to never work again?</p>
+
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <div>
+          <label className="text-[10px] text-amber-300 block mb-1">Monthly savings (₹)</label>
+          <input
+            type="number"
+            placeholder="3000"
+            value={monthly}
+            onChange={(e) => setMonthly(e.target.value)}
+            className="w-full bg-[#92400e]/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-[#fefce8] placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+          />
+        </div>
+        <div>
+          <label className="text-[10px] text-amber-300 block mb-1">Monthly expenses (₹)</label>
+          <input
+            type="number"
+            placeholder="15000"
+            value={expenses}
+            onChange={(e) => setExpenses(e.target.value)}
+            className="w-full bg-[#92400e]/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-[#fefce8] placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+          />
+        </div>
+        <div>
+          <label className="text-[10px] text-amber-300 block mb-1">Your age</label>
+          <input
+            type="number"
+            placeholder="21"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            className="w-full bg-[#92400e]/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-[#fefce8] placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+          />
+        </div>
+      </div>
+
+      <button
+        onClick={recalc}
+        className="w-full py-2 rounded-xl bg-amber-500 text-[#713f12] text-xs font-bold hover:bg-amber-400 transition-all mb-3"
+      >
+        Recalculate
+      </button>
+
+      {result && (
+        <div className="bg-[#92400e]/40 rounded-xl p-4 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-amber-300">Freedom corpus needed</span>
+            <span className="font-bold text-amber-300 text-sm">{fmtCr(result.corpus)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-amber-300">Retire at age</span>
+            <span className={`font-bold text-sm ${result.retireAt && result.retireAt <= 45 ? "text-emerald-300" : result.retireAt && result.retireAt <= 55 ? "text-amber-300" : "text-red-300"}`}>
+              {result.retireAt ? `${result.retireAt} years` : "50+ years (save more!)"}
+            </span>
+          </div>
+          {result.retireAt && result.retireAt > 50 && (
+            <p className="text-[10px] text-amber-400/80">Double your monthly savings to retire earlier — small increases compound massively</p>
+          )}
+          <button
+            onClick={() => onAddFund("Freedom Fund", result.corpus)}
+            className="w-full mt-1 py-1.5 rounded-lg border border-amber-500/50 text-amber-300 text-xs hover:bg-amber-500/20 transition-all"
+          >
+            + Add as savings goal
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +196,12 @@ export default function GoalsPage() {
   const active   = goals.filter((g) => !g.achieved);
   const achieved = goals.filter((g) => g.achieved);
 
+  const prefillFire = (title: string, amount: number) => {
+    setForm({ title, targetAmount: String(Math.round(amount)), deadline: "" });
+    setShowForm(true);
+    setTimeout(() => document.getElementById("goals-form")?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -72,8 +214,10 @@ export default function GoalsPage() {
         </Button>
       </div>
 
+      <FIRECard onAddFund={prefillFire} />
+
       {showForm && (
-        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-6 shadow-sm">
+        <div id="goals-form" className="bg-[#fefce8] rounded-2xl border border-amber-400 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-[#713f12] mb-5">Create a goal</h2>
           <form onSubmit={handleAdd} className="space-y-4">
             <Input label="Goal name" placeholder="New laptop, Trip to Goa..." value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
@@ -89,10 +233,9 @@ export default function GoalsPage() {
           <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : active.length === 0 && !showForm ? (
-        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-6 shadow-sm text-center py-16">
+        <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm text-center py-10">
           <p className="text-[#78350f] font-medium">No goals yet</p>
-          <p className="text-[#b45309] text-sm mt-1 font-light">Set a target and track your progress</p>
-          <Button onClick={() => setShowForm(true)} className="mt-5">Create first goal</Button>
+          <p className="text-[#b45309] text-sm mt-1 font-light">Use the FIRE calculator above or tap + New goal</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
@@ -100,7 +243,7 @@ export default function GoalsPage() {
             const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
             const remaining = goal.targetAmount - goal.savedAmount;
             return (
-              <div key={goal.id} className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+              <div key={goal.id} className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="font-semibold text-[#713f12]">{goal.title}</h3>
@@ -136,14 +279,14 @@ export default function GoalsPage() {
                     <button
                       key={amt}
                       onClick={() => addSavings(goal.id, goal.savedAmount, amt)}
-                      className="flex-1 text-xs py-2 rounded-lg border border-[#fde68a] text-[#78350f] hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50 transition-all font-medium"
+                      className="flex-1 text-xs py-2 rounded-lg border border-amber-400 text-[#78350f] hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50 transition-all font-medium"
                     >
                       +{amt >= 1000 ? `${amt / 1000}k` : amt}
                     </button>
                   ))}
                   <button
                     onClick={() => markDone(goal.id)}
-                    className="px-3 py-2 rounded-lg border border-[#fde68a] text-xs text-[#b45309] hover:border-emerald-200 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                    className="px-3 py-2 rounded-lg border border-amber-400 text-xs text-[#b45309] hover:border-emerald-200 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
                     title="Mark as achieved"
                   >
                     Done
