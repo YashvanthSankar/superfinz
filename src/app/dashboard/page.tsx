@@ -11,10 +11,26 @@ export default async function DashboardPage() {
   if (!session) redirect("/login");
   if (!session.onboarded) redirect("/onboarding");
 
+  const user = await prisma.user.findUnique({ where: { id: session.userId }, include: { profile: true } });
+  if (!user) redirect("/login");
+
   const now        = new Date();
-  const month      = now.getMonth() + 1;
   const year       = now.getFullYear();
-  const monthStart = new Date(year, month - 1, 1);
+  const monthDay   = now.getDate();
+  const monthIdx   = now.getMonth(); 
+
+  // Keep strictly to calendar boundaries. Only shift day 1 if user actually joined THIS EXACT month and year.
+  // This satisfies "12-18, 19-25, 26-31 for the 1st partial month, then normal form (1-7, etc) for all subsequent months".
+  const joinedThisMonth = user.createdAt.getFullYear() === year && user.createdAt.getMonth() === monthIdx;
+  const financialMonthStart = new Date(year, monthIdx, joinedThisMonth ? user.createdAt.getDate() : 1);
+  financialMonthStart.setHours(0,0,0,0);
+
+  const nextFinancialMonthStart = new Date(year, monthIdx + 1, 1);
+  nextFinancialMonthStart.setHours(0,0,0,0);
+
+  const daysInFinancialMonth = Math.round((nextFinancialMonthStart.getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24));
+  const daysElapsedFinancial = Math.floor((now.getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1; // start from day 1
+
   const weekStart  = new Date(now);
   weekStart.setDate(weekStart.getDate() - 6);
   weekStart.setHours(0, 0, 0, 0);
@@ -33,10 +49,9 @@ export default async function DashboardPage() {
   const newsUrl = new URL("/api/news", process.env.NEXTAUTH_URL ?? "http://localhost:3000");
   const quoteUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${holdings.map((h) => h.ticker).join(",")}`;
 
-  const [user, monthTx, goalsAll, heatTx, weekTx, newsPayload, quotePayload] = await Promise.all([
-    prisma.user.findUnique({ where: { id: session.userId }, include: { profile: true } }),
+  const [monthTx, goalsAll, heatTx, weekTx, newsPayload, quotePayload] = await Promise.all([
     prisma.transaction.findMany({
-      where: { userId: session.userId, date: { gte: monthStart } },
+      where: { userId: session.userId, date: { gte: financialMonthStart } },
       orderBy: { date: "asc" },
     }),
     prisma.goal.findMany({ where: { userId: session.userId }, orderBy: { createdAt: "desc" } }),
@@ -53,8 +68,6 @@ export default async function DashboardPage() {
     fetch(quoteUrl, { next: { revalidate: 900 } }).then((r) => r.json()).catch(() => null),
   ]);
 
-  if (!user) redirect("/login");
-
   // ── Monthly stats ──────────────────────────────────────────────────
   const monthlySpend = monthTx.reduce((s, t) => s + t.amount, 0);
   const budget       = user.profile?.monthlyBudget ?? 0;
@@ -65,14 +78,61 @@ export default async function DashboardPage() {
   const budgetPct    = budget > 0 ? Math.min((monthlySpend / budget) * 100, 100) : 0;
   const recentTx     = [...monthTx].reverse().slice(0, 5);
 
-  const daysElapsed  = now.getDate();
-  const daysInMonth  = new Date(year, month, 0).getDate();
+  const daysElapsed  = daysElapsedFinancial;
+  const daysInMonth  = daysInFinancialMonth;
   const dailyBudget  = budget > 0 ? budget / daysInMonth : 0;
+
+  // New AI Allocation based on spending pattern
+  // Weeks defined strictly as: W1(1-7), W2(8-14), W3(15-21), W4(22-28), W5(29-end)
+  const rawPattern = (user.profile as any)?.spendingPattern || "BALANCED";
+  let wWeights = [1, 1, 1, 1, 1];
+  if (rawPattern === "FRONT_HEAVY") wWeights = [1.5, 1.2, 1.0, 0.8, 0.5];
+  if (rawPattern === "CONSERVATIVE") wWeights = [0.5, 0.8, 1.0, 1.2, 1.5];
+
+  // Adjust W5 weight based on remaining actual days (e.g., Feb 28 has W5 = 0 weight)
+  const w5Days = Math.max(0, daysInMonth - 28);
+  wWeights[4] = wWeights[4] * (w5Days / 7);
+
+  const totalWeight = wWeights.reduce((a, b) => a + b, 0);
+  const weekBudgets = totalWeight > 0 ? wWeights.map(w => (w / totalWeight) * budget) : [0,0,0,0,0];
+
+  // Current strict week index (0 to 4)
+  const currentWeekIndex = Math.min(4, Math.floor((daysElapsed - 1) / 7));
+  const weeklyBudget = weekBudgets[currentWeekIndex] || 0;
+
+  // Completed strict weeks so far this month
+  const completedWeeks = Math.floor(daysElapsed / 7);
+  let accruedBudgetThisMonth = 0;
+  let completedWeeksSpend = 0;
+  let lastCompletedWeekBudget = 0;
+  let lastCompletedWeekSpend = 0;
+
+  for (let i = 0; i < completedWeeks; i++) {
+    const wb = weekBudgets[i] || 0;
+    accruedBudgetThisMonth += wb;
+
+    const strictWeekSpend = monthTx.filter(tx => {
+      const txDaysFromStart = Math.floor((new Date(tx.date).getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      return txDaysFromStart > i * 7 && txDaysFromStart <= (i + 1) * 7;
+    }).reduce((s, t) => s + t.amount, 0);
+    completedWeeksSpend += strictWeekSpend;
+
+    if (i === completedWeeks - 1) { // keep track of the most recently finished week
+      lastCompletedWeekBudget = wb;
+      lastCompletedWeekSpend = strictWeekSpend;
+    }
+  }
+
+  const currentWeekStartDay = currentWeekIndex * 7 + 1;
+  const weeklySpend = monthTx
+    .filter(tx => {
+      const txDaysFromStart = Math.floor((new Date(tx.date).getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      return txDaysFromStart >= currentWeekStartDay && txDaysFromStart <= daysElapsed;
+    })
+    .reduce((s, t) => s + t.amount, 0);
+
   const dailyAvg     = daysElapsed > 0 ? monthlySpend / daysElapsed : 0;
   const projectedSpend = dailyAvg * daysInMonth;
-
-  const weeklySpend = weekTx.reduce((s, t) => s + t.amount, 0);
-  const weeklyBudget = budget > 0 ? budget / 4 : 0;
 
   const buildSeries = (start: Date, days: number, txs: typeof monthTx) => {
     const map: Record<string, number> = {};
@@ -95,13 +155,13 @@ export default async function DashboardPage() {
   };
 
   const weekSeries = buildSeries(weekStart, 7, weekTx);
-  const monthSeries = buildSeries(monthStart, daysElapsed, monthTx);
+  const monthSeries = buildSeries(financialMonthStart, daysElapsed, monthTx);
 
   // Trend chart data
   const dailyMap: Record<number, number> = {};
   for (const tx of monthTx) {
-    const d = new Date(tx.date).getDate();
-    dailyMap[d] = (dailyMap[d] ?? 0) + tx.amount;
+    const txDayOfFinancialMonth = Math.floor((new Date(tx.date).getTime() - financialMonthStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    dailyMap[txDayOfFinancialMonth] = (dailyMap[txDayOfFinancialMonth] ?? 0) + tx.amount;
   }
   let cumulative = 0;
   const trendData = Array.from({ length: daysElapsed }, (_, i) => {
@@ -138,8 +198,14 @@ export default async function DashboardPage() {
   }
   const calendarData = heatData.map((d) => ({ ...d, milestone: milestoneMap.get(d.date) ?? null }));
 
-  const autoSaveMonth   = budget > 0 ? Math.max(0, budget - monthlySpend) : 0;
-  const autoSaveWeek    = weeklyBudget > 0 ? Math.max(0, weeklyBudget - weeklySpend) : 0;
+  // Add to "saved" only once the week gets over. 
+  // Cumulative completed weeks savings for the month:
+  const autoSaveMonth   = budget > 0 ? Math.max(0, accruedBudgetThisMonth - completedWeeksSpend) : 0;
+  
+  // Weekly auto-save strictly shows the savings of the LAST completed week
+  // If no week has been completed yet this month, it stays 0.
+  const autoSaveWeek    = lastCompletedWeekBudget > 0 ? Math.max(0, lastCompletedWeekBudget - lastCompletedWeekSpend) : 0;
+  
   const shortfallMonth  = budget > 0 ? Math.max(0, monthlySpend - budget) : 0;
   const shortfallWeek   = weeklyBudget > 0 ? Math.max(0, weeklySpend - weeklyBudget) : 0;
   const totalSaved      = goalsAll.reduce((s, g) => s + g.savedAmount, 0);

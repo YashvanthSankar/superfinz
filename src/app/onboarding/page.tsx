@@ -8,7 +8,7 @@ import { Select } from "@/components/ui/select";
 import { Logo } from "@/components/ui/logo";
 
 type UserType = "SCHOOL_STUDENT" | "COLLEGE_STUDENT" | "PROFESSIONAL";
-const STEPS = ["Who are you?", "Your details", "Set limits"] as const;
+const STEPS = ["Who are you?", "Your details", "Habits", "Set limits"] as const;
 
 const INCOME_SOURCES = [
   { value: "PARENTS", label: "Parents / Family" },
@@ -35,6 +35,8 @@ export default function OnboardingPage() {
     company: "",
     monthlySalary: "",
     industry: "",
+    spendingPattern: "BALANCED",
+    cycleStartDate: "1",
     monthlyBudget: "",
     savingsGoal: "",
   });
@@ -51,6 +53,7 @@ export default function OnboardingPage() {
   const canNext = () => {
     if (step === 0) return !!form.userType && !!form.age;
     if (step === 1) return isStudent ? !!form.monthlyAllowance : !!form.monthlySalary;
+    if (step === 2) return !!form.spendingPattern;
     return !!form.monthlyBudget;
   };
 
@@ -72,6 +75,8 @@ export default function OnboardingPage() {
           industry: form.industry || undefined,
           monthlyBudget: parseFloat(form.monthlyBudget) || 0,
           savingsGoal: parseFloat(form.savingsGoal) || 0,
+          spendingPattern: form.spendingPattern,
+          cycleStartDate: parseInt(form.cycleStartDate) || 1,
         }),
       });
       if (!res.ok) {
@@ -212,15 +217,53 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2 */}
+          {/* Step 2: Spending Habits */}
           {step === 2 && (
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-bold text-[#713f12]">Your Spending Habits</h2>
+                <p className="text-[#78350f] text-sm mt-0.5 font-light">Tell us how you spend to generate the best AI budgets for your weeks.</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-[#78350f]">1. When do you spend the most during the month?</p>
+                {([
+                  { value: "FRONT_HEAVY", label: "Start of the month", sub: "Rent, heavy bills, going out early" },
+                  { value: "BALANCED", label: "Spread evenly", sub: "Similar spending every week" },
+                  { value: "CONSERVATIVE", label: "Start slow, spend later", sub: "Saving early, mostly end of month spending" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => set("spendingPattern", opt.value)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                      form.spendingPattern === opt.value
+                        ? "border-amber-400 bg-amber-50"
+                        : "border-[#fde68a] hover:border-[#c7d2e2] bg-[#fefce8]"
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <p className={`text-sm font-semibold ${form.spendingPattern === opt.value ? "text-amber-700" : "text-[#713f12]"}`}>{opt.label}</p>
+                      <p className="text-xs text-[#b45309] font-light">{opt.sub}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 3 */}
+          {step === 3 && (
             <div className="space-y-4">
               <div>
                 <h2 className="text-lg font-bold text-[#713f12]">Set your limits</h2>
                 <p className="text-[#78350f] text-sm mt-0.5 font-light">We&apos;ll track against these every month</p>
               </div>
+              <Input label="Monthly savings goal (₹)" type="number" placeholder={isStudent ? "500" : "5000"} value={form.savingsGoal} onChange={(e) => {
+                const newGoal = parseFloat(e.target.value) || 0;
+                const income = form.monthlySalary ? parseFloat(form.monthlySalary) : parseFloat(form.monthlyAllowance) || 0;
+                const autoBudget = income > newGoal ? income - newGoal : 0;
+                setForm((prev) => ({ ...prev, savingsGoal: e.target.value, monthlyBudget: autoBudget > 0 ? autoBudget.toString() : prev.monthlyBudget }));
+              }} />
               <Input label="Monthly budget (₹)" type="number" placeholder={isStudent ? "5000" : "30000"} value={form.monthlyBudget} onChange={(e) => set("monthlyBudget", e.target.value)} />
-              <Input label="Monthly savings goal (₹)" type="number" placeholder={isStudent ? "500" : "5000"} value={form.savingsGoal} onChange={(e) => set("savingsGoal", e.target.value)} />
               {form.monthlyBudget && form.savingsGoal && (
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
                   <p className="text-emerald-700 font-semibold text-sm">Looking good</p>
@@ -236,7 +279,7 @@ export default function OnboardingPage() {
             <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">{error}</p>
           )}
 
-          {!canNext() && step === 2 && (
+          {!canNext() && step === 3 && (
             <p className="mt-3 text-xs text-[#b45309] text-center">Fill in monthly budget to continue</p>
           )}
 
@@ -244,7 +287,7 @@ export default function OnboardingPage() {
             {step > 0 && (
               <Button variant="secondary" onClick={() => setStep(step - 1)} className="flex-1">← Back</Button>
             )}
-            {step < 2
+            {step < 3
               ? <Button onClick={() => setStep(step + 1)} disabled={!canNext()} className="flex-1">Continue →</Button>
               : <Button onClick={submit} loading={loading} disabled={!canNext()} className="flex-1">Start tracking</Button>
             }

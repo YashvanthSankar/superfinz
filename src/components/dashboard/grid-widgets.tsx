@@ -89,6 +89,10 @@ export function DashboardGrids({ spend, savings, plans, calendar, investments, n
   const [newsFilter, setNewsFilter] = useState<string>("All");
   const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
 
+  const [editingBudget, setEditingBudget] = useState(false);
+  const [newBudget, setNewBudget] = useState("");
+  const [isUpdatingBudget, setIsUpdatingBudget] = useState(false);
+
   const spendSeries = spendRange === "week" ? spend.weekData : spend.monthData;
   const spendTotal = spendRange === "week" ? spend.weekTotal : spend.monthTotal;
   const spendBudget = spendRange === "week" ? spend.weekBudget : spend.monthBudget;
@@ -149,6 +153,27 @@ export function DashboardGrids({ spend, savings, plans, calendar, investments, n
     return news.filter((n) => (n.category ?? "").toLowerCase().includes(newsFilter.toLowerCase())).slice(0, 6);
   }, [news, newsFilter]);
 
+  const handleUpdateBudget = async () => {
+    const val = parseFloat(newBudget);
+    if (isNaN(val) || val < 0) return;
+    setIsUpdatingBudget(true);
+    try {
+      const isWeekly = spendRange === "week";
+      const monthlyToSave = isWeekly ? val * 4 : val;
+      const res = await fetch("/api/profile/budget", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ budget: monthlyToSave }),
+      });
+      if (res.ok) {
+        setEditingBudget(false);
+        router.refresh();
+      }
+    } finally {
+      setIsUpdatingBudget(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Grid 1 — Money Spent Tracker */}
@@ -176,8 +201,27 @@ export function DashboardGrids({ spend, savings, plans, calendar, investments, n
         </div>
         <div className="mt-3 flex items-center gap-2 text-xs">
           <span className={cn("px-2 py-1 rounded-full border", spendUnder ? "bg-emerald-500/10 text-emerald-200 border-emerald-500/60" : "bg-red-500/10 text-red-200 border-red-500/60")}>{spendUnder ? "Under budget" : "Over budget"}</span>
-          {spendBudget > 0 && (
-            <span className="text-slate-400">{((spendTotal / spendBudget) * 100).toFixed(0)}% of {formatCurrency(spendBudget)}</span>
+          {editingBudget ? (
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                value={newBudget}
+                onChange={(e) => setNewBudget(e.target.value)}
+                placeholder={spendRange === "week" ? "New weekly budget" : "New monthly budget"}
+                className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-[11px] w-32 outline-none"
+                autoFocus
+              />
+              <button disabled={isUpdatingBudget} onClick={handleUpdateBudget} className="text-[11px] bg-emerald-500/20 text-emerald-200 px-2 py-1 rounded">Save</button>
+              <button onClick={() => setEditingBudget(false)} className="text-[11px] text-slate-400 px-2 py-1">Cancel</button>
+            </div>
+          ) : (
+            <span className="text-slate-400 group cursor-pointer flex items-center gap-1 hover:text-slate-300" onClick={() => {
+              setNewBudget(spendBudget.toString());
+              setEditingBudget(true);
+            }}>
+              {spendBudget > 0 ? `${((spendTotal / spendBudget) * 100).toFixed(0)}% of ${formatCurrency(spendBudget)}` : "Set budget"}
+              <svg className="w-3 h-3 opacity-50 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            </span>
           )}
         </div>
         <div className="mt-4 h-36">

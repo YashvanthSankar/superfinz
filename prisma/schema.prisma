@@ -60,6 +60,8 @@ model Profile {
   monthlyBudget    Float          @default(0)
   savingsGoal      Float          @default(0)
   currency         String         @default("INR")
+  spendingPattern  String         @default("BALANCED")
+  cycleStartDate   Int            @default(1)
 
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt

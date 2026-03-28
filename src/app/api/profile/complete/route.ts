@@ -14,6 +14,8 @@ const schema = z.object({
   industry: z.string().optional(),
   monthlyBudget: z.number().min(0),
   savingsGoal: z.number().min(0),
+  spendingPattern: z.string().optional(),
+  cycleStartDate: z.number().int().min(1).max(31).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -47,6 +49,8 @@ export async function POST(req: NextRequest) {
             industry: data.industry,
             monthlyBudget: data.monthlyBudget,
             savingsGoal: data.savingsGoal,
+            spendingPattern: data.spendingPattern ?? "BALANCED",
+            cycleStartDate: data.cycleStartDate ?? 1,
           },
           update: {
             institution: data.institution,
@@ -57,6 +61,8 @@ export async function POST(req: NextRequest) {
             industry: data.industry,
             monthlyBudget: data.monthlyBudget,
             savingsGoal: data.savingsGoal,
+            spendingPattern: data.spendingPattern ?? "BALANCED",
+            cycleStartDate: data.cycleStartDate ?? 1,
           },
         },
       },
