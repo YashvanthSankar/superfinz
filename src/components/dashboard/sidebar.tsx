@@ -1,5 +1,6 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -13,12 +14,6 @@ const NAV = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  };
 
   return (
     <aside className="w-56 shrink-0 bg-[#111118] border-r border-[#2a2a3a] flex flex-col h-screen sticky top-0">
@@ -51,7 +46,7 @@ export function Sidebar() {
 
       <div className="p-3 border-t border-[#2a2a3a]">
         <button
-          onClick={handleLogout}
+          onClick={() => signOut({ callbackUrl: "/" })}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#8888aa] hover:text-red-400 hover:bg-red-500/5 transition-all"
         >
           <span>🚪</span> Logout

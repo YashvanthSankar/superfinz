@@ -1,28 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
-const PROTECTED = ["/dashboard"];
-const AUTH_ROUTES = ["/login", "/register", "/onboarding"];
-
-export function proxy(req: NextRequest) {
+export const proxy = auth((req) => {
   const { pathname } = req.nextUrl;
-  const token = req.cookies.get("token")?.value;
-  const session = token ? verifyToken(token) : null;
+  const session = req.auth;
 
-  const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
-  const isAuth = AUTH_ROUTES.some((p) => pathname.startsWith(p));
-
-  if (isProtected && !session) {
+  // Not logged in → protect dashboard
+  if (!session && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (isAuth && session) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+  if (session) {
+    // Logged in but not onboarded → force onboarding (except if already there)
+    if (!session.user.onboarded && pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/onboarding", req.url));
+    }
+    // Onboarded → skip onboarding
+    if (session.user.onboarded && pathname.startsWith("/onboarding")) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+    // Logged in → skip login page
+    if (pathname === "/login") {
+      return NextResponse.redirect(
+        new URL(session.user.onboarded ? "/dashboard" : "/onboarding", req.url)
+      );
+    }
   }
-
-  return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register", "/onboarding/:path*"],
+  matcher: ["/dashboard/:path*", "/login", "/onboarding/:path*"],
 };
