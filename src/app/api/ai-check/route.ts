@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
   });
 
   const weekSpend = recentSame.reduce<number>(
-    (s: number, t) => s + (t.amount as number),
+    (s: number, t: { amount: number }) => s + t.amount,
     0
   ) + amount;
   const prevCount = recentSame.length;
