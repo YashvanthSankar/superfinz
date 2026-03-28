@@ -65,7 +65,7 @@ export default function HeatmapPage() {
         <p className="text-[#b45309] text-sm mt-0.5 font-light">Your last 3 months at a glance</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: "Total spent (3mo)", value: formatCurrency(totalSpend) },
           { label: "Active spend days", value: activeDays.toString() },

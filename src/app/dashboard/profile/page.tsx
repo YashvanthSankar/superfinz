@@ -198,7 +198,7 @@ export default function ProfilePage() {
       <form onSubmit={handleSave} className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
         <h2 className="text-sm font-semibold text-[#713f12]">Financial limits</h2>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Monthly budget (₹)"
             type="number"
@@ -240,7 +240,7 @@ export default function ProfilePage() {
               value={form.monthlySalary}
               onChange={(e) => setForm((f) => ({ ...f, monthlySalary: e.target.value }))}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Company"
                 placeholder="Google, Infosys..."

@@ -28,9 +28,9 @@ export function Sidebar() {
   return (
     <>
       {/* ─── Desktop sidebar ─────────────────────────────────────── */}
-      <aside className="hidden lg:flex w-52 shrink-0 bg-[#fefce8] border-r border-[#fef9c3] flex-col h-screen sticky top-0">
+      <aside className="hidden lg:flex w-52 shrink-0 bg-[#fefce8] border-r border-[#e8ddd0] flex-col h-screen sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-[#fef9c3]">
+        <div className="px-5 py-5 border-b border-[#e8ddd0]">
           <Logo size="md" />
         </div>
 
@@ -57,7 +57,7 @@ export function Sidebar() {
         </nav>
 
         {/* Profile + sign out */}
-        <div className="p-3 border-t border-[#fef9c3] space-y-0.5">
+        <div className="p-3 border-t border-[#e8ddd0] space-y-0.5">
           {session?.user && (
             <a
               href="/dashboard/profile"
@@ -93,7 +93,7 @@ export function Sidebar() {
       </aside>
 
       {/* ─── Mobile top bar ──────────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-[#fefce8]/95 backdrop-blur border-b border-[#fef9c3] flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-[#FDFCF6]/95 backdrop-blur border-b border-[#e8ddd0] flex items-center justify-between px-4">
         <Logo size="md" />
         <div className="flex items-center gap-2">
           <a
@@ -113,7 +113,7 @@ export function Sidebar() {
       </div>
 
       {/* ─── Mobile bottom nav ───────────────────────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#fefce8]/95 backdrop-blur border-t border-[#fef9c3] flex items-stretch pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FDFCF6]/95 backdrop-blur border-t border-[#e8ddd0] flex items-stretch pb-safe">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (

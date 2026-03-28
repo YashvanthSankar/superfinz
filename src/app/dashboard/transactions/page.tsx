@@ -71,7 +71,7 @@ export default function TransactionsPage() {
         <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-[#713f12] mb-5">Log a spend</h2>
           <form onSubmit={handleAdd} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Amount (₹)" type="number" placeholder="150" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} required />
               <Select label="Category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
                 {SPENDING_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}

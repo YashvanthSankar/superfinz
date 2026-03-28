@@ -50,21 +50,19 @@ function pickFallbackRoast(category: string, vars: Record<string, string | numbe
   return fillTemplate(pool[idx], vars);
 }
 
-async function callOpenRouter(prompt: string): Promise<string | null> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+async function callGroq(prompt: string): Promise<string | null> {
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return null;
 
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXTAUTH_URL ?? "http://localhost:3000",
-        "X-Title": "SuperFinz",
       },
       body: JSON.stringify({
-        model: "google/gemma-3-27b-it:free",
+        model: "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 80,
         temperature: 0.8,
@@ -104,7 +102,10 @@ export async function POST(req: NextRequest) {
     orderBy: { date: "desc" },
   });
 
-  const weekSpend = recentSame.reduce<number>((s, t) => s + t.amount, 0) + amount;
+  const weekSpend = recentSame.reduce<number>(
+    (s: number, t) => s + (t.amount as number),
+    0
+  ) + amount;
   const prevCount = recentSame.length;
 
   const now = new Date();
@@ -149,7 +150,7 @@ export async function POST(req: NextRequest) {
     aiNote = `looks necessary! ₹${amount} for ${description} — tracked 🫡`;
   } else {
     const prompt = `You are a Gen Z finance buddy for Indian students/professionals. A user just spent ₹${amount} on "${description}" (category: ${category}). They've spent on ${category} ${prevCount} times this week (total ₹${weekSpend.toFixed(0)} this week). Write ONE short (max 15 words), funny, Gen Z roast/warning about this spend. Use Indian context. Use 1 emoji. Be helpful not mean.`;
-    const llmNote = await callOpenRouter(prompt);
+    const llmNote = await callGroq(prompt);
     aiNote = llmNote ?? pickFallbackRoast(category, vars);
   }
 

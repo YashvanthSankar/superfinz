@@ -74,7 +74,7 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
       </div>
       <p className="text-[#b45309] text-xs mb-4">How much do you need to never work again?</p>
 
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
         <div>
           <label className="text-[10px] text-[#b45309] block mb-1">Monthly savings (₹)</label>
           <input
