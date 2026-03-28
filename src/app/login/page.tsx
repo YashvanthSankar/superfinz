@@ -1,36 +1,35 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { Logo } from "@/components/ui/logo";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const go = async () => {
     setLoading(true);
-    await signIn("google", { callbackUrl: "/onboarding" });
+    await signIn("google", { callbackUrl: "/dashboard" });
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#fefce8] flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
-          <span className="text-3xl font-black text-[#0f172a]">
-            Super<span className="text-indigo-600">Finz</span>
-          </span>
-          <p className="text-[#64748b] text-sm mt-2 font-light">your money, your rules</p>
+          <Logo size="lg" />
+          <p className="text-[#78350f] text-sm mt-2 font-light">your money, your rules</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-[#e2e8f0] shadow-sm p-8 space-y-6">
+        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] shadow-sm p-8 space-y-6">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-[#0f172a]">Welcome back</h1>
-            <p className="text-[#64748b] text-sm mt-1 font-light">Sign in to continue to your dashboard</p>
+            <h1 className="text-xl font-bold text-[#713f12]">Welcome back</h1>
+            <p className="text-[#78350f] text-sm mt-1 font-light">Sign in to continue to your dashboard</p>
           </div>
 
           <button
             onClick={go}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-[#0f172a] text-white font-semibold text-sm hover:bg-[#1e293b] transition-all disabled:opacity-60 shadow-sm"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-[#713f12] text-[#fefce8] font-semibold text-sm hover:bg-[#92400e] transition-all disabled:opacity-60 shadow-sm"
           >
             {loading ? (
               <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -49,15 +48,15 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-            <p className="text-xs text-[#94a3b8]">
+            <p className="text-xs text-[#b45309]">
               Only your name and email are accessed. No passwords stored.
             </p>
           </div>
         </div>
 
-        <p className="text-center text-[#94a3b8] text-xs mt-6">
+        <p className="text-center text-[#b45309] text-xs mt-6">
           New here?{" "}
-          <a href="/onboarding" className="text-indigo-600 hover:underline font-medium">
+          <a href="/onboarding" className="text-amber-600 hover:underline font-medium">
             Get started free
           </a>
         </p>

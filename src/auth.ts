@@ -13,21 +13,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
-        await prisma.user.upsert({
-          where: { email: user.email },
-          update: {
-            googleId: account.providerAccountId,
-            avatar: user.image ?? undefined,
-            name: user.name ?? user.email,
-          },
-          create: {
-            email: user.email,
-            name: user.name ?? user.email,
-            googleId: account.providerAccountId,
-            avatar: user.image ?? undefined,
-          },
-        });
-        return true;
+        try {
+          await prisma.user.upsert({
+            where: { email: user.email },
+            update: {
+              googleId: account.providerAccountId,
+              avatar: user.image ?? undefined,
+              name: user.name ?? user.email,
+            },
+            create: {
+              email: user.email,
+              name: user.name ?? user.email,
+              googleId: account.providerAccountId,
+              avatar: user.image ?? undefined,
+            },
+          });
+          return true;
+        } catch (err) {
+          console.error("[auth] signIn DB error:", err);
+          return false;
+        }
       }
       return false;
     },

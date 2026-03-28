@@ -64,7 +64,7 @@ async function callOpenRouter(prompt: string): Promise<string | null> {
         "X-Title": "SuperFinz",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.1-8b-instruct:free",
+        model: "nvidia/nemotron-3-super-120b-a12b:free",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 80,
         temperature: 0.8,

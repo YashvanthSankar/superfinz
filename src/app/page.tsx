@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { signIn } from "next-auth/react";
+import { Logo } from "@/components/ui/logo";
 
-/* ── helpers ─────────────────────────────────────────── */
 function seed(i: number) {
   const x = Math.sin(i * 9301 + 49297) * 233280;
   return x - Math.floor(x);
@@ -38,7 +38,6 @@ function useCountUp(target: number, ms = 1800, go = false) {
   return v;
 }
 
-/* ── static mock data ────────────────────────────────── */
 const HEATMAP = Array.from({ length: 70 }, (_, i) => {
   const v = seed(i);
   if (v < 0.42) return 0;
@@ -49,56 +48,47 @@ const HEATMAP = Array.from({ length: 70 }, (_, i) => {
 });
 
 const MOCK_TX = [
-  { icon: "🍔", name: "Biryani at Murugan's", cat: "Food", amt: "₹180", ok: false },
-  { icon: "🚗", name: "Rapido to college", cat: "Transport", amt: "₹45", ok: true },
-  { icon: "📱", name: "Spotify Premium", cat: "Subscriptions", amt: "₹119", ok: true },
-  { icon: "🛍️", name: "Amazon impulse", cat: "Shopping", amt: "₹899", ok: false },
+  { name: "Biryani at Murugan's",  cat: "Food",          amt: "₹180", ok: false },
+  { name: "Rapido to college",      cat: "Transport",     amt: "₹45",  ok: true },
+  { name: "Spotify Premium",        cat: "Subscriptions", amt: "₹119", ok: true },
+  { name: "Amazon impulse buy",     cat: "Shopping",      amt: "₹899", ok: false },
 ];
 
 const FEATURES = [
-  { n: "01", title: "Smart onboarding", body: "Student, college, or professional — everything adapts to your financial reality from day one." },
-  { n: "02", title: "AI spend analysis", body: "Every transaction gets a real assessment. Overspending? You'll hear about it in language that lands." },
-  { n: "03", title: "Spending heatmap", body: "GitHub-style calendar showing where your money bleeds. Patterns you've never spotted before." },
-  { n: "04", title: "Investment calculators", body: "SIP, FD, EMI with live Recharts graphs. See exactly what your money can grow into." },
-  { n: "05", title: "Finance news", body: "India-first curated finance news — markets, personal finance, and Gen Z money moves daily." },
-  { n: "06", title: "Goal tracker", body: "Set targets, log progress, celebrate milestones. Your savings journey, beautifully visualized." },
+  { n: "01", title: "Smart onboarding",       body: "Student, college, or professional — everything adapts to your financial reality from day one." },
+  { n: "02", title: "AI spend analysis",      body: "Every transaction gets a real assessment. Overspending? You'll hear about it in language that lands." },
+  { n: "03", title: "Spending heatmap",       body: "GitHub-style calendar showing where your money bleeds. Patterns you've never spotted before." },
+  { n: "04", title: "Investment calculators", body: "SIP, FD, EMI with live charts. See exactly what your money can grow into." },
+  { n: "05", title: "Finance news",           body: "India-first curated finance news — markets, personal finance, and smart money moves daily." },
+  { n: "06", title: "Goal tracker",           body: "Set targets, log progress, celebrate milestones. Your savings journey, beautifully visualized." },
 ];
 
-const HEATMAP_COLORS = [
-  "bg-slate-100",
-  "bg-indigo-100",
-  "bg-indigo-200",
-  "bg-indigo-400",
-  "bg-indigo-600",
-];
+const HEATMAP_COLORS = ["bg-slate-100","bg-amber-100","bg-amber-200","bg-amber-400","bg-amber-600"];
 
-/* ── component ───────────────────────────────────────── */
 export default function Landing() {
   const [signing, setSigning] = useState(false);
   const { ref: statsRef, inView: statsIn } = useInView(0.3);
-  const { ref: featRef, inView: featIn } = useInView(0.1);
-  const { ref: demoRef, inView: demoIn } = useInView(0.2);
+  const { ref: featRef,  inView: featIn  } = useInView(0.1);
+  const { ref: demoRef,  inView: demoIn  } = useInView(0.2);
 
-  const users = useCountUp(12847, 1800, statsIn);
-  const crores = useCountUp(42, 2000, statsIn);
-  const txns = useCountUp(93000, 1600, statsIn);
+  const users  = useCountUp(12847, 1800, statsIn);
+  const crores = useCountUp(42,    2000, statsIn);
+  const txns   = useCountUp(93000, 1600, statsIn);
 
-  const go = async () => { setSigning(true); await signIn("google", { callbackUrl: "/onboarding" }); };
+  const go = async () => { setSigning(true); await signIn("google", { callbackUrl: "/dashboard" }); };
 
   return (
-    <div className="bg-white text-[#0f172a] min-h-screen overflow-x-hidden selection:bg-indigo-100">
+    <div className="bg-[#fefce8] text-[#713f12] min-h-screen overflow-x-hidden selection:bg-amber-100">
 
-      {/* ── Nav ─────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-[#f1f5f9]">
+      {/* Nav */}
+      <nav className="sticky top-0 z-50 bg-[#fefce8]/80 backdrop-blur-lg border-b border-[#fef9c3]">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-          <span className="text-base font-black tracking-tight text-[#0f172a]">
-            Super<span className="text-indigo-600">Finz</span>
-          </span>
+          <Logo size="md" />
           <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-sm text-[#64748b]">Free · No credit card</span>
+            <span className="hidden sm:block text-sm text-[#78350f]">Free · No credit card</span>
             <button
               onClick={go} disabled={signing}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0f172a] text-white text-sm font-semibold hover:bg-[#1e293b] transition-all disabled:opacity-60 shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#713f12] text-[#fefce8] text-sm font-semibold hover:bg-[#92400e] transition-all disabled:opacity-60 shadow-sm"
             >
               <GoogleIcon size={16} />
               Sign in
@@ -107,22 +97,22 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ── Hero ──────────────────────────────────────────── */}
+      {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-12 text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-medium mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-600 text-xs font-medium mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
           Vashisht 3.0 · IIITDM Kancheepuram
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black leading-[1.0] tracking-tighter text-[#0f172a] mb-6 max-w-3xl mx-auto">
+        <h1 className="text-5xl md:text-7xl font-black leading-[1.0] tracking-tighter text-[#713f12] mb-6 max-w-3xl mx-auto">
           Finance for people
           <br />
-          <span className="text-indigo-600">who actually want</span>
+          <span className="text-amber-600">who actually want</span>
           <br />
           to be rich.
         </h1>
 
-        <p className="text-[#64748b] text-lg max-w-lg mx-auto mb-10 leading-relaxed font-light">
+        <p className="text-[#78350f] text-lg max-w-lg mx-auto mb-10 leading-relaxed font-light">
           Track spending, get AI-powered feedback, plan investments —
           all in one clean dashboard built for Gen Z.
         </p>
@@ -130,7 +120,7 @@ export default function Landing() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <button
             onClick={go} disabled={signing}
-            className="flex items-center gap-3 px-7 py-3.5 rounded-2xl bg-[#0f172a] text-white font-bold text-sm hover:bg-[#1e293b] active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-slate-200"
+            className="flex items-center gap-3 px-7 py-3.5 rounded-2xl bg-[#713f12] text-[#fefce8] font-bold text-sm hover:bg-[#92400e] active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-slate-200"
           >
             {signing
               ? <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
@@ -139,41 +129,33 @@ export default function Landing() {
             Continue with Google — it&apos;s free
           </button>
         </div>
-        <p className="text-[#94a3b8] text-xs">No password. No forms. 2 minutes to set up.</p>
+        <p className="text-[#b45309] text-xs">No password. No forms. 2 minutes to set up.</p>
 
-        {/* ── Dashboard preview ─────────────────────────── */}
+        {/* Dashboard preview */}
         <div className="mt-16 relative">
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none rounded-b-3xl" />
-
-          <div className="rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] overflow-hidden shadow-2xl shadow-slate-200/80 text-left">
-            {/* Chrome */}
-            <div className="flex items-center gap-1.5 px-4 py-3 bg-white border-b border-[#e2e8f0]">
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#fefce8] to-transparent z-10 pointer-events-none rounded-b-3xl" />
+          <div className="rounded-2xl border border-[#fde68a] bg-[#fefce8] overflow-hidden shadow-2xl shadow-slate-200/80 text-left">
+            {/* Chrome bar */}
+            <div className="flex items-center gap-1.5 px-4 py-3 bg-[#fefce8] border-b border-[#fde68a]">
               <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#4ade80]" />
-              <div className="mx-auto flex items-center gap-2 bg-[#f1f5f9] rounded-lg px-4 py-1.5">
+              <div className="mx-auto flex items-center gap-2 bg-[#fef9c3] rounded-lg px-4 py-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                <span className="text-[#64748b] text-xs">superfinz.app/dashboard</span>
+                <span className="text-[#78350f] text-xs">superfinz.app/dashboard</span>
               </div>
             </div>
 
             <div className="flex">
               {/* Sidebar */}
-              <div className="w-44 bg-white border-r border-[#f1f5f9] p-3 space-y-0.5 shrink-0">
+              <div className="w-44 bg-[#fefce8] border-r border-[#fef9c3] p-3 space-y-0.5 shrink-0">
                 <div className="px-3 py-1.5 mb-2">
-                  <span className="text-sm font-black text-[#0f172a]">Super<span className="text-indigo-600">Finz</span></span>
+                  <Logo size="sm" />
                 </div>
-                {[
-                  { icon: "⚡", label: "Overview", active: true },
-                  { icon: "💳", label: "Transactions", active: false },
-                  { icon: "📅", label: "Heatmap", active: false },
-                  { icon: "📈", label: "Calculators", active: false },
-                  { icon: "📰", label: "News", active: false },
-                  { icon: "🎯", label: "Goals", active: false },
-                ].map((item) => (
-                  <div key={item.label} className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs ${item.active ? "bg-indigo-50 text-indigo-700 font-semibold" : "text-[#64748b]"}`}>
-                    <span className="text-sm">{item.icon}</span>
-                    {item.label}
+                {["Overview","Transactions","Heatmap","Calculators","News","Goals"].map((label, i) => (
+                  <div key={label} className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs ${i === 0 ? "bg-amber-50 text-amber-700 font-semibold" : "text-[#78350f]"}`}>
+                    {i === 0 && <span className="w-1 h-1 rounded-full bg-amber-500 shrink-0" />}
+                    {label}
                   </div>
                 ))}
               </div>
@@ -181,42 +163,42 @@ export default function Landing() {
               {/* Main */}
               <div className="flex-1 p-5 space-y-4 min-w-0">
                 <div>
-                  <p className="text-sm font-bold text-[#0f172a]">Good morning, Yashvanth 👋</p>
-                  <p className="text-[10px] text-[#94a3b8] mt-0.5">Saturday, 28 March 2026</p>
+                  <p className="text-sm font-bold text-[#713f12]">Good morning, Yashvanth</p>
+                  <p className="text-[10px] text-[#b45309] mt-0.5">Saturday, 28 March 2026</p>
                 </div>
-                {/* Stats */}
                 <div className="grid grid-cols-4 gap-2.5">
                   {[
-                    { l: "Spent", v: "₹3,240", s: "of ₹5,000", c: "text-[#0f172a]" },
-                    { l: "Remaining", v: "₹1,760", s: "looking good ✓", c: "text-emerald-600" },
-                    { l: "Savings rate", v: "28%", s: "↑ vs last month", c: "text-emerald-600" },
-                    { l: "Budget used", v: "65%", s: "on track 🎯", c: "text-[#0f172a]" },
+                    { l: "Spent",        v: "₹3,240", s: "of ₹5,000",       c: "text-[#713f12]" },
+                    { l: "Remaining",    v: "₹1,760", s: "left to spend",    c: "text-emerald-600" },
+                    { l: "Savings rate", v: "28%",    s: "vs last month",    c: "text-emerald-600" },
+                    { l: "Budget used",  v: "65%",    s: "on track",         c: "text-[#713f12]" },
                   ].map((s) => (
-                    <div key={s.l} className="bg-white border border-[#e2e8f0] rounded-xl p-3 shadow-sm">
-                      <p className="text-[9px] text-[#94a3b8] uppercase tracking-wide mb-1">{s.l}</p>
+                    <div key={s.l} className="bg-[#fefce8] border border-[#fde68a] rounded-xl p-3 shadow-sm">
+                      <p className="text-[9px] text-[#b45309] uppercase tracking-wide mb-1">{s.l}</p>
                       <p className={`text-sm font-bold ${s.c}`}>{s.v}</p>
-                      <p className="text-[8px] text-[#cbd5e1] mt-1">{s.s}</p>
+                      <p className="text-[8px] text-[#fcd34d] mt-1">{s.s}</p>
                     </div>
                   ))}
                 </div>
-                {/* Transactions */}
-                <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 shadow-sm">
+                <div className="bg-[#fefce8] border border-[#fde68a] rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold text-[#0f172a]">Recent spends</p>
-                    <p className="text-[9px] text-indigo-500 cursor-pointer">View all →</p>
+                    <p className="text-xs font-semibold text-[#713f12]">Recent spends</p>
+                    <p className="text-[9px] text-amber-500">View all</p>
                   </div>
                   <div className="space-y-2.5">
                     {MOCK_TX.map((tx, i) => (
                       <div key={i} className="flex items-center gap-2.5">
-                        <span className="text-sm leading-none">{tx.icon}</span>
+                        <div className="w-6 h-6 rounded-md bg-[#fefce8] border border-[#fde68a] flex items-center justify-center shrink-0">
+                          <span className="text-[8px] font-bold text-[#78350f] uppercase">{tx.cat.slice(0,2)}</span>
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] text-[#0f172a] truncate font-medium">{tx.name}</p>
-                          <p className="text-[9px] text-[#94a3b8]">{tx.cat}</p>
+                          <p className="text-[11px] text-[#713f12] truncate font-medium">{tx.name}</p>
+                          <p className="text-[9px] text-[#b45309]">{tx.cat}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-[11px] font-semibold text-[#0f172a]">{tx.amt}</p>
+                          <p className="text-[11px] font-semibold text-[#713f12]">{tx.amt}</p>
                           <p className={`text-[9px] ${tx.ok ? "text-emerald-500" : "text-amber-500"}`}>
-                            {tx.ok ? "ai: fine ✓" : "ai: skip? 🤔"}
+                            {tx.ok ? "necessary" : "unnecessary"}
                           </p>
                         </div>
                       </div>
@@ -226,27 +208,27 @@ export default function Landing() {
               </div>
 
               {/* Right panel */}
-              <div className="w-44 bg-white border-l border-[#f1f5f9] p-4 shrink-0 hidden lg:block">
-                <p className="text-[10px] font-semibold text-[#0f172a] mb-2.5">Spend heatmap</p>
+              <div className="w-44 bg-[#fefce8] border-l border-[#fef9c3] p-4 shrink-0 hidden lg:block">
+                <p className="text-[10px] font-semibold text-[#713f12] mb-2.5">Spend heatmap</p>
                 <div className="grid grid-cols-7 gap-[3px]">
                   {HEATMAP.map((v, i) => (
                     <div key={i} className={`aspect-square rounded-[2px] ${HEATMAP_COLORS[v]}`} />
                   ))}
                 </div>
                 <div className="flex justify-between mt-1.5">
-                  <span className="text-[8px] text-[#cbd5e1]">less</span>
-                  <span className="text-[8px] text-[#cbd5e1]">more</span>
+                  <span className="text-[8px] text-[#fcd34d]">less</span>
+                  <span className="text-[8px] text-[#fcd34d]">more</span>
                 </div>
                 <div className="mt-4 space-y-2.5">
-                  <p className="text-[10px] font-semibold text-[#0f172a]">Goals</p>
+                  <p className="text-[10px] font-semibold text-[#713f12]">Goals</p>
                   {[{ name: "New MacBook", pct: 62 }, { name: "Goa trip", pct: 34 }].map((g) => (
                     <div key={g.name}>
                       <div className="flex justify-between text-[9px] mb-1">
-                        <span className="text-[#64748b]">{g.name}</span>
-                        <span className="text-indigo-500 font-medium">{g.pct}%</span>
+                        <span className="text-[#78350f]">{g.name}</span>
+                        <span className="text-amber-500 font-medium">{g.pct}%</span>
                       </div>
-                      <div className="h-1 bg-[#f1f5f9] rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-400 rounded-full" style={{ width: `${g.pct}%` }} />
+                      <div className="h-1 bg-[#fef9c3] rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-400 rounded-full" style={{ width: `${g.pct}%` }} />
                       </div>
                     </div>
                   ))}
@@ -257,76 +239,76 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Stats ──────────────────────────────────────── */}
-      <section ref={statsRef} className="bg-[#f8fafc] border-y border-[#e2e8f0] py-20 px-6 mt-12">
+      {/* Stats */}
+      <section ref={statsRef} className="bg-[#fefce8] border-y border-[#fde68a] py-20 px-6 mt-12">
         <div className="max-w-3xl mx-auto grid grid-cols-3 gap-8 text-center">
           {[
-            { val: users.toLocaleString("en-IN") + "+", label: "Active users" },
-            { val: "₹" + crores + "L+", label: "Money tracked" },
-            { val: txns.toLocaleString("en-IN") + "+", label: "Transactions logged" },
+            { val: users.toLocaleString("en-IN") + "+",  label: "Active users" },
+            { val: "₹" + crores + "L+",                  label: "Money tracked" },
+            { val: txns.toLocaleString("en-IN") + "+",   label: "Transactions logged" },
           ].map((s) => (
             <div key={s.label}>
-              <p className="text-4xl md:text-5xl font-black text-[#0f172a] tabular-nums">{s.val}</p>
-              <p className="text-[#64748b] text-sm mt-2 font-light">{s.label}</p>
+              <p className="text-4xl md:text-5xl font-black text-[#713f12] tabular-nums">{s.val}</p>
+              <p className="text-[#78350f] text-sm mt-2 font-light">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Features ──────────────────────────────────── */}
+      {/* Features */}
       <section ref={featRef} className="max-w-5xl mx-auto py-28 px-6">
         <div className="mb-16">
-          <p className="text-indigo-600 text-xs font-semibold tracking-widest uppercase mb-3">What&apos;s inside</p>
+          <p className="text-amber-600 text-xs font-semibold tracking-widest uppercase mb-3">What&apos;s inside</p>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
             Everything you need.
-            <br /><span className="text-[#94a3b8]">Nothing you don&apos;t.</span>
+            <br /><span className="text-[#b45309]">Nothing you don&apos;t.</span>
           </h2>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#e2e8f0] rounded-2xl overflow-hidden border border-[#e2e8f0]">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#fde68a] rounded-2xl overflow-hidden border border-[#fde68a]">
           {FEATURES.map((f, i) => (
             <div
               key={f.title}
-              className="bg-white p-7 hover:bg-[#f8fafc] transition-colors duration-200"
+              className="bg-[#fefce8] p-7 hover:bg-[#fefce8] transition-colors duration-200"
               style={{
                 opacity: featIn ? 1 : 0,
                 transform: featIn ? "translateY(0)" : "translateY(16px)",
                 transition: `opacity 0.5s ease ${i * 60}ms, transform 0.5s ease ${i * 60}ms`,
               }}
             >
-              <p className="text-[#e2e8f0] text-5xl font-black mb-5 select-none">{f.n}</p>
-              <h3 className="text-[#0f172a] font-semibold mb-2 text-sm">{f.title}</h3>
-              <p className="text-[#64748b] text-sm leading-relaxed font-light">{f.body}</p>
+              <p className="text-[#fde68a] text-5xl font-black mb-5 select-none">{f.n}</p>
+              <h3 className="text-[#713f12] font-semibold mb-2 text-sm">{f.title}</h3>
+              <p className="text-[#78350f] text-sm leading-relaxed font-light">{f.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── AI Demo ───────────────────────────────────── */}
-      <section ref={demoRef} className="bg-[#f8fafc] border-y border-[#e2e8f0] py-24 px-6">
+      {/* AI Demo */}
+      <section ref={demoRef} className="bg-[#fefce8] border-y border-[#fde68a] py-24 px-6">
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div style={{ opacity: demoIn ? 1 : 0, transform: demoIn ? "none" : "translateX(-16px)", transition: "all 0.6s ease" }}>
-            <p className="text-indigo-600 text-xs font-semibold tracking-widest uppercase mb-3">AI Spend Check</p>
+            <p className="text-amber-600 text-xs font-semibold tracking-widest uppercase mb-3">AI Spend Check</p>
             <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight mb-4">
-              Your AI bestie<br /><span className="text-[#94a3b8]">keeps it real.</span>
+              Your AI advisor<br /><span className="text-[#b45309]">keeps it real.</span>
             </h2>
-            <p className="text-[#64748b] leading-relaxed font-light">
+            <p className="text-[#78350f] leading-relaxed font-light">
               Log a spend and get instant AI feedback based on your history.
-              Powered by OpenRouter — honest, funny, and actually useful.
+              Powered by OpenRouter — honest and actually useful.
             </p>
           </div>
           <div className="space-y-3" style={{ opacity: demoIn ? 1 : 0, transform: demoIn ? "none" : "translateX(16px)", transition: "all 0.6s ease 0.15s" }}>
             {[
-              { user: "Logged: Biryani ₹180 · Food", ai: "bro you ate out 4 times this week 😭 ₹180 saved = ₹2,160/yr", roast: true },
-              { user: "Logged: Rapido ₹45 · Transport", ai: "looks necessary! ₹45 for transport — noted 🫡", roast: false },
-              { user: "Logged: Amazon ₹899 · Shopping", ai: "impulse buy at midnight 💀 sleep on it, add to your goal instead", roast: true },
+              { user: "Logged: Biryani ₹180 · Food",       ai: "you ate out 4 times this week — ₹180 saved adds up to ₹2,160/yr",         roast: true },
+              { user: "Logged: Rapido ₹45 · Transport",    ai: "looks necessary — ₹45 for transport, tracked",                             roast: false },
+              { user: "Logged: Amazon ₹899 · Shopping",    ai: "impulse purchase late at night — sleep on it, add to your goal instead",   roast: true },
             ].map((msg, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex gap-2.5">
-                  <div className="w-6 h-6 rounded-full bg-[#f1f5f9] border border-[#e2e8f0] flex items-center justify-center text-[9px] text-[#64748b] shrink-0 mt-0.5 font-medium">you</div>
-                  <div className="bg-white border border-[#e2e8f0] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-[#334155] shadow-sm">{msg.user}</div>
+                  <div className="w-6 h-6 rounded-full bg-[#fef9c3] border border-[#fde68a] flex items-center justify-center text-[9px] text-[#78350f] shrink-0 mt-0.5 font-medium">you</div>
+                  <div className="bg-[#fefce8] border border-[#fde68a] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-[#92400e] shadow-sm">{msg.user}</div>
                 </div>
                 <div className="flex gap-2.5 flex-row-reverse">
-                  <div className="w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[9px] text-indigo-600 shrink-0 mt-0.5 font-semibold">AI</div>
+                  <div className="w-6 h-6 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-[9px] text-amber-600 shrink-0 mt-0.5 font-semibold">AI</div>
                   <div className={`rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm max-w-[280px] ${msg.roast ? "bg-amber-50 border border-amber-100 text-amber-800" : "bg-emerald-50 border border-emerald-100 text-emerald-800"}`}>
                     {msg.ai}
                   </div>
@@ -337,30 +319,33 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Final CTA ─────────────────────────────────── */}
+      {/* Final CTA */}
       <section className="py-32 px-6 text-center">
         <div className="max-w-xl mx-auto">
-          <p className="text-[#94a3b8] text-xs uppercase tracking-widest font-semibold mb-5">Start now</p>
+          <p className="text-[#b45309] text-xs uppercase tracking-widest font-semibold mb-5">Start now</p>
           <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-5">
             Know your money.<br />
-            <span className="text-indigo-600">Own your future.</span>
+            <span className="text-amber-600">Own your future.</span>
           </h2>
-          <p className="text-[#64748b] mb-10 font-light">Free forever · Google sign-in · 2 minutes to start</p>
+          <p className="text-[#78350f] mb-10 font-light">Free forever · Google sign-in · 2 minutes to start</p>
           <button
             onClick={go} disabled={signing}
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#0f172a] text-white font-bold text-sm hover:bg-[#1e293b] active:scale-[0.98] transition-all disabled:opacity-60 shadow-xl shadow-slate-200"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#713f12] text-[#fefce8] font-bold text-sm hover:bg-[#92400e] active:scale-[0.98] transition-all disabled:opacity-60 shadow-xl shadow-slate-200"
           >
-            {signing ? <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg> : <GoogleIcon size={18} />}
+            {signing
+              ? <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
+              : <GoogleIcon size={18} />
+            }
             Continue with Google
           </button>
         </div>
       </section>
 
-      {/* ── Footer ────────────────────────────────────── */}
-      <footer className="border-t border-[#e2e8f0] px-8 py-6">
+      {/* Footer */}
+      <footer className="border-t border-[#fde68a] px-8 py-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-sm font-black text-[#0f172a]">Super<span className="text-indigo-600">Finz</span></span>
-          <p className="text-[#94a3b8] text-xs">Vashisht 3.0 · IIITDM Kancheepuram · 2026</p>
+          <Logo size="sm" />
+          <p className="text-[#b45309] text-xs">Vashisht 3.0 · IIITDM Kancheepuram · 2026</p>
         </div>
       </footer>
     </div>

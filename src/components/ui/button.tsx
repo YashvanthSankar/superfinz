@@ -15,12 +15,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
+          "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
           {
-            "bg-[#0f172a] text-white hover:bg-[#1e293b] shadow-sm": variant === "primary",
-            "bg-white text-[#0f172a] border border-[#e2e8f0] hover:bg-[#f8fafc] shadow-sm": variant === "secondary",
-            "bg-[#eef2ff] text-[#6366f1] border border-[#e0e7ff] hover:bg-[#e0e7ff]": variant === "outline",
-            "bg-transparent text-[#64748b] hover:text-[#0f172a] hover:bg-[#f1f5f9]": variant === "ghost",
+            "bg-[#78350f] text-[#fefce8] hover:bg-[#92400e] shadow-sm": variant === "primary",
+            "bg-[#fefce8] text-[#713f12] border border-[#fde68a] hover:bg-[#fef9c3] shadow-sm": variant === "secondary",
+            "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100": variant === "outline",
+            "bg-transparent text-[#78350f] hover:text-[#713f12] hover:bg-[#fef9c3]": variant === "ghost",
             "bg-[#fef2f2] text-red-600 border border-red-100 hover:bg-red-50": variant === "danger",
             "px-3 py-1.5 text-xs": size === "sm",
             "px-4 py-2.5 text-sm": size === "md",

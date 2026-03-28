@@ -2,107 +2,290 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
-
-const CAT_EMOJI: Record<string, string> = {
-  Food: "🍔", Transport: "🚗", Entertainment: "🎮", Shopping: "🛍️",
-  Health: "💊", Education: "📚", Utilities: "💡", Rent: "🏠",
-  Subscriptions: "📱", Other: "💸",
-};
+import { SpendTrendChart, CategoryChart } from "@/components/dashboard/charts";
+import { HeatmapInline } from "@/components/dashboard/heatmap-inline";
 
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (!session.onboarded) redirect("/onboarding");
 
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year  = now.getFullYear();
+  const now        = new Date();
+  const month      = now.getMonth() + 1;
+  const year       = now.getFullYear();
   const monthStart = new Date(year, month - 1, 1);
+  const threeMonthsAgo = new Date(now);
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  threeMonthsAgo.setDate(1);
+  threeMonthsAgo.setHours(0, 0, 0, 0);
 
-  const [user, recentTx, budgets, goals] = await Promise.all([
+  const [user, monthTx, goals, heatTx] = await Promise.all([
     prisma.user.findUnique({ where: { id: session.userId }, include: { profile: true } }),
-    prisma.transaction.findMany({ where: { userId: session.userId, date: { gte: monthStart } }, orderBy: { date: "desc" }, take: 6 }),
-    prisma.budget.findMany({ where: { userId: session.userId, month, year } }),
+    prisma.transaction.findMany({
+      where: { userId: session.userId, date: { gte: monthStart } },
+      orderBy: { date: "asc" },
+    }),
     prisma.goal.findMany({ where: { userId: session.userId, achieved: false }, take: 3 }),
+    prisma.transaction.findMany({
+      where: { userId: session.userId, date: { gte: threeMonthsAgo } },
+      select: { amount: true, date: true },
+      orderBy: { date: "asc" },
+    }),
   ]);
 
   if (!user) redirect("/login");
 
-  const monthlySpend = recentTx.reduce((s, t) => s + t.amount, 0);
-  const budget   = user.profile?.monthlyBudget ?? 0;
-  const income   = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
-  const goalAmt  = user.profile?.savingsGoal ?? 0;
-  const remaining = budget - monthlySpend;
-  const savingsRate = income > 0 ? Math.max(0, ((income - monthlySpend) / income) * 100) : 0;
-  const budgetPct = budget > 0 ? Math.min((monthlySpend / budget) * 100, 100) : 0;
+  // ── Monthly stats ──────────────────────────────────────────────────
+  const monthlySpend = monthTx.reduce((s, t) => s + t.amount, 0);
+  const budget       = user.profile?.monthlyBudget ?? 0;
+  const income       = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
+  const goalAmt      = user.profile?.savingsGoal ?? 0;
+  const remaining    = budget - monthlySpend;
+  const savingsRate  = income > 0 ? Math.max(0, ((income - monthlySpend) / income) * 100) : 0;
+  const budgetPct    = budget > 0 ? Math.min((monthlySpend / budget) * 100, 100) : 0;
+  const recentTx     = [...monthTx].reverse().slice(0, 5);
 
-  const STATS = [
-    { label: "Spent this month", value: formatCurrency(monthlySpend), sub: `of ${formatCurrency(budget)} budget`, color: "text-[#0f172a]" },
-    { label: "Remaining", value: formatCurrency(Math.abs(remaining)), sub: remaining < 0 ? "over budget 😬" : "left to spend", color: remaining >= 0 ? "text-emerald-600" : "text-red-500" },
-    { label: "Savings rate", value: `${savingsRate.toFixed(0)}%`, sub: `goal: ${formatCurrency(goalAmt)}/mo`, color: savingsRate >= 20 ? "text-emerald-600" : savingsRate >= 10 ? "text-amber-600" : "text-red-500" },
-    { label: "Budget used", value: `${budgetPct.toFixed(0)}%`, sub: budgetPct > 80 ? "getting close 👀" : "on track", color: "text-[#0f172a]" },
-  ];
+  const daysElapsed  = now.getDate();
+  const daysInMonth  = new Date(year, month, 0).getDate();
+  const dailyBudget  = budget > 0 ? budget / daysInMonth : 0;
+  const dailyAvg     = daysElapsed > 0 ? monthlySpend / daysElapsed : 0;
+  const projectedSpend = dailyAvg * daysInMonth;
+
+  // Trend chart data
+  const dailyMap: Record<number, number> = {};
+  for (const tx of monthTx) {
+    const d = new Date(tx.date).getDate();
+    dailyMap[d] = (dailyMap[d] ?? 0) + tx.amount;
+  }
+  let cumulative = 0;
+  const trendData = Array.from({ length: daysElapsed }, (_, i) => {
+    const day = i + 1;
+    cumulative += dailyMap[day] ?? 0;
+    return { day, cumulative: Math.round(cumulative), pace: Math.round(dailyBudget * day) };
+  });
+
+  // Category chart data
+  const catMap: Record<string, number> = {};
+  for (const tx of monthTx) catMap[tx.category] = (catMap[tx.category] ?? 0) + tx.amount;
+  const categoryData = Object.entries(catMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([name, value]) => ({ name, value: Math.round(value) }));
+  const topCategory = categoryData[0];
+
+  // Heatmap data
+  const heatMap: Record<string, { total: number; count: number }> = {};
+  for (const tx of heatTx) {
+    const key = tx.date.toISOString().slice(0, 10);
+    if (!heatMap[key]) heatMap[key] = { total: 0, count: 0 };
+    heatMap[key].total += tx.amount;
+    heatMap[key].count += 1;
+  }
+  const heatData = Object.entries(heatMap).map(([date, v]) => ({ date, ...v }));
+
+  const onPace  = budget > 0 && monthlySpend <= dailyBudget * daysElapsed;
+  const noSpends = monthTx.length === 0;
+  const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="space-y-7">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#0f172a]">
-          Good {now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"},{" "}
-          {user.name.split(" ")[0]} 👋
-        </h1>
-        <p className="text-[#94a3b8] text-sm mt-0.5 font-light">
-          {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-        </p>
+    <div className="space-y-5">
+
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#713f12]">
+            {greeting}, {user.name.split(" ")[0]}
+          </h1>
+          <p className="text-[#b45309] text-sm mt-0.5 font-light">
+            {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        </div>
+        {!noSpends && budget > 0 && (
+          <div className={`text-xs px-3 py-1.5 rounded-full font-semibold border ${
+            onPace
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : "bg-red-50 text-red-600 border-red-200"
+          }`}>
+            {onPace ? "On budget pace" : "Over pace"}
+          </div>
+        )}
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {STATS.map((s) => (
-          <div key={s.label} className="bg-white rounded-2xl border border-[#e2e8f0] p-5 shadow-sm">
-            <p className="text-xs text-[#94a3b8] font-medium uppercase tracking-wide mb-2">{s.label}</p>
-            <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-[#94a3b8] mt-1 font-light">{s.sub}</p>
-            {s.label === "Budget used" && (
-              <div className="mt-3 h-1.5 bg-[#f1f5f9] rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${budgetPct > 80 ? "bg-red-400" : "bg-indigo-500"}`}
-                  style={{ width: `${budgetPct}%` }}
-                />
+      {/* ── Stat cards ──────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
+        {/* Spent */}
+        <div className="bg-amber-50 rounded-2xl border border-amber-200 p-5 shadow-sm">
+          <div className="w-7 h-7 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center mb-3">
+            <svg className="w-3.5 h-3.5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-4-6h8" />
+            </svg>
+          </div>
+          <p className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider">Spent this month</p>
+          <p className="text-xl font-bold text-amber-700 mt-1">{formatCurrency(monthlySpend)}</p>
+          <p className="text-xs text-amber-600 mt-0.5 font-light">
+            {budget > 0 ? `${budgetPct.toFixed(0)}% of ${formatCurrency(budget)}` : "no budget set"}
+          </p>
+          {budget > 0 && (
+            <div className="mt-3 h-1.5 bg-amber-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${budgetPct > 90 ? "bg-red-400" : budgetPct > 70 ? "bg-orange-400" : "bg-amber-500"}`}
+                style={{ width: `${budgetPct}%` }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Remaining */}
+        <div className={`rounded-2xl border p-5 shadow-sm ${remaining >= 0 ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center mb-3 ${remaining >= 0 ? "bg-emerald-100 border border-emerald-200" : "bg-red-100 border border-red-200"}`}>
+            <svg className={`w-3.5 h-3.5 ${remaining >= 0 ? "text-emerald-700" : "text-red-500"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d={remaining >= 0 ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"} />
+            </svg>
+          </div>
+          <p className={`text-[10px] font-semibold uppercase tracking-wider ${remaining >= 0 ? "text-emerald-600" : "text-red-500"}`}>Remaining</p>
+          <p className={`text-xl font-bold mt-1 ${remaining >= 0 ? "text-emerald-700" : "text-red-600"}`}>{formatCurrency(Math.abs(remaining))}</p>
+          <p className={`text-xs mt-0.5 font-light ${remaining >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+            {remaining < 0 ? "over budget" : budget > 0 ? "left this month" : "no budget set"}
+          </p>
+        </div>
+
+        {/* Savings rate */}
+        <div className="bg-violet-50 rounded-2xl border border-violet-200 p-5 shadow-sm">
+          <div className="w-7 h-7 rounded-lg bg-violet-100 border border-violet-200 flex items-center justify-center mb-3">
+            <svg className="w-3.5 h-3.5 text-violet-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <p className="text-[10px] text-violet-600 font-semibold uppercase tracking-wider">Savings rate</p>
+          <p className={`text-xl font-bold mt-1 ${savingsRate >= 20 ? "text-violet-700" : savingsRate >= 10 ? "text-amber-600" : "text-red-500"}`}>
+            {savingsRate.toFixed(0)}%
+          </p>
+          <p className="text-xs text-violet-600 mt-0.5 font-light">
+            {goalAmt > 0 ? `goal ${formatCurrency(goalAmt)}/mo` : "set a savings goal"}
+          </p>
+        </div>
+
+        {/* Transactions / Daily avg */}
+        <div className="bg-sky-50 rounded-2xl border border-sky-200 p-5 shadow-sm">
+          <div className="w-7 h-7 rounded-lg bg-sky-100 border border-sky-200 flex items-center justify-center mb-3">
+            <svg className="w-3.5 h-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <p className="text-[10px] text-sky-600 font-semibold uppercase tracking-wider">Transactions</p>
+          <p className="text-xl font-bold text-sky-700 mt-1">{monthTx.length}</p>
+          <p className="text-xs text-sky-600 mt-0.5 font-light">
+            {dailyAvg > 0 ? `${formatCurrency(dailyAvg)}/day avg` : "this month"}
+          </p>
+        </div>
+      </div>
+
+      {/* ── Insight strip ────────────────────────────────────────── */}
+      {!noSpends && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-[#fefce8] rounded-xl border border-[#fde68a] px-4 py-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <div>
+              <p className="text-[10px] text-[#b45309] font-semibold uppercase tracking-wide">Daily average</p>
+              <p className="text-sm font-bold text-[#713f12]">{formatCurrency(dailyAvg)}</p>
+            </div>
+          </div>
+          <div className="bg-[#fefce8] rounded-xl border border-[#fde68a] px-4 py-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            </div>
+            <div>
+              <p className="text-[10px] text-[#b45309] font-semibold uppercase tracking-wide">Month projection</p>
+              <p className={`text-sm font-bold ${projectedSpend > budget && budget > 0 ? "text-red-500" : "text-[#713f12]"}`}>
+                {formatCurrency(projectedSpend)}
+              </p>
+            </div>
+          </div>
+          {topCategory && (
+            <div className="bg-[#fefce8] rounded-xl border border-[#fde68a] px-4 py-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                <span className="text-[11px] font-bold text-amber-700 uppercase">{topCategory.name.slice(0, 2)}</span>
               </div>
+              <div>
+                <p className="text-[10px] text-[#b45309] font-semibold uppercase tracking-wide">Top category</p>
+                <p className="text-sm font-bold text-[#713f12]">{topCategory.name} · {formatCurrency(topCategory.value)}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Spending trend + Category ─────────────────────────── */}
+      <div className="grid md:grid-cols-5 gap-4">
+        <div className="md:col-span-3 bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-sm font-semibold text-[#713f12]">Spending trend</h2>
+              <p className="text-xs text-[#b45309] font-light mt-0.5">Cumulative vs budget pace (dashed)</p>
+            </div>
+            {budget > 0 && (
+              <span className="text-xs text-[#b45309] bg-[#fef9c3] px-2 py-1 rounded-lg font-medium">{budgetPct.toFixed(0)}% used</span>
             )}
           </div>
-        ))}
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-5">
-        {/* Recent transactions */}
-        <div className="bg-white rounded-2xl border border-[#e2e8f0] p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-[#0f172a]">Recent spends</h2>
-            <a href="/dashboard/transactions" className="text-xs text-indigo-600 hover:underline font-medium">View all →</a>
-          </div>
-          {recentTx.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-3xl mb-2">🫙</p>
-              <p className="text-[#64748b] text-sm">No transactions yet</p>
-              <a href="/dashboard/transactions" className="text-indigo-600 text-xs hover:underline mt-1 inline-block font-medium">Add your first spend →</a>
+          {noSpends ? (
+            <div className="flex flex-col items-center justify-center h-[210px]">
+              <p className="text-[#b45309] text-sm font-light">Log a spend to see your trend</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <SpendTrendChart data={trendData} />
+          )}
+        </div>
+        <div className="md:col-span-2 bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-[#713f12] mb-0.5">By category</h2>
+          <p className="text-xs text-[#b45309] font-light mb-1">Where your money goes</p>
+          <CategoryChart data={categoryData} />
+        </div>
+      </div>
+
+      {/* ── Spending heatmap ─────────────────────────────────── */}
+      <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-semibold text-[#713f12]">Spending heatmap</h2>
+            <p className="text-xs text-[#b45309] font-light mt-0.5">Last 3 months — darker = more spent</p>
+          </div>
+        </div>
+        <HeatmapInline data={heatData} />
+      </div>
+
+      {/* ── Recent spends + Goals ─────────────────────────────── */}
+      <div className="grid md:grid-cols-2 gap-4">
+
+        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-[#713f12]">Recent spends</h2>
+            <a href="/dashboard/transactions" className="text-xs text-amber-600 hover:underline font-medium">View all</a>
+          </div>
+          {recentTx.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-[#78350f] text-sm">No transactions yet</p>
+              <a href="/dashboard/transactions" className="text-amber-600 text-xs hover:underline mt-1 inline-block font-medium">Add your first spend</a>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
               {recentTx.map((tx) => (
-                <div key={tx.id} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] flex items-center justify-center text-base shrink-0">
-                    {CAT_EMOJI[tx.category] ?? "💸"}
+                <div key={tx.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#fef9c3] transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-bold text-amber-700 uppercase">{tx.category.slice(0, 2)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#0f172a] font-medium truncate">{tx.description}</p>
-                    <p className="text-xs text-[#94a3b8] font-light">{tx.category} · {new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                    <p className="text-sm text-[#713f12] font-medium truncate">{tx.description}</p>
+                    <p className="text-xs text-[#b45309] font-light">
+                      {tx.category} · {new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-[#0f172a]">{formatCurrency(tx.amount)}</p>
-                    {tx.isNecessary === false && (
-                      <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md">unnecessary</span>
-                    )}
+                    <p className="text-sm font-semibold text-[#713f12]">{formatCurrency(tx.amount)}</p>
+                    {tx.isNecessary === false && <span className="text-[10px] text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded-md">skip</span>}
+                    {tx.isNecessary === true  && <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">ok</span>}
                   </div>
                 </div>
               ))}
@@ -110,32 +293,38 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Goals */}
-        <div className="bg-white rounded-2xl border border-[#e2e8f0] p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-[#0f172a]">Savings goals</h2>
-            <a href="/dashboard/goals" className="text-xs text-indigo-600 hover:underline font-medium">Manage →</a>
+        <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-[#713f12]">Savings goals</h2>
+            <a href="/dashboard/goals" className="text-xs text-amber-600 hover:underline font-medium">Manage</a>
           </div>
           {goals.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-3xl mb-2">🎯</p>
-              <p className="text-[#64748b] text-sm">No goals yet</p>
-              <a href="/dashboard/goals" className="text-indigo-600 text-xs hover:underline mt-1 inline-block font-medium">Set a goal →</a>
+            <div className="text-center py-8">
+              <p className="text-[#78350f] text-sm">No goals yet</p>
+              <a href="/dashboard/goals" className="text-amber-600 text-xs hover:underline mt-1 inline-block font-medium">Set a goal</a>
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-4">
               {goals.map((goal) => {
                 const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
                 return (
-                  <div key={goal.id}>
-                    <div className="flex justify-between mb-1.5">
-                      <span className="text-sm text-[#0f172a] font-medium">{goal.title}</span>
-                      <span className="text-xs text-[#64748b]">{formatCurrency(goal.savedAmount)} / {formatCurrency(goal.targetAmount)}</span>
+                  <div key={goal.id} className="p-3 rounded-xl bg-[#fef9c3] border border-[#fde68a]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-[#713f12] font-semibold">{goal.title}</span>
+                      <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                        {pct.toFixed(0)}%
+                      </span>
                     </div>
-                    <div className="h-2 bg-[#f1f5f9] rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-2 bg-[#fefce8] rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${pct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`}
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
-                    <p className="text-xs text-[#94a3b8] mt-1 font-light">{pct.toFixed(0)}% complete</p>
+                    <div className="flex justify-between text-xs text-[#b45309] mt-1.5 font-light">
+                      <span>{formatCurrency(goal.savedAmount)} saved</span>
+                      <span>{formatCurrency(goal.targetAmount)} target</span>
+                    </div>
                   </div>
                 );
               })}
@@ -144,29 +333,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Budget by category */}
-      {budgets.length > 0 && (
-        <div className="bg-white rounded-2xl border border-[#e2e8f0] p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-[#0f172a] mb-5">Budget by category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {budgets.map((b) => {
-              const pct = budget > 0 ? (b.spent / b.limit) * 100 : 0;
-              return (
-                <div key={b.id}>
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-[#64748b] font-medium">{CAT_EMOJI[b.category]} {b.category}</span>
-                    <span className={pct > 80 ? "text-red-500 font-semibold" : "text-[#94a3b8]"}>{pct.toFixed(0)}%</span>
-                  </div>
-                  <div className="h-1.5 bg-[#f1f5f9] rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${pct > 80 ? "bg-red-400" : "bg-indigo-400"}`} style={{ width: `${Math.min(pct, 100)}%` }} />
-                  </div>
-                  <p className="text-[10px] text-[#94a3b8] mt-1 font-light">{formatCurrency(b.spent)} / {formatCurrency(b.limit)}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
