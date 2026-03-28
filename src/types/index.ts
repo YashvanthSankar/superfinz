@@ -1,6 +1,68 @@
-import type { User, Profile, Transaction, Budget, Goal } from "@prisma/client";
+// Local type definitions — mirrors Prisma schema without importing from @prisma/client
 
-export type { User, Profile, Transaction, Budget, Goal };
+export type User = {
+  id: string;
+  email: string;
+  googleId: string | null;
+  avatar: string | null;
+  name: string;
+  age: number;
+  userType: "SCHOOL_STUDENT" | "COLLEGE_STUDENT" | "PROFESSIONAL";
+  onboarded: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Profile = {
+  id: string;
+  userId: string;
+  institution: string | null;
+  monthlyAllowance: number | null;
+  incomeSources: string[];
+  company: string | null;
+  monthlySalary: number | null;
+  industry: string | null;
+  monthlyBudget: number;
+  savingsGoal: number;
+  currency: string;
+  spendingPattern: string;
+  cycleStartDate: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Transaction = {
+  id: string;
+  userId: string;
+  amount: number;
+  category: string;
+  description: string;
+  isNecessary: boolean | null;
+  aiNote: string | null;
+  date: Date;
+  createdAt: Date;
+};
+
+export type Budget = {
+  id: string;
+  userId: string;
+  category: string;
+  limit: number;
+  month: number;
+  year: number;
+  spent: number;
+};
+
+export type Goal = {
+  id: string;
+  userId: string;
+  title: string;
+  targetAmount: number;
+  savedAmount: number;
+  deadline: Date | null;
+  achieved: boolean;
+  createdAt: Date;
+};
 
 export type UserWithProfile = User & { profile: Profile | null };
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
-import type { Transaction } from "@prisma/client";
+import type { Transaction } from "@/types";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

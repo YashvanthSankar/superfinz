@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
-import type { Goal } from "@prisma/client";
+import type { Goal } from "@/types";
 
 function retireAge(currentAge: number, monthlySavings: number, corpus: number): number | null {
   if (monthlySavings <= 0) return null;
