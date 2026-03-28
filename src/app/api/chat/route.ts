@@ -12,10 +12,9 @@ const schema = z.object({
 });
 
 const MODELS = [
-  "google/gemma-3-27b-it:free",
-  "google/gemma-3-12b-it:free",
-  "google/gemma-3-4b-it:free",
-  "liquid/lfm-2.5-1.2b-instruct:free",
+  "llama-3.3-70b-versatile",
+  "llama-3.1-8b-instant",
+  "gemma2-9b-it",
 ];
 
 function fmt(n: number) {
@@ -174,7 +173,7 @@ function smartFallback(
   return `You've spent ${fmt(data.monthlySpend)} this month (${data.budgetPct.toFixed(0)}% of budget). ${fmt(data.remaining)} remaining. Ask me about specific purchases or your savings goals!`;
 }
 
-async function callOpenRouter(
+async function callGroq(
   apiKey: string,
   model: string,
   messages: Array<{ role: string; content: string }>,
@@ -184,13 +183,11 @@ async function callOpenRouter(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXTAUTH_URL ?? "http://localhost:3000",
-        "X-Title": "SuperFinz",
       },
       body: JSON.stringify({
         model,
@@ -203,7 +200,7 @@ async function callOpenRouter(
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      throw new Error(`OpenRouter ${res.status}: ${text.slice(0, 100)}`);
+      throw new Error(`Groq ${res.status}: ${text.slice(0, 100)}`);
     }
 
     const data = await res.json();
@@ -260,7 +257,7 @@ export async function POST(req: NextRequest) {
 
   const fallbackData = { name: user.name, monthlySpend, monthlyBudget: budget, budgetPct, remaining, savingsGoal, transactions: recentTx, goals };
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ reply: smartFallback(message, fallbackData) });
   }
@@ -285,10 +282,10 @@ export async function POST(req: NextRequest) {
     { role: "user", content: message },
   ];
 
-  // Try each model in sequence with a 6s timeout
+  // Try each model in sequence with a 10s timeout
   for (const model of MODELS) {
     try {
-      const reply = await callOpenRouter(apiKey, model, aiMessages, 12000);
+      const reply = await callGroq(apiKey, model, aiMessages, 10000);
       return NextResponse.json({ reply });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
           create: {
             institution: data.institution,
             monthlyAllowance: data.monthlyAllowance,
-            incomeSources: { set: (data.incomeSources ?? []) as import("@prisma/client").IncomeSource[] },
+            incomeSources: { set: (data.incomeSources ?? []) as never[] },
             company: data.company,
             monthlySalary: data.monthlySalary,
             industry: data.industry,
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
           update: {
             institution: data.institution,
             monthlyAllowance: data.monthlyAllowance,
-            incomeSources: { set: (data.incomeSources ?? []) as import("@prisma/client").IncomeSource[] },
+            incomeSources: { set: (data.incomeSources ?? []) as never[] },
             company: data.company,
             monthlySalary: data.monthlySalary,
             industry: data.industry,
