@@ -41,3 +41,6 @@ body {
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+
+/* iOS safe area for bottom nav */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }

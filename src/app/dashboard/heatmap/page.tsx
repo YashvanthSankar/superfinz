@@ -71,14 +71,14 @@ export default function HeatmapPage() {
           { label: "Active spend days", value: activeDays.toString() },
           { label: "Avg per spend day", value: formatCurrency(avgPerActiveDay) },
         ].map((s) => (
-          <div key={s.label} className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-5 shadow-sm">
+          <div key={s.label} className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm">
             <p className="text-[10px] text-[#b45309] font-semibold uppercase tracking-wider mb-2">{s.label}</p>
             <p className="text-xl font-bold text-[#713f12]">{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#fefce8] rounded-2xl border border-[#fde68a] p-6 shadow-sm">
+      <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-6 shadow-sm">
         <h2 className="text-sm font-semibold text-[#713f12] mb-5">Activity</h2>
 
         {loading ? (
@@ -111,13 +111,13 @@ export default function HeatmapPage() {
             <div className="flex items-center gap-1.5 mt-4 justify-end">
               <span className="text-[10px] text-[#b45309]">Less</span>
               {INTENSITY_CLASSES.map((c, i) => (
-                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-[#fde68a]`} />
+                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-amber-400`} />
               ))}
               <span className="text-[10px] text-[#b45309]">More</span>
             </div>
 
             {tooltip && tooltip.total > 0 && (
-              <div className="mt-4 bg-[#fefce8] border border-[#fde68a] rounded-xl p-4 text-sm">
+              <div className="mt-4 bg-[#fefce8] border border-amber-400 rounded-xl p-4 text-sm">
                 <p className="font-semibold text-[#713f12]">
                   {new Date(tooltip.date).toLocaleDateString("en-IN", {
                     weekday: "long", day: "numeric", month: "long",

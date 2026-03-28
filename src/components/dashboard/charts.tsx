@@ -57,7 +57,7 @@ export function SpendTrendChart({ data }: { data: TrendPoint[] }) {
           content={({ active, payload, label }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-[#fefce8] border border-[#fde68a] rounded-xl p-3 text-xs shadow-md">
+              <div className="bg-[#fefce8] border border-amber-400 rounded-xl p-3 text-xs shadow-md">
                 <p className="text-[#b45309] mb-1.5 font-medium">Day {label}</p>
                 {payload.map((p) => (
                   <p key={p.name as string} style={{ color: p.color as string }} className="font-semibold">
@@ -127,7 +127,7 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           content={({ active, payload }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-[#fefce8] border border-[#fde68a] rounded-xl p-3 text-xs shadow-md">
+              <div className="bg-[#fefce8] border border-amber-400 rounded-xl p-3 text-xs shadow-md">
                 <p className="font-semibold text-[#713f12]">{payload[0].name as string}</p>
                 <p className="text-[#78350f] mt-0.5">{formatCurrency(payload[0].value as number)}</p>
               </div>

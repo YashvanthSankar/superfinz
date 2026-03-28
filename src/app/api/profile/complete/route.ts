@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { financePlanError } from "@/lib/finance";
 import { z } from "zod";
 
 const schema = z.object({
@@ -31,6 +32,28 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data;
+
+  const monthlyIncome = data.userType === "PROFESSIONAL"
+    ? (data.monthlySalary ?? 0)
+    : (data.monthlyAllowance ?? 0);
+
+  if (data.userType === "PROFESSIONAL" && !data.monthlySalary) {
+    return NextResponse.json({ error: "Monthly salary is required for professionals." }, { status: 400 });
+  }
+
+  if ((data.userType === "SCHOOL_STUDENT" || data.userType === "COLLEGE_STUDENT") && !data.monthlyAllowance) {
+    return NextResponse.json({ error: "Monthly allowance is required for students." }, { status: 400 });
+  }
+
+  const planError = financePlanError({
+    monthlyIncome,
+    monthlyBudget: data.monthlyBudget,
+    savingsGoal: data.savingsGoal,
+  });
+
+  if (planError) {
+    return NextResponse.json({ error: planError }, { status: 400 });
+  }
 
   await prisma.user.update({
     where: { id: session.user.id },

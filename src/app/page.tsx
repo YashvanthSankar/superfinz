@@ -134,7 +134,7 @@ export default function Landing() {
         {/* Dashboard preview */}
         <div className="mt-16 relative">
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#fefce8] to-transparent z-10 pointer-events-none rounded-b-3xl" />
-          <div className="rounded-2xl border border-[#fde68a] bg-[#fefce8] overflow-hidden shadow-2xl shadow-slate-200/80 text-left">
+          <div className="rounded-2xl border border-amber-400 bg-[#fefce8] overflow-hidden shadow-2xl shadow-slate-200/80 text-left">
             {/* Chrome bar */}
             <div className="flex items-center gap-1.5 px-4 py-3 bg-[#fefce8] border-b border-[#fde68a]">
               <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
@@ -173,14 +173,14 @@ export default function Landing() {
                     { l: "Savings rate", v: "28%",    s: "vs last month",    c: "text-emerald-600" },
                     { l: "Budget used",  v: "65%",    s: "on track",         c: "text-[#713f12]" },
                   ].map((s) => (
-                    <div key={s.l} className="bg-[#fefce8] border border-[#fde68a] rounded-xl p-3 shadow-sm">
+                    <div key={s.l} className="bg-[#fefce8] border border-amber-400 rounded-xl p-3 shadow-sm">
                       <p className="text-[9px] text-[#b45309] uppercase tracking-wide mb-1">{s.l}</p>
                       <p className={`text-sm font-bold ${s.c}`}>{s.v}</p>
                       <p className="text-[8px] text-[#fcd34d] mt-1">{s.s}</p>
                     </div>
                   ))}
                 </div>
-                <div className="bg-[#fefce8] border border-[#fde68a] rounded-xl p-4 shadow-sm">
+                <div className="bg-[#fefce8] border border-amber-400 rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-xs font-semibold text-[#713f12]">Recent spends</p>
                     <p className="text-[9px] text-amber-500">View all</p>
@@ -188,7 +188,7 @@ export default function Landing() {
                   <div className="space-y-2.5">
                     {MOCK_TX.map((tx, i) => (
                       <div key={i} className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-md bg-[#fefce8] border border-[#fde68a] flex items-center justify-center shrink-0">
+                        <div className="w-6 h-6 rounded-md bg-[#fefce8] border border-amber-400 flex items-center justify-center shrink-0">
                           <span className="text-[8px] font-bold text-[#78350f] uppercase">{tx.cat.slice(0,2)}</span>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -264,7 +264,7 @@ export default function Landing() {
             <br /><span className="text-[#b45309]">Nothing you don&apos;t.</span>
           </h2>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#fde68a] rounded-2xl overflow-hidden border border-[#fde68a]">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#fde68a] rounded-2xl overflow-hidden border border-amber-400">
           {FEATURES.map((f, i) => (
             <div
               key={f.title}
@@ -304,8 +304,8 @@ export default function Landing() {
             ].map((msg, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex gap-2.5">
-                  <div className="w-6 h-6 rounded-full bg-[#fef9c3] border border-[#fde68a] flex items-center justify-center text-[9px] text-[#78350f] shrink-0 mt-0.5 font-medium">you</div>
-                  <div className="bg-[#fefce8] border border-[#fde68a] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-[#92400e] shadow-sm">{msg.user}</div>
+                  <div className="w-6 h-6 rounded-full bg-[#fef9c3] border border-amber-400 flex items-center justify-center text-[9px] text-[#78350f] shrink-0 mt-0.5 font-medium">you</div>
+                  <div className="bg-[#fefce8] border border-amber-400 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-[#92400e] shadow-sm">{msg.user}</div>
                 </div>
                 <div className="flex gap-2.5 flex-row-reverse">
                   <div className="w-6 h-6 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-[9px] text-amber-600 shrink-0 mt-0.5 font-semibold">AI</div>
