@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { Goal } from "@prisma/client";
+import { type Goal } from "@/generated/prisma/client";
 import { formatCurrency } from "@/lib/utils";
 
 export function SmartSplitModal({
@@ -22,6 +22,7 @@ export function SmartSplitModal({
   const [newPlanTitle, setNewPlanTitle] = useState("");
   const [newPlanTarget, setNewPlanTarget] = useState("");
   const [newPlanDeadline, setNewPlanDeadline] = useState("");
+  const [newPlanEssential, setNewPlanEssential] = useState(false);
 
   // Splitting state
   const [allocations, setAllocations] = useState<Record<string, number>>({});
@@ -36,9 +37,14 @@ export function SmartSplitModal({
       setIsOpen(true);
       localStorage.setItem("smart_split_last_prompt", today);
       
-      // Auto-calculate split based on deadlines
+      // Auto-calculate split based on urgency and priority
       if (goals.length > 0) {
         const sorted = [...goals].sort((a, b) => {
+          // Priority 1: Essentials beat non-essentials unconditionally
+          if (a.isEssential && !b.isEssential) return -1;
+          if (!a.isEssential && b.isEssential) return 1;
+          
+          // Priority 2: Closest deadlines within the same priority class
           if (!a.deadline) return 1;
           if (!b.deadline) return -1;
           return a.deadline.getTime() - b.deadline.getTime();
@@ -76,6 +82,7 @@ export function SmartSplitModal({
           title: newPlanTitle,
           targetAmount: parseFloat(newPlanTarget),
           deadline: newPlanDeadline,
+          isEssential: newPlanEssential,
         }),
       });
       // Redirect to refresh the wrapper
@@ -155,6 +162,10 @@ export function SmartSplitModal({
                   value={newPlanDeadline} 
                   onChange={(e) => setNewPlanDeadline(e.target.value)} 
                 />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="essential" checked={newPlanEssential} onChange={e => setNewPlanEssential(e.target.checked)} className="accent-emerald-500 w-4 h-4" />
+                <label htmlFor="essential" className="text-sm text-text">Is this an essential need?</label>
               </div>
             </div>
             <div className="flex gap-3 pt-4">

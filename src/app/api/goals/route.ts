@@ -8,6 +8,7 @@ const createSchema = z.object({
   title: z.string().min(1),
   targetAmount: z.number().positive(),
   deadline: z.string().optional(),
+  isEssential: z.boolean().optional().default(false),
 });
 
 const updateSchema = z.object({
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
       title: parsed.data.title,
       targetAmount: parsed.data.targetAmount,
       deadline: parsed.data.deadline ? new Date(parsed.data.deadline) : undefined,
+      isEssential: parsed.data.isEssential,
     },
   });
 

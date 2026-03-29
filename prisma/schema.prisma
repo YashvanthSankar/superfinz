@@ -112,6 +112,7 @@ model Goal {
   savedAmount  Float     @default(0)
   deadline     DateTime?
   achieved     Boolean   @default(false)
+  isEssential  Boolean   @default(false)
   createdAt    DateTime  @default(now())
 
   @@map("goals")
