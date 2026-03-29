@@ -27,7 +27,7 @@ export const proxy = auth((req) => {
   }
 
   // Allow login page when logged out (prevents /login -> /login redirect loop)
-  if (!session && pathname === "/login") {
+  if (pathname === "/login") {
     return NextResponse.next();
   }
 
@@ -38,20 +38,8 @@ export const proxy = auth((req) => {
     return NextResponse.redirect(url);
   }
 
-  // Logged in, skip login page
-  if (pathname === "/login") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
-  // Not onboarded — force to onboarding
-  if (!session.user.onboarded && !pathname.startsWith("/onboarding")) {
-    return NextResponse.redirect(new URL("/onboarding", req.url));
-  }
-
-  // Already onboarded — block re-entering onboarding
-  if (session.user.onboarded && pathname.startsWith("/onboarding")) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
+  // Onboarding redirects are handled in route/layout logic using DB-backed session checks.
+  // Keeping this out of proxy avoids production redirect loops from stale JWT fields.
 
   return NextResponse.next();
 });
