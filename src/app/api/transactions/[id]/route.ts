@@ -30,6 +30,6 @@ export async function DELETE(
     data: { spent: { decrement: tx.amount } },
   });
 
-  revalidateTag(`dashboard-${session.userId}`);
+  revalidateTag(`dashboard-${session.userId}`, "default");
   return NextResponse.json({ success: true });
 }

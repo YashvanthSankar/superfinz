@@ -75,6 +75,6 @@ export async function POST(req: NextRequest) {
     data: { spent: { increment: amount } },
   });
 
-  revalidateTag(`dashboard-${session.userId}`);
+  revalidateTag(`dashboard-${session.userId}`, "default");
   return NextResponse.json({ transaction }, { status: 201 });
 }
