@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutDashboard, ArrowLeftRight, Calculator,
   Newspaper, Target, User, LogOut, TrendingUp, BookOpen,
@@ -30,8 +31,9 @@ export function Sidebar() {
       {/* ─── Desktop sidebar ─────────────────────────────────────── */}
       <aside className="hidden lg:flex w-52 shrink-0 bg-background border-r border-surface flex-col h-screen sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-surface">
+        <div className="px-5 py-5 border-b border-surface flex items-center justify-between">
           <Logo size="md" />
+          <ThemeToggle className="scale-90" />
         </div>
 
         {/* Nav */}
@@ -83,8 +85,8 @@ export function Sidebar() {
             </a>
           )}
           <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium"
+            onClick={() => signOut({ callbackUrl: " /" })}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium" 
           >
             <LogOut size={14} />
             Sign out
@@ -92,10 +94,11 @@ export function Sidebar() {
         </div>
       </aside>
 
-      {/* ─── Mobile top bar ──────────────────────────────────────── */}
+      {/* ─── Mobile top bar ──────────────────────────────────────── */} 
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background/95 backdrop-blur border-b border-surface flex items-center justify-between px-4">
         <Logo size="md" />
         <div className="flex items-center gap-2">
+          <ThemeToggle className="scale-90" />
           <a
             href="/dashboard/profile"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-amber-50 transition-all"
@@ -112,7 +115,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* ─── Mobile bottom nav ───────────────────────────────────── */}
+      {/* ─── Mobile bottom nav ───────────────────────────────────── */}       
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-surface flex items-stretch pb-safe">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
@@ -131,7 +134,7 @@ export function Sidebar() {
                 className={cn("transition-all", active ? "text-amber-600" : "")}
                 strokeWidth={active ? 2.5 : 1.75}
               />
-              <span className={active ? "font-semibold" : ""}>{label}</span>
+              <span className={active ? "font-semibold" : ""}>{label}</span>    
             </a>
           );
         })}
@@ -139,3 +142,4 @@ export function Sidebar() {
     </>
   );
 }
+

@@ -1,33 +1,32 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display, Inter } from "next/font/google";
-import "./globals.css";
-import { Providers } from "@/components/session-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono, Playfair_Display, Inter } from 'next/font/google';
+import './globals.css';
+import { Providers } from '@/components/session-provider';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "700", "800", "900"],
+  variable: '--font-playfair',
+  subsets: ['latin'],
+  weight: ['400', '700', '800', '900'],
 });
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+  variable: '--font-inter',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "SuperFinz â€” Gen Z Finance Dashboard",
-  description: "All-in-one finance dashboard for students and young professionals",
+  title: 'SuperFinz — Gen Z Finance Dashboard',
+  description: 'All-in-one finance dashboard for students and young professionals',
 };
 
 export default function RootLayout({
@@ -42,7 +41,6 @@ export default function RootLayout({
     >
       <body className="min-h-screen relative">
         <Providers>{children}</Providers>
-        <ThemeToggle />
       </body>
     </html>
   );
