@@ -574,7 +574,7 @@ export default function Landing() {
                   ].map((s) => (
                     <div key={s.l} className="rounded-xl p-3 shadow-sm border" style={{ background: "#fefce8", borderColor: "#fde68a" }}>
                       <p className="text-[9px] uppercase tracking-wide mb-1" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>{s.l}</p>
-                      <p className="text-sm font-bold" style={{ color: s.c, fontFamily: "var(--font-geist-mono)" }}>{s.v}</p>
+                      <p className="text-sm font-bold" style={{ color: s.c, fontFamily: "var(--font-inter)" }}>{s.v}</p>
                       <p className="text-[8px] mt-1" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>{s.s}</p>
                     </div>
                   ))}
@@ -595,7 +595,7 @@ export default function Landing() {
                           <p className="text-[9px]" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>{tx.cat}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-[11px] font-semibold" style={{ color: "#4A2C19", fontFamily: "var(--font-geist-mono)" }}>{tx.amt}</p>
+                          <p className="text-[11px] font-semibold" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>{tx.amt}</p>
                           <p className="text-[9px]" style={{ color: tx.ok ? "#059669" : "#C2410C", fontFamily: "var(--font-inter)" }}>
                             {tx.ok ? "necessary" : "unnecessary"}
                           </p>
@@ -620,7 +620,7 @@ export default function Landing() {
                     <div key={g.name}>
                       <div className="flex justify-between text-[9px] mb-1">
                         <span style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}>{g.name}</span>
-                        <span className="font-medium" style={{ color: "#C2410C", fontFamily: "var(--font-geist-mono)" }}>{g.pct}%</span>
+                        <span className="font-medium" style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}>{g.pct}%</span>
                       </div>
                       <div className="h-1 rounded-full overflow-hidden" style={{ background: "#E8DDD0" }}>
                         <div className="h-full rounded-full" style={{ width: `${g.pct}%`, background: "#C2410C" }} />
