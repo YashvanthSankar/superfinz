@@ -2,6 +2,12 @@
 
 # SuperFinz
 
+## Demo Assets
+
+**Demo Video (Google Drive):** https://drive.google.com/file/d/1PlJKa4x0RGQbOKFUqJNWYxYmiQfH3yRr/view?usp=sharing  
+**PPT:** [PPT.pdf](PPT.pdf)  
+**Direct Video Link File:** [DEMO_VIDEO.txt](DEMO_VIDEO.txt)
+
 ### The all-in-one Gen Z personal finance dashboard
 
 *Built for Vashisht 3.0 · IIITDM Kancheepuram · March 2026*
