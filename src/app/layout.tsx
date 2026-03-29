@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "@/components/session-provider";
 
@@ -24,6 +25,19 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const gatwick = localFont({
+  src: [
+    { path: "../../public/Gatwick/Gatwick-Regular.otf", weight: "400", style: "normal" },
+    { path: "../../public/Gatwick/Gatwick-Medium.otf", weight: "500", style: "normal" },
+    { path: "../../public/Gatwick/Gatwick-Bold.otf", weight: "700", style: "normal" },
+    { path: "../../public/Gatwick/Gatwick-Ultrabold.otf", weight: "800", style: "normal" },
+  ],
+  variable: "--font-gatwick",
+  display: "swap",
+  preload: true,
+  fallback: ["Inter", "Arial", "sans-serif"],
+});
+
 export const metadata: Metadata = {
   title: "SuperFinz — Gen Z Finance Dashboard",
   description: "All-in-one finance dashboard for students and young professionals",
@@ -37,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${inter.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${inter.variable} ${gatwick.variable} h-full antialiased`}
     >
       <body className="min-h-screen relative">
         <Providers>{children}</Providers>

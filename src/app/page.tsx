@@ -527,9 +527,9 @@ export default function Landing() {
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           >
             <h1
-              className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
+              className="mx-auto max-w-[14ch] text-[clamp(1.75rem,8vw,4.75rem)] font-black leading-[1.08] tracking-tight"
               suppressHydrationWarning
-              style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
+              style={{ fontFamily: "var(--font-gatwick)", color: "#4A2C19" }}
             >
               Retirement planning
             </h1>
@@ -543,9 +543,9 @@ export default function Landing() {
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           >
             <div
-              className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
+              className="mx-auto max-w-[14ch] text-[clamp(1.75rem,8vw,4.75rem)] font-black leading-[1.08] tracking-tight"
               suppressHydrationWarning
-              style={{ fontFamily: "var(--font-playfair)", color: "#C2410C" }}
+              style={{ fontFamily: "var(--font-gatwick)", color: "#C2410C" }}
             >
               for Gen Z who are
             </div>
@@ -559,9 +559,9 @@ export default function Landing() {
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           >
             <h1
-              className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
+              className="mx-auto max-w-[14ch] text-[clamp(1.75rem,8vw,4.75rem)] font-black leading-[1.08] tracking-tight"
               suppressHydrationWarning
-              style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
+              style={{ fontFamily: "var(--font-gatwick)", color: "#4A2C19" }}
             >
               done being blind.
             </h1>
@@ -754,7 +754,7 @@ export default function Landing() {
             >
               <Icon size={18} className="mx-auto mb-3 opacity-40" style={{ color: "#C2410C" }} />
               <p
-                className="text-4xl md:text-5xl font-black tabular-nums"
+                className="text-3xl md:text-4xl font-black tabular-nums"
                 style={{ color: "#4A2C19", fontFamily: "var(--font-playfair)" }}
               >
                 {val}
@@ -776,8 +776,8 @@ export default function Landing() {
             What&apos;s inside
           </p>
           <h2
-            className="text-4xl md:text-5xl font-black tracking-tight leading-tight"
-            style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
+            className="text-[clamp(1.9rem,5vw,3.3rem)] font-black tracking-tight leading-tight"
+            style={{ fontFamily: "var(--font-gatwick)", color: "#4A2C19" }}
           >
             Everything you need.
             <br />
@@ -863,7 +863,7 @@ export default function Landing() {
               AI Spend Check
             </p>
             <h2
-              className="text-3xl md:text-4xl font-black tracking-tight leading-tight mb-5"
+              className="text-[clamp(1.6rem,4.5vw,2.5rem)] font-black tracking-tight leading-tight mb-5"
               style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
             >
               Your AI advisor<br />
@@ -937,8 +937,8 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[1.05] mb-8"
-            style={{ fontFamily: "var(--font-playfair)", color: "#FDFCF6" }}
+            className="text-[clamp(2rem,9vw,5.2rem)] font-black tracking-tight leading-[1.08] mb-8"
+            style={{ fontFamily: "var(--font-gatwick)", color: "#FDFCF6" }}
           >
             See your
             <br />
