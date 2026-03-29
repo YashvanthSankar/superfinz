@@ -21,7 +21,7 @@ const INCOME_SOURCES = [
 ];
 
 export default function OnboardingPage() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -94,7 +94,11 @@ export default function OnboardingPage() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error ?? "Failed to save profile");
       }
-      // Full reload — dashboard page checks onboarded from DB directly
+
+      // Refresh JWT/session so middleware sees onboarded=true immediately.
+      await update();
+
+      // Redirect after token refresh to avoid onboarding redirect loops in production.
       window.location.href = "/dashboard";
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
