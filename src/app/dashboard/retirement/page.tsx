@@ -100,7 +100,7 @@ export default function RetirementPage() {
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
             <p className={`text-[10px] font-semibold uppercase tracking-wider ${onTrack ? "text-emerald-600" : "text-amber-300"}`}>
-              {onTrack ? "You're on track 🎉" : "Gap to close 🔥"}
+              {onTrack ? "You're on track" : "Gap to close"}
             </p>
             <p className={`text-2xl font-black mt-1 ${onTrack ? "text-emerald-700" : "text-background"}`}>
               {onTrack ? `${fmtCrore(projCorpus)} projected` : `${fmtCrore(corpusGap)} short`}

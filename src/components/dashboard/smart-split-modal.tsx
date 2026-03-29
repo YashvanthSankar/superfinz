@@ -116,8 +116,8 @@ export function SmartSplitModal({
 
         {step === "ask-new" && (
           <div className="text-center space-y-5">
-            <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl">
-              🎯
+            <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             </div>
             <h2 className="text-2xl font-bold text-text">Extra Savings!</h2>
             <p className="text-accent text-sm">
@@ -180,12 +180,12 @@ export function SmartSplitModal({
         {step === "split" && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-text">AI Smart Split 🌱</h2>
+              <h2 className="text-xl font-bold text-text">AI Smart Split</h2>
               <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-3">
                 <p className="text-xs text-text leading-relaxed">
                   We built a baseline recommendation for your <strong className="text-emerald-400">{formatCurrency(unallocated)}</strong>. 
                   <br/><br/>
-                  💡 <strong>Pro tip:</strong> We prioritized your "essential" tags and closest deadlines to keep you safe. But hey, it's <em>your</em> money! If that non-essential concert ticket means everything right now, grab the sliders and move the cash wherever you want. 
+                  <strong>Pro tip:</strong> We prioritized your "essential" tags and closest deadlines to keep you safe. But it's <em>your</em> money — grab the sliders and move the cash wherever you want.
                 </p>
               </div>
             </div>
@@ -220,7 +220,7 @@ export function SmartSplitModal({
             <div className="flex gap-3 pt-4">
               <Button onClick={() => setStep("ask-new")} variant="ghost" className="flex-1">Back</Button>
               <Button onClick={handleApplySplit} disabled={isSubmitting} variant="primary" className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black">
-                {isSubmitting ? "Applying..." : "Apply Boost 🚀"}
+                {isSubmitting ? "Applying..." : "Apply Boost"}
               </Button>
             </div>
           </div>

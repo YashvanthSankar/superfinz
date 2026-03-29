@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import type { Goal } from "@/generated/prisma/client";
+import { Flame, Target } from "lucide-react";
 
 function retireAge(currentAge: number, monthlySavings: number, corpus: number): number | null {
   if (monthlySavings <= 0) return null;
@@ -68,7 +69,7 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   return (
     <div className="bg-text rounded-2xl p-5 shadow-sm text-background">
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-xl">🔥</span>
+        <Flame size={18} className="text-amber-400" />
         <h2 className="font-bold text-base">Your Freedom Number</h2>
         <span className="ml-auto text-xs text-amber-300 font-light">FIRE Calculator</span>
       </div>
@@ -236,7 +237,7 @@ export default function GoalsPage() {
         <div className="bg-background rounded-2xl border border-amber-400 shadow-sm">
           <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
             <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-4">
-              <span className="text-2xl">🎯</span>
+              <Target size={22} className="text-amber-600" />
             </div>
             <p className="font-semibold text-text">No goals yet</p>
             <p className="text-accent text-sm mt-1 font-light max-w-xs">

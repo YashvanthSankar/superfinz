@@ -14,25 +14,25 @@ const ESSENTIAL = ["Rent", "Utilities", "Health", "Education", "Transport"];
 
 const FALLBACK_ROASTS: Record<string, string[]> = {
   Food: [
-    "hey bestie, you ate out {count} times this week, is this really needed? 🥺",
-    "just checking in! another {category} spend? your budget will drop this week 🌱",
-    "that's ₹{weekSpend} on food this week! maybe cook if you wanna save for your goals? 🍳"
+    "hey bestie, you ate out {count} times this week, is this really needed?",
+    "just checking in! another {category} spend? your budget will drop this week.",
+    "that's ₹{weekSpend} on food this week! maybe cook if you wanna save for your goals?"
   ],
   Entertainment: [
-    "you've spent ₹{weekSpend} on {category} this week... just wanted to give you the full picture 💭",
-    "hey friend, maybe freeze a subscription instead? this will lower your week's budget 🫶"
+    "you've spent ₹{weekSpend} on {category} this week... just wanted to give you the full picture.",
+    "hey friend, maybe freeze a subscription instead? this will lower your week's budget."
   ],
   Shopping: [
-    "you shopped {prev} times this week! is this an essential need? you've got goals to crush 🎯",
-    "this purchase might delay your goals... ₹{amount} could totally hit your target instead 💡"
+    "you shopped {prev} times this week! is this an essential need? you've got goals to crush.",
+    "this purchase might delay your goals... ₹{amount} could totally hit your target instead."
   ],
   Transport: [
-    "cab again? ₹{amount} adds up fast to your budget! maybe public transport to save? 🚌",
-    "just a heads up! that's {prev} transport spends this week, your budget is taking a hit 📉"
+    "cab again? ₹{amount} adds up fast to your budget! maybe public transport to save?",
+    "just a heads up! that's {prev} transport spends this week, your budget is taking a hit."
   ],
   default: [
-    "is this a need or a want right now? just making sure you don't regret this drop in budget 💙",
-    "you've spent ₹{weekSpend} in {category} this week, just a friendly check-in on your goals 🥺"
+    "is this a need or a want right now? just making sure you don't regret this drop in budget.",
+    "you've spent ₹{weekSpend} in {category} this week, just a friendly check-in on your goals."
   ]
 };
 
@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
   let aiNote: string;
 
   if (isNecessary) {
-    aiNote = `looks necessary! ₹${amount} for ${description} — tracked 🫶`;
+    aiNote = `looks necessary — ₹${amount} for ${description}, tracked.`;
   } else {
     const prompt = `You are a supportive Best Friend and finance companion for Indian Gen Z. A user just spent ₹${amount} on "${description}" (category: ${category}). They've already spent on ${category} ${prevCount} times this week (total ₹${weekSpend.toFixed(0)}). Write ONE short (max 15 words) friendly message to gently help them realize this might be an unnecessary purchase. Tell them how this impacts their weekly budget. Don't be mean, just help them see the full picture so they don't regret it later. Use 1 emoji.`;   
     const llmNote = await callGroq(prompt);

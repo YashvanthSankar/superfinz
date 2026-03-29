@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
 import type { Transaction } from "@/generated/prisma/client";
+import { TrendingUp, ArrowLeftRight } from "lucide-react";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -87,7 +88,7 @@ export default function TransactionsPage() {
                 : `₹${n.toLocaleString("en-IN")}`;
               return (
                 <div className="flex items-center gap-3 bg-text rounded-xl px-4 py-3">
-                  <span className="text-lg">📈</span>
+                  <TrendingUp size={16} className="text-amber-300 shrink-0" />
                   <p className="text-xs text-amber-200 leading-relaxed">
                     <span className="text-background font-bold">{fmt(amt)} today</span>
                     {" → "}
@@ -127,7 +128,7 @@ export default function TransactionsPage() {
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
             <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-4">
-              <span className="text-2xl">💸</span>
+              <ArrowLeftRight size={22} className="text-amber-600" />
             </div>
             <p className="font-semibold text-text">No transactions yet</p>
             <p className="text-accent text-sm mt-1 font-light max-w-xs">
