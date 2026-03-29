@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -74,5 +75,6 @@ export async function POST(req: NextRequest) {
     data: { spent: { increment: amount } },
   });
 
+  revalidateTag(`dashboard-${session.userId}`);
   return NextResponse.json({ transaction }, { status: 201 });
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -46,6 +47,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  revalidateTag(`dashboard-${session.userId}`);
   return NextResponse.json({ goal }, { status: 201 });
 }
 
@@ -67,5 +69,6 @@ export async function PATCH(req: NextRequest) {
   }
 
   const updated = await prisma.goal.update({ where: { id }, data: updates });
+  revalidateTag(`dashboard-${session.userId}`);
   return NextResponse.json({ goal: updated });
 }

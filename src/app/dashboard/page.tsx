@@ -1,5 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 import { redirect } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
 import { SpendTrendChart, CategoryChart } from "@/components/dashboard/charts";
@@ -35,17 +36,30 @@ export default async function DashboardPage() {
   weekStart.setDate(weekStart.getDate() - 6);
   weekStart.setHours(0, 0, 0, 0);
 
-  const [monthTx, goalsAll, weekTx] = await Promise.all([
-    prisma.transaction.findMany({
-      where: { userId: session.userId, date: { gte: financialMonthStart } },
-      orderBy: { date: "asc" },
-    }),
-    prisma.goal.findMany({ where: { userId: session.userId }, orderBy: { createdAt: "desc" } }),
-    prisma.transaction.findMany({
-      where: { userId: session.userId, date: { gte: weekStart } },
-      orderBy: { date: "asc" },
-    }),
-  ]);
+  const fetchDashboardData = unstable_cache(
+    async (userId: string, monthStart: string, wkStart: string) => {
+      const [monthTx, goalsAll, weekTx] = await Promise.all([
+        prisma.transaction.findMany({
+          where: { userId, date: { gte: new Date(monthStart) } },
+          orderBy: { date: "asc" },
+        }),
+        prisma.goal.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
+        prisma.transaction.findMany({
+          where: { userId, date: { gte: new Date(wkStart) } },
+          orderBy: { date: "asc" },
+        }),
+      ]);
+      return { monthTx, goalsAll, weekTx };
+    },
+    ["dashboard-data"],
+    { revalidate: 30, tags: [`dashboard-${session.userId}`] }
+  );
+
+  const { monthTx, goalsAll, weekTx } = await fetchDashboardData(
+    session.userId,
+    financialMonthStart.toISOString(),
+    weekStart.toISOString(),
+  );
 
   // ── Monthly stats ──────────────────────────────────────────────────
   const monthlySpend = monthTx.reduce((s: number, t: (typeof monthTx)[number]) => s + t.amount, 0);
