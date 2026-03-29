@@ -22,6 +22,96 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+// ─── Aceternity-style dot grid ───────────────────────────────────────────────
+function DotGrid({ opacity = 0.18 }: { opacity?: number }) {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0"
+      style={{
+        backgroundImage: `radial-gradient(circle, rgba(180,83,9,${opacity}) 1.2px, transparent 1.2px)`,
+        backgroundSize: "26px 26px",
+        maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
+        WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
+      }}
+    />
+  );
+}
+
+// ─── Magic UI animated gradient orbs ─────────────────────────────────────────
+function FloatingOrbs() {
+  return (
+    <>
+      <motion.div
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: 600, height: 600,
+          top: "-10%", left: "10%",
+          background: "radial-gradient(circle, rgba(194,65,12,0.10) 0%, transparent 70%)",
+          filter: "blur(50px)",
+        }}
+        animate={{ x: [0, 40, -30, 0], y: [0, -50, 30, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: 500, height: 500,
+          top: "20%", right: "-5%",
+          background: "radial-gradient(circle, rgba(251,191,36,0.10) 0%, transparent 70%)",
+          filter: "blur(60px)",
+        }}
+        animate={{ x: [0, -35, 20, 0], y: [0, 40, -25, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+      />
+      <motion.div
+        className="pointer-events-none absolute rounded-full"
+        style={{
+          width: 400, height: 400,
+          bottom: "5%", left: "30%",
+          background: "radial-gradient(circle, rgba(180,83,9,0.08) 0%, transparent 70%)",
+          filter: "blur(55px)",
+        }}
+        animate={{ x: [0, 25, -20, 0], y: [0, -30, 20, 0] }}
+        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut", delay: 6 }}
+      />
+    </>
+  );
+}
+
+// ─── Grid beam lines (Aceternity) ────────────────────────────────────────────
+function GridBeam() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      style={{
+        backgroundImage: `
+          linear-gradient(rgba(180,83,9,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(180,83,9,0.06) 1px, transparent 1px)
+        `,
+        backgroundSize: "64px 64px",
+        maskImage: "radial-gradient(ellipse 100% 100% at 50% 0%, black 30%, transparent 80%)",
+        WebkitMaskImage: "radial-gradient(ellipse 100% 100% at 50% 0%, black 30%, transparent 80%)",
+      }}
+    />
+  );
+}
+
+// ─── Shimmer border card wrapper ──────────────────────────────────────────────
+function ShimmerCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`relative group ${className ?? ""}`}>
+      <div
+        className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: "linear-gradient(135deg, rgba(194,65,12,0.4), rgba(251,191,36,0.3), rgba(194,65,12,0.1))",
+          filter: "blur(1px)",
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
 // ─── Seeded noise for heatmap ────────────────────────────────────────────────
 function seed(i: number) {
   const x = Math.sin(i * 9301 + 49297) * 233280;
@@ -371,13 +461,10 @@ export default function Landing() {
         }}
       />
 
-      {/* Radial glow top-right */}
-      <div
-        className="pointer-events-none fixed top-0 right-0 w-[700px] h-[700px] z-0 opacity-30"
-        style={{
-          background: "radial-gradient(circle at 70% 20%, #C2410C22 0%, transparent 60%)",
-        }}
-      />
+      {/* Animated floating orbs */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <FloatingOrbs />
+      </div>
 
       {/* ── Sticky Glass Nav ────────────────────────────────────────────── */}
       <nav
@@ -414,6 +501,7 @@ export default function Landing() {
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-12 sm:pb-16 text-center z-10">
+        <DotGrid opacity={0.14} />
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -679,6 +767,7 @@ export default function Landing() {
 
       {/* ── Features Bento Grid ─────────────────────────────────────────── */}
       <section ref={featRef} className="max-w-5xl mx-auto py-20 sm:py-28 px-4 sm:px-6 relative z-10">
+        <GridBeam />
         <div className="mb-16">
           <p
             className="text-xs font-semibold tracking-widest uppercase mb-3"
@@ -700,43 +789,50 @@ export default function Landing() {
           {FEATURES.map((f, i) => {
             const Icon = f.icon;
             return (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 24 }}
-                animate={featIn ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ y: -6, boxShadow: "0 20px 48px rgba(74,44,25,0.10)" }}
-                className="relative rounded-2xl p-7 border overflow-hidden group cursor-default transition-shadow"
-                style={{ background: "#FDFCF6", borderColor: "#DDD0BE" }}
-              >
-                {/* Big number background */}
-                <span
-                  className="absolute -top-4 -right-2 text-[5.5rem] font-black leading-none pointer-events-none select-none"
-                  style={{ color: "rgba(74,44,25,0.055)", fontFamily: "var(--font-playfair)" }}
+              <ShimmerCard key={f.title}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={featIn ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={{ y: -4, boxShadow: "0 24px 56px rgba(74,44,25,0.12)" }}
+                  className="relative rounded-2xl p-7 border overflow-hidden group cursor-default transition-shadow"
+                  style={{ background: "#FDFCF6", borderColor: "#DDD0BE" }}
                 >
-                  {f.n}
-                </span>
+                  {/* Hover sweep light */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                    style={{
+                      background: "linear-gradient(105deg, transparent 40%, rgba(251,191,36,0.07) 50%, transparent 60%)",
+                    }}
+                  />
+                  {/* Big number background */}
+                  <span
+                    className="absolute -top-4 -right-2 text-[5.5rem] font-black leading-none pointer-events-none select-none"
+                    style={{ color: "rgba(74,44,25,0.055)", fontFamily: "var(--font-playfair)" }}
+                  >
+                    {f.n}
+                  </span>
 
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center mb-5 transition-colors"
-                  style={{ background: "rgba(194,65,12,0.1)" }}
-                >
-                  <Icon size={17} style={{ color: "#C2410C" }} />
-                </div>
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-5 transition-colors group-hover:scale-110 duration-300"
+                    style={{ background: "rgba(194,65,12,0.1)" }}
+                  >
+                    <Icon size={17} style={{ color: "#C2410C" }} />
+                  </div>
 
-                <h3
-                  className="font-semibold mb-2 text-sm"
-                  style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}
-                >
-                  {f.title}
-                </h3>
-                <p
-                  className="text-sm leading-relaxed font-light"
-                  style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
-                >
-                  {f.body}
-                </p>
-              </motion.div>
+                  <h3
+                    className="font-semibold mb-2 text-sm"
+                    style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}
+                  >
+                    {f.title}
+                  </h3>
+                  <p
+                    className="text-sm leading-relaxed font-light"
+                    style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
+                  >
+                    {f.body}
+                  </p>
+                </motion.div>
+              </ShimmerCard>
             );
           })}
         </div>
@@ -805,6 +901,23 @@ export default function Landing() {
         <div
           className="pointer-events-none absolute inset-0"
           style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(194,65,12,0.15) 0%, transparent 70%)" }}
+        />
+        {/* Dot grid dark */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(251,191,36,0.08) 1px, transparent 1px)`,
+            backgroundSize: "28px 28px",
+          }}
+        />
+        {/* Animated beam sweep */}
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: "linear-gradient(105deg, transparent 20%, rgba(194,65,12,0.12) 50%, transparent 80%)",
+          }}
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", repeatDelay: 4 }}
         />
 
         <div className="relative max-w-2xl mx-auto">
