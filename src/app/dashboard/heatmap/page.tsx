@@ -100,7 +100,7 @@ export default function HeatmapPage() {
                 return (
                   <div
                     key={cell.date}
-                    className={`aspect-square rounded-sm cursor-pointer transition-all hover:ring-2 hover:ring-amber-400 hover:ring-offset-1 ${INTENSITY_CLASSES[intensity]}`}
+                    className={`aspect-square rounded-sm cursor-pointer border border-amber-300/80 transition-all hover:ring-2 hover:ring-amber-400 hover:ring-offset-1 ${INTENSITY_CLASSES[intensity]}`}
                     onMouseEnter={() => setTooltip(cell)}
                     onMouseLeave={() => setTooltip(null)}
                   />
@@ -111,7 +111,7 @@ export default function HeatmapPage() {
             <div className="flex items-center gap-1.5 mt-4 justify-end">
               <span className="text-[10px] text-accent">Less</span>
               {INTENSITY_CLASSES.map((c, i) => (
-                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-amber-400`} />
+                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-amber-300/80`} />
               ))}
               <span className="text-[10px] text-accent">More</span>
             </div>

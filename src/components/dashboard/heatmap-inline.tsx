@@ -97,7 +97,7 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
                 {week.map((cell, di) => (
                   <div
                     key={di}
-                    className={`w-3 h-3 rounded-[2px] cursor-default transition-transform hover:scale-125 ${
+                    className={`w-3 h-3 rounded-[2px] cursor-default border border-amber-300/80 transition-transform hover:scale-125 ${
                       cell.empty ? "opacity-0" : INTENSITY[intensity(cell.total, max)]
                     }`}
                     onMouseEnter={(e) => {
@@ -139,7 +139,7 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
       <div className="flex items-center gap-1.5 mt-3">
         <span className="text-[10px] text-accent">Less</span>
         {INTENSITY.map((cls, i) => (
-          <div key={i} className={`w-3 h-3 rounded-[2px] ${cls}`} />
+          <div key={i} className={`w-3 h-3 rounded-[2px] border border-amber-300/80 ${cls}`} />
         ))}
         <span className="text-[10px] text-accent">More</span>
       </div>
