@@ -87,12 +87,12 @@ const MOCK_TX = [
 ];
 
 const FEATURES = [
-  { n: "01", icon: Brain,       title: "Smart onboarding",       body: "Student, college, or professional — everything adapts to your financial reality from day one." },
-  { n: "02", icon: Sparkles,    title: "AI spend analysis",      body: "Every transaction gets a real assessment. Overspending? You'll hear about it in language that lands." },
-  { n: "03", icon: BarChart3,   title: "Spending heatmap",       body: "GitHub-style calendar showing where your money bleeds. Patterns you've never spotted before." },
-  { n: "04", icon: Calculator,  title: "Investment calculators", body: "SIP, FD, EMI with live Recharts. See exactly what your money can grow into." },
-  { n: "05", icon: Newspaper,   title: "Finance news",           body: "India-first curated finance news — markets, personal finance, and smart money moves daily." },
-  { n: "06", icon: Target,      title: "Goal tracker",           body: "Set targets, log progress, celebrate milestones. Your savings journey, beautifully visualized." },
+  { n: "01", icon: Brain,       title: "Smart onboarding",       body: "For students and young professionals. Set your profile once and get a plan that fits your real life." },
+  { n: "02", icon: Sparkles,    title: "AI spend analysis",      body: "Every spend is checked instantly. You get clear feedback on what is necessary and what delays your future." },
+  { n: "03", icon: BarChart3,   title: "Spending heatmap",       body: "See your 90-day money pattern in one glance. Spot impulse-spend streaks before they become habits." },
+  { n: "04", icon: Calculator,  title: "Investment calculators", body: "SIP, FD, and EMI tools with live charts. Convert confusing money math into simple decisions." },
+  { n: "05", icon: Newspaper,   title: "Finance news",           body: "India-focused market and personal finance updates, curated for quick Gen Z learning." },
+  { n: "06", icon: Target,      title: "Goal tracker",           body: "Track short-term goals and long-term FIRE targets in one place, with progress you can act on." },
 ];
 
 const AI_CHAT = [
@@ -304,7 +304,8 @@ function AIChatBubbles({ inView }: { inView: boolean }) {
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = [
   "Track every rupee",
-  "AI-powered roast of your bad spends",
+  "Beat retirement blindness early",
+  "AI-powered roast of bad spends",
   "FIRE calculator built-in",
   "Spending heatmap",
   "SIP · FD · EMI calculators",
@@ -432,15 +433,19 @@ export default function Landing() {
 
         {/* Headline */}
         <div className="overflow-hidden mb-2 pb-2">
-          <motion.h1
+          <motion.div
             initial={{ y: "110%" }}
             animate={{ y: 0 }}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
-            style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
           >
-            Finance for people
-          </motion.h1>
+            <h1
+              className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
+              suppressHydrationWarning
+              style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
+            >
+              Retirement planning
+            </h1>
+          </motion.div>
         </div>
 
         <div className="overflow-hidden mb-2 pb-2">
@@ -448,23 +453,31 @@ export default function Landing() {
             initial={{ y: "110%" }}
             animate={{ y: 0 }}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
-            style={{ fontFamily: "var(--font-playfair)", color: "#C2410C" }}
           >
-            who actually want
+            <div
+              className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
+              suppressHydrationWarning
+              style={{ fontFamily: "var(--font-playfair)", color: "#C2410C" }}
+            >
+              for Gen Z who are
+            </div>
           </motion.div>
         </div>
 
         <div className="overflow-hidden mb-10 pb-2">
-          <motion.h1
+          <motion.div
             initial={{ y: "110%" }}
             animate={{ y: 0 }}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-            className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
-            style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
           >
-            to be rich.
-          </motion.h1>
+            <h1
+              className="text-[clamp(2rem,7.5vw,6.5rem)] font-black leading-[1.05] tracking-tight"
+              suppressHydrationWarning
+              style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
+            >
+              done being blind.
+            </h1>
+          </motion.div>
         </div>
 
         <motion.p
@@ -474,8 +487,8 @@ export default function Landing() {
           className="text-lg max-w-lg mx-auto mb-10 leading-relaxed font-light"
           style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
         >
-          Track spending, get AI-powered feedback, plan investments —
-          all in one clean dashboard built for Gen Z.
+          SuperFinz turns daily spending into clear future impact.
+          Track expenses, get AI nudges, and build retirement clarity in one dashboard.
         </motion.p>
 
         {/* CTA */}
@@ -511,7 +524,7 @@ export default function Landing() {
           className="text-xs"
           style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}
         >
-          No password. No forms. 2 minutes to set up.
+          No password. No long forms. 2 minutes to start.
         </motion.p>
 
         {/* Dashboard preview with tilt */}
@@ -679,7 +692,7 @@ export default function Landing() {
           >
             Everything you need.
             <br />
-            <span style={{ color: "#b45309" }}>Nothing you don&apos;t.</span>
+            <span style={{ color: "#b45309" }}>To fix retirement blindness early.</span>
           </h2>
         </div>
 
@@ -758,14 +771,14 @@ export default function Landing() {
               style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
             >
               Your AI advisor<br />
-              <span style={{ color: "#b45309" }}>keeps it real.</span>
+              <span style={{ color: "#b45309" }}>shows the true cost.</span>
             </h2>
             <p
               className="leading-relaxed font-light mb-6"
               style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
             >
-              Log a spend and get instant AI feedback based on your history.
-              Honest, contextual, and actually useful — not generic advice.
+              Log a spend and instantly see how that choice affects your savings path.
+              Real context. Real numbers. Real consequences.
             </p>
             <div className="flex items-center gap-2 text-sm font-medium" style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}>
               <Flame size={15} />
@@ -814,9 +827,9 @@ export default function Landing() {
             className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[1.05] mb-8"
             style={{ fontFamily: "var(--font-playfair)", color: "#FDFCF6" }}
           >
-            Know your
+            See your
             <br />
-            <span style={{ color: "#C2410C" }}>money.</span>
+            <span style={{ color: "#C2410C" }}>future.</span>
           </motion.h2>
 
           <motion.p
@@ -827,7 +840,7 @@ export default function Landing() {
             className="mb-10 font-light"
             style={{ color: "rgba(253,252,246,0.55)", fontFamily: "var(--font-inter)" }}
           >
-            Free forever · Google sign-in · 2 minutes to start
+            Free forever · Google sign-in · Built to beat retirement blindness
           </motion.p>
 
           <motion.div
@@ -862,7 +875,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-2 justify-between">
           <Logo size="sm" />
           <p className="text-xs" style={{ color: "rgba(253,252,246,0.35)", fontFamily: "var(--font-inter)" }}>
-            Vashisht 3.0 · IIITDM Kancheepuram · 2026
+            Built for Gen Z to beat retirement blindness · Vashisht 3.0
           </p>
         </div>
       </footer>
