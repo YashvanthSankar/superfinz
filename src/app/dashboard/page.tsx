@@ -6,7 +6,6 @@ import { SpendTrendChart, CategoryChart } from "@/components/dashboard/charts";
 import { HeatmapInline } from "@/components/dashboard/heatmap-inline";
 import { DashboardGrids } from "@/components/dashboard/grid-widgets";
 import { FinTip } from "@/components/ui/fin-tip";
-import { SmartSplitModal } from "@/components/dashboard/smart-split-modal";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -275,11 +274,8 @@ export default async function DashboardPage() {
   const fireDelayMonths  = monthlySip > 0 ? Math.round(unnecessarySpend / monthlySip) : 0;
   const fmtCrore = (n: number) => n >= 10000000 ? `₹${(n / 10000000).toFixed(1)}Cr` : `₹${(n / 100000).toFixed(0)}L`;
 
-  const unallocated = remaining;
-
   return (
       <div className="space-y-5">
-        <SmartSplitModal unallocated={unallocated > 0 ? unallocated : 0} goals={activeGoals} />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">
@@ -301,49 +297,49 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Retirement Readiness Banner ──────────────────────────── */}
-      <div className="bg-text rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
         {/* Score ring */}
         <div className="flex items-center gap-4 shrink-0">
           <div className="relative w-16 h-16 shrink-0">
             <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--text2)" strokeWidth="3" />
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#fde68a" strokeWidth="3" />
               <circle cx="18" cy="18" r="15.9" fill="none" stroke={scoreColor} strokeWidth="3"
                 strokeDasharray={`${retirementScore} 100`} strokeLinecap="round" />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-background">{retirementScore}</span>
+            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-text">{retirementScore}</span>
           </div>
           <div>
-            <p className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Retirement Readiness</p>
-            <p className="text-lg font-black text-background leading-tight" style={{ color: scoreColor }}>{scoreLabel}</p>
-            <p className="text-xs text-amber-300/80 font-light">Target: retire at {targetRetire}</p>
+            <p className="text-[10px] text-accent font-semibold uppercase tracking-wider">Retirement Readiness</p>
+            <p className="text-lg font-black leading-tight" style={{ color: scoreColor }}>{scoreLabel}</p>
+            <p className="text-xs text-accent font-light">Target: retire at {targetRetire}</p>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="hidden sm:block w-px self-stretch bg-amber-700/40" />
+        <div className="hidden sm:block w-px self-stretch bg-amber-200" />
 
         {/* 3 drivers */}
         <div className="grid grid-cols-3 gap-3 flex-1 text-center">
-          <div>
-            <p className="text-[10px] text-amber-400 uppercase tracking-wide font-semibold"><FinTip term="SIP">Invest %</FinTip></p>
-            <p className="text-base font-black text-background mt-0.5">{investPct.toFixed(0)}%</p>
-            <p className="text-[10px] text-amber-400/70">of income</p>
+          <div className="bg-surface rounded-xl px-3 py-2.5">
+            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold"><FinTip term="SIP">Invest %</FinTip></p>
+            <p className="text-base font-black text-text mt-0.5">{investPct.toFixed(0)}%</p>
+            <p className="text-[10px] text-accent/70">of income</p>
           </div>
-          <div>
-            <p className="text-[10px] text-amber-400 uppercase tracking-wide font-semibold"><FinTip term="corpus">Corpus gap</FinTip></p>
-            <p className="text-base font-black text-background mt-0.5">{fmtCrore(Math.max(fireCorpus - projCorpus, 0))}</p>
-            <p className="text-[10px] text-amber-400/70">needed by {targetRetire}</p>
+          <div className="bg-surface rounded-xl px-3 py-2.5">
+            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold"><FinTip term="corpus">Corpus gap</FinTip></p>
+            <p className="text-base font-black text-text mt-0.5">{fmtCrore(Math.max(fireCorpus - projCorpus, 0))}</p>
+            <p className="text-[10px] text-accent/70">needed by {targetRetire}</p>
           </div>
-          <div>
-            <p className="text-[10px] text-amber-400 uppercase tracking-wide font-semibold"><FinTip term="FIRE">FIRE delay</FinTip></p>
-            <p className={`text-base font-black mt-0.5 ${fireDelayMonths > 0 ? "text-red-300" : "text-emerald-300"}`}>
+          <div className="bg-surface rounded-xl px-3 py-2.5">
+            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold"><FinTip term="FIRE">FIRE delay</FinTip></p>
+            <p className={`text-base font-black mt-0.5 ${fireDelayMonths > 0 ? "text-red-500" : "text-emerald-600"}`}>
               {fireDelayMonths > 0 ? `+${fireDelayMonths}mo` : "None"}
             </p>
-            <p className="text-[10px] text-amber-400/70">from unnecessary spends</p>
+            <p className="text-[10px] text-accent/70">from unnecessary spends</p>
           </div>
         </div>
 
-        <a href="/dashboard/retirement" className="shrink-0 text-xs px-4 py-2 rounded-xl bg-amber-500 text-text font-bold hover:bg-amber-400 transition-all text-center">
+        <a href="/dashboard/retirement" className="shrink-0 text-xs px-4 py-2 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition-all text-center">
           Full plan →
         </a>
       </div>

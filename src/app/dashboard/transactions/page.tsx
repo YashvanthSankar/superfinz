@@ -7,6 +7,9 @@ import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
 import type { Transaction } from "@/generated/prisma/client";
 import { TrendingUp, ArrowLeftRight } from "lucide-react";
 
+const stripEmoji = (s: string) =>
+  s.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]/gu, "").trim();
+
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,13 +90,13 @@ export default function TransactionsPage() {
                 ? `₹${(n / 100000).toFixed(1)}L`
                 : `₹${n.toLocaleString("en-IN")}`;
               return (
-                <div className="flex items-center gap-3 bg-text rounded-xl px-4 py-3">
-                  <TrendingUp size={16} className="text-amber-300 shrink-0" />
-                  <p className="text-xs text-amber-200 leading-relaxed">
-                    <span className="text-background font-bold">{fmt(amt)} today</span>
+                <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                  <TrendingUp size={16} className="text-amber-600 shrink-0" />
+                  <p className="text-xs text-amber-800 leading-relaxed">
+                    <span className="font-bold">{fmt(amt)} today</span>
                     {" → "}
-                    <span className="text-amber-300 font-bold">{fmt(future)} in 25 years</span>
-                    <span className="text-amber-400/80"> if invested in NIFTY 50 (12% CAGR)</span>
+                    <span className="text-emerald-700 font-bold">{fmt(future)} in 25 yrs</span>
+                    <span className="text-amber-600"> if invested in NIFTY 50 (12% CAGR)</span>
                   </p>
                 </div>
               );
@@ -154,10 +157,10 @@ export default function TransactionsPage() {
                     <span className="text-xs text-accent font-light">{new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
                     <span className="text-border">·</span>
                     <span className="text-xs text-accent font-light">{tx.category}</span>
-                    {tx.isNecessary === false && <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-lg">unnecessary</span>}
-                    {tx.isNecessary === true  && <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-lg">necessary</span>}
+                    {tx.isNecessary === false && <span className="text-[10px] bg-orange-50 text-orange-600 border border-orange-100 px-1.5 py-0.5 rounded-md">skip</span>}
+                    {tx.isNecessary === true  && <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md">ok</span>}
                   </div>
-                  {tx.aiNote && <p className="text-[11px] text-accent mt-0.5 truncate font-light">{tx.aiNote}</p>}
+                  {tx.aiNote && <p className="text-[11px] text-accent mt-0.5 truncate font-light">{stripEmoji(tx.aiNote)}</p>}
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-text">{formatCurrency(tx.amount)}</p>

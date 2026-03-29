@@ -100,7 +100,7 @@ export function Sidebar() {
       </aside>
 
       {/* ─── Mobile top bar ──────────────────────────────────────── */} 
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background/95 backdrop-blur border-b border-surface flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-[#fefce8] border-b border-amber-200 flex items-center justify-between px-4">
         <Logo size="md" />
         <div className="flex items-center gap-2">
           <a
@@ -120,7 +120,7 @@ export function Sidebar() {
       </div>
 
       {/* ─── Mobile bottom nav (4 items + More) ────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-surface flex items-stretch pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#fefce8] border-t border-amber-200 flex items-stretch pb-safe">
         {BOTTOM_NAV_PRIMARY.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
@@ -153,14 +153,14 @@ export function Sidebar() {
         <>
           {/* Backdrop */}
           <div
-            className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className="lg:hidden fixed inset-0 z-50 bg-black/30"
             onClick={() => setDrawerOpen(false)}
           />
           {/* Sheet */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t-2 border-amber-400 rounded-t-2xl shadow-2xl pb-safe animate-in slide-in-from-bottom duration-200">
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#fefce8] border-t-2 border-amber-400 rounded-t-2xl shadow-2xl pb-safe animate-in slide-in-from-bottom duration-200">
             <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-surface">
               <span className="text-sm font-semibold text-text">Menu</span>
-              <button onClick={() => setDrawerOpen(false)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-surface transition-all">
+              <button onClick={() => setDrawerOpen(false)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-[#fef9c3] transition-all">
                 <X size={16} className="text-accent" />
               </button>
             </div>
