@@ -14,30 +14,26 @@ const ESSENTIAL = ["Rent", "Utilities", "Health", "Education", "Transport"];
 
 const FALLBACK_ROASTS: Record<string, string[]> = {
   Food: [
-    "bro you literally ate out {prev} times this week, your wallet is crying fr 💸",
-    "another {category} spend? ngl ur stomach > ur savings rn 😭",
-    "this is the {count}th food spend in 7 days, maybe cook once? ur savings goal needs you 🥺",
+    "hey bestie, you ate out {count} times this week, is this really needed? 🥺",
+    "just checking in! another {category} spend? your budget will drop this week 🌱",
+    "that's ₹{weekSpend} on food this week! maybe cook if you wanna save for your goals? 🍳"
   ],
   Entertainment: [
-    "you've spent ₹{weekSpend} on {category} this week... is it giving or is it going? 💀",
-    "bro the subscriptions are multiplying, freeze this one instead 🙏",
-    "entertainment budget is cooked rn, maybe touch grass (free) instead? 🌿",
+    "you've spent ₹{weekSpend} on {category} this week... just wanted to give you the full picture 💭",
+    "hey friend, maybe freeze a subscription instead? this will lower your week's budget 🫶"
   ],
   Shopping: [
-    "you shopped {prev} times this week, is this a hobby now? 😭",
-    "this purchase giving impulse buy vibes... sleep on it? ₹{amount} could hit your goal 💪",
-    "online shopping at {time}?? that's textbook boredom spend king 🫡",
+    "you shopped {prev} times this week! is this an essential need? you've got goals to crush 🎯",
+    "this purchase might delay your goals... ₹{amount} could totally hit your target instead 💡"
   ],
   Transport: [
-    "cab again? ₹{amount} adds up fast, public transport arc when? 🚌",
-    "that's {prev} transport spends this week, bus pass would've been cheaper ngl",
-    "bro ur literally funding the cab driver's retirement not yours 😭",
+    "cab again? ₹{amount} adds up fast to your budget! maybe public transport to save? 🚌",
+    "just a heads up! that's {prev} transport spends this week, your budget is taking a hit 📉"
   ],
   default: [
-    "is this a need or a want rn? ₹{amount} towards your goal hits different 🎯",
-    "you've spent ₹{weekSpend} in {category} this week, just checking in 👀",
-    "bestie your savings goal is watching this purchase and shaking its head 💀",
-  ],
+    "is this a need or a want right now? just making sure you don't regret this drop in budget 💙",
+    "you've spent ₹{weekSpend} in {category} this week, just a friendly check-in on your goals 🥺"
+  ]
 };
 
 function fillTemplate(template: string, vars: Record<string, string | number>): string {
@@ -147,9 +143,9 @@ export async function POST(req: NextRequest) {
   let aiNote: string;
 
   if (isNecessary) {
-    aiNote = `looks necessary! ₹${amount} for ${description} — tracked 🫡`;
+    aiNote = `looks necessary! ₹${amount} for ${description} — tracked 🫶`;
   } else {
-    const prompt = `You are a Gen Z finance buddy for Indian students/professionals. A user just spent ₹${amount} on "${description}" (category: ${category}). They've spent on ${category} ${prevCount} times this week (total ₹${weekSpend.toFixed(0)} this week). Write ONE short (max 15 words), funny, Gen Z roast/warning about this spend. Use Indian context. Use 1 emoji. Be helpful not mean.`;
+    const prompt = `You are a supportive Best Friend and finance companion for Indian Gen Z. A user just spent ₹${amount} on "${description}" (category: ${category}). They've already spent on ${category} ${prevCount} times this week (total ₹${weekSpend.toFixed(0)}). Write ONE short (max 15 words) friendly message to gently help them realize this might be an unnecessary purchase. Tell them how this impacts their weekly budget. Don't be mean, just help them see the full picture so they don't regret it later. Use 1 emoji.`;   
     const llmNote = await callGroq(prompt);
     aiNote = llmNote ?? pickFallbackRoast(category, vars);
   }
