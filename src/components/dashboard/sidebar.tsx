@@ -1,12 +1,13 @@
 "use client";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutDashboard, ArrowLeftRight, Calculator,
-  Newspaper, Target, User, LogOut, TrendingUp, BookOpen,
+  Newspaper, Target, LogOut, TrendingUp, BookOpen,
+  MoreHorizontal, X, Flame,
 } from "lucide-react";
 
 const NAV = [
@@ -17,11 +18,16 @@ const NAV = [
   { href: "/dashboard/learn",        label: "Learn",        icon: BookOpen        },
   { href: "/dashboard/calculators",  label: "Calculators",  icon: Calculator      },
   { href: "/dashboard/news",         label: "News",         icon: Newspaper       },
+  { href: "/dashboard/heatmap",      label: "Heatmap",      icon: Flame           },
 ];
+
+// Bottom nav shows 4 primary items + More button
+const BOTTOM_NAV_PRIMARY = NAV.slice(0, 4);
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
@@ -31,9 +37,8 @@ export function Sidebar() {
       {/* ─── Desktop sidebar ─────────────────────────────────────── */}
       <aside className="hidden lg:flex w-52 shrink-0 bg-background border-r border-surface flex-col h-screen sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-surface flex items-center justify-between">
+        <div className="px-5 py-5 border-b border-surface">
           <Logo size="md" />
-          <ThemeToggle className="scale-90" />
         </div>
 
         {/* Nav */}
@@ -85,7 +90,7 @@ export function Sidebar() {
             </a>
           )}
           <button
-            onClick={() => signOut({ callbackUrl: " /" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium" 
           >
             <LogOut size={14} />
@@ -98,7 +103,6 @@ export function Sidebar() {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background/95 backdrop-blur border-b border-surface flex items-center justify-between px-4">
         <Logo size="md" />
         <div className="flex items-center gap-2">
-          <ThemeToggle className="scale-90" />
           <a
             href="/dashboard/profile"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-amber-50 transition-all"
@@ -115,9 +119,9 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* ─── Mobile bottom nav ───────────────────────────────────── */}       
+      {/* ─── Mobile bottom nav (4 items + More) ────────────────── */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-surface flex items-stretch pb-safe">
-        {NAV.map(({ href, label, icon: Icon }) => {
+        {BOTTOM_NAV_PRIMARY.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
             <a
@@ -129,16 +133,91 @@ export function Sidebar() {
               )}
             >
               {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-amber-500 rounded-b-full" />}
-              <Icon
-                size={19}
-                className={cn("transition-all", active ? "text-amber-600" : "")}
-                strokeWidth={active ? 2.5 : 1.75}
-              />
-              <span className={active ? "font-semibold" : ""}>{label}</span>    
+              <Icon size={19} className={cn("transition-all", active ? "text-amber-600" : "")} strokeWidth={active ? 2.5 : 1.75} />
+              <span className={active ? "font-semibold" : ""}>{label}</span>
             </a>
           );
         })}
+        {/* More button */}
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium text-accent transition-all"
+        >
+          <MoreHorizontal size={19} strokeWidth={1.75} />
+          <span>More</span>
+        </button>
       </nav>
+
+      {/* ─── Mobile "More" drawer ────────────────────────────────── */}
+      {drawerOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            onClick={() => setDrawerOpen(false)}
+          />
+          {/* Sheet */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t-2 border-amber-400 rounded-t-2xl shadow-2xl pb-safe animate-in slide-in-from-bottom duration-200">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-surface">
+              <span className="text-sm font-semibold text-text">Menu</span>
+              <button onClick={() => setDrawerOpen(false)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-surface transition-all">
+                <X size={16} className="text-accent" />
+              </button>
+            </div>
+
+            <div className="px-4 py-3 space-y-0.5">
+              {NAV.slice(4).map(({ href, label, icon: Icon }) => {
+                const active = isActive(href);
+                return (
+                  <a
+                    key={href}
+                    href={href}
+                    onClick={() => setDrawerOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all",
+                      active ? "bg-amber-50 text-amber-700 font-semibold" : "text-text hover:bg-surface font-medium"
+                    )}
+                  >
+                    <Icon size={17} className={active ? "text-amber-600" : "text-accent"} />
+                    {label}
+                  </a>
+                );
+              })}
+
+              {/* Profile */}
+              {session?.user && (
+                <a
+                  href="/dashboard/profile"
+                  onClick={() => setDrawerOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all",
+                    isActive("/dashboard/profile") ? "bg-amber-50 text-amber-700 font-semibold" : "text-text hover:bg-surface font-medium"
+                  )}
+                >
+                  {session.user.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={session.user.image} alt="" className="w-5 h-5 rounded-full ring-1 ring-border shrink-0" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold flex items-center justify-center shrink-0">
+                      {session.user.name?.[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  Profile
+                </a>
+              )}
+
+              {/* Sign out */}
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium"
+              >
+                <LogOut size={17} />
+                Sign out
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

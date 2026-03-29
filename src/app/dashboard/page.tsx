@@ -503,8 +503,20 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-text">Spending heatmap</h2>
             <p className="text-xs text-accent font-light mt-0.5">Last 3 months — darker = more spent</p>
           </div>
+          <a href="/dashboard/heatmap" className="text-xs text-amber-600 hover:underline font-medium shrink-0">View full →</a>
         </div>
-        <HeatmapInline data={heatData} />
+        {heatData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-3">
+              <span className="text-xl">🔥</span>
+            </div>
+            <p className="text-sm font-medium text-text">No spend data yet</p>
+            <p className="text-xs text-accent font-light mt-1">Log a few transactions to see your heatmap</p>
+            <a href="/dashboard/transactions" className="mt-3 text-xs px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-400 transition-all">+ Log a spend</a>
+          </div>
+        ) : (
+          <HeatmapInline data={heatData} />
+        )}
       </div>
 
       {/* ── Recent spends + Goals ─────────────────────────────── */}

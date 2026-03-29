@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
-import type { Goal } from "@prisma/client";
+import type { Goal } from "@/generated/prisma/client";
 
 function retireAge(currentAge: number, monthlySavings: number, corpus: number): number | null {
   if (monthlySavings <= 0) return null;
@@ -233,9 +233,41 @@ export default function GoalsPage() {
           <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : active.length === 0 && !showForm ? (
-        <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm text-center py-10">
-          <p className="text-muted font-medium">No goals yet</p>
-          <p className="text-accent text-sm mt-1 font-light">Use the FIRE calculator above or tap + New goal</p>
+        <div className="bg-background rounded-2xl border border-amber-400 shadow-sm">
+          <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-4">
+              <span className="text-2xl">🎯</span>
+            </div>
+            <p className="font-semibold text-text">No goals yet</p>
+            <p className="text-accent text-sm mt-1 font-light max-w-xs">
+              Set a target — MacBook, trip, emergency fund — and track every rupee toward it
+            </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="mt-5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-400 transition-all"
+            >
+              + Set your first goal
+            </button>
+          </div>
+          <div className="border-t border-surface px-5 py-4">
+            <p className="text-xs text-accent font-light mb-3">Popular goals to get started</p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "Emergency Fund", amount: "50000" },
+                { label: "New Laptop", amount: "80000" },
+                { label: "Trip to Goa", amount: "15000" },
+                { label: "Investment Corpus", amount: "100000" },
+              ].map(({ label, amount }) => (
+                <button
+                  key={label}
+                  onClick={() => { setForm({ title: label, targetAmount: amount, deadline: "" }); setShowForm(true); }}
+                  className="text-xs px-3 py-1.5 rounded-xl border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all font-medium"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">

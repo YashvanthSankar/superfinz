@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
-import type { Transaction } from "@prisma/client";
+import type { Transaction } from "@/generated/prisma/client";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -125,9 +125,20 @@ export default function TransactionsPage() {
             <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : transactions.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted font-medium">No transactions yet</p>
-            <p className="text-accent text-sm mt-1 font-light">Add your first spend above</p>
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-4">
+              <span className="text-2xl">💸</span>
+            </div>
+            <p className="font-semibold text-text">No transactions yet</p>
+            <p className="text-accent text-sm mt-1 font-light max-w-xs">
+              Log your first spend and Finz will tell you if it was really worth it
+            </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="mt-5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-400 transition-all"
+            >
+              + Log your first spend
+            </button>
           </div>
         ) : (
           <div className="divide-y divide-background">

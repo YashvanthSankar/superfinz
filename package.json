@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:demo": "npx tsx prisma/seed-demo.ts",
+    "seed:yashvanth": "npx tsx prisma/seed-yashvanth.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.6.0",
