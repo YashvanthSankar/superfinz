@@ -97,7 +97,6 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
   if (!data.length) {
     return (
       <div className="flex flex-col items-center justify-center h-[210px] text-center">
-        <p className="text-3xl mb-2">🫙</p>
         <p className="text-accent text-sm font-light">No spends yet</p>
       </div>
     );
