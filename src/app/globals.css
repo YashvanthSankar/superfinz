@@ -1,35 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #fefce8;
-  --surface: #fef9c3;
-  --surface2: #fde68a;
-  --border: #fde68a;
-  --border2: #fcd34d;
-  --text: #713f12;
-  --text2: #92400e;
-  --muted: #78350f;
-  --faint: #b45309;
-  --accent: #b45309;
-  --accent-bg: #fef3c7;
-  --green: #059669;
-  --green-bg: #ecfdf5;
-  --red: #dc2626;
-  --red-bg: #fef2f2;
+  --color-background: #fefce8;
+  --color-surface: #fef9c3;
+  --color-surface2: #fde68a;
+  --color-border: #fde68a;
+  --color-border2: #fcd34d;
+  --color-text: #713f12;
+  --color-text2: #92400e;
+  --color-muted: #78350f;
+  --color-accent: #b45309;
+  --color-accent-bg: #fef3c7;
 }
 
-[data-theme='dark'] {
-  --bg: #0a0a0a;
-  --surface: #171717;
-  --surface2: #262626;
-  --border: #262626;
-  --border2: #3f3f46;
-  --text: #ffffff;
-  --text2: #a1a1aa;
-  --muted: #71717a;
-  --faint: #00ff88;
-  --accent: #00ff88;
-  --accent-bg: #064e3b;
+:root[data-theme='dark'] {
+  --color-background: #0a0a0a;
+  --color-surface: #171717;
+  --color-surface2: #262626;
+  --color-border: #262626;
+  --color-border2: #3f3f46;
+  --color-text: #ffffff;
+  --color-text2: #a1a1aa;
+  --color-muted: #71717a;
+  --color-accent: #00ff88;
+  --color-accent-bg: #064e3b;
+  
   --color-amber-50: var(--color-emerald-950);
   --color-amber-100: var(--color-emerald-900);
   --color-amber-200: var(--color-emerald-800);
@@ -44,8 +39,6 @@
 }
 
 @theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -53,16 +46,17 @@
 * { box-sizing: border-box; }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background-color: var(--color-background);
+  color: var(--color-text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-border2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
 
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }

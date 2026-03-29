@@ -59,8 +59,8 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">Transactions</h1>
-          <p className="text-[var(--accent)] text-sm font-light mt-0.5">Track every rupee you spend</p>
+          <h1 className="text-2xl font-bold text-text">Transactions</h1>
+          <p className="text-accent text-sm font-light mt-0.5">Track every rupee you spend</p>
         </div>
         <Button onClick={() => { setShowForm(!showForm); setAiNote(null); }}>
           {showForm ? "Cancel" : "+ Add spend"}
@@ -68,8 +68,8 @@ export default function TransactionsPage() {
       </div>
 
       {showForm && (
-        <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-[var(--text)] mb-5">Log a spend</h2>
+        <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-text mb-5">Log a spend</h2>
           <form onSubmit={handleAdd} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Input label="Amount (₹)" type="number" placeholder="150" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} required />
@@ -86,10 +86,10 @@ export default function TransactionsPage() {
                 ? `₹${(n / 100000).toFixed(1)}L`
                 : `₹${n.toLocaleString("en-IN")}`;
               return (
-                <div className="flex items-center gap-3 bg-[var(--text)] rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3 bg-text rounded-xl px-4 py-3">
                   <span className="text-lg">📈</span>
                   <p className="text-xs text-amber-200 leading-relaxed">
-                    <span className="text-[var(--bg)] font-bold">{fmt(amt)} today</span>
+                    <span className="text-background font-bold">{fmt(amt)} today</span>
                     {" → "}
                     <span className="text-amber-300 font-bold">{fmt(future)} in 25 years</span>
                     <span className="text-amber-400/80"> if invested in NIFTY 50 (12% CAGR)</span>
@@ -116,9 +116,9 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-[var(--surface)]">
-          <h2 className="text-sm font-semibold text-[var(--text)]">All transactions</h2>
+      <div className="bg-background rounded-2xl border border-amber-400 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-surface">
+          <h2 className="text-sm font-semibold text-text">All transactions</h2>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -126,30 +126,30 @@ export default function TransactionsPage() {
           </div>
         ) : transactions.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-[var(--muted)] font-medium">No transactions yet</p>
-            <p className="text-[var(--accent)] text-sm mt-1 font-light">Add your first spend above</p>
+            <p className="text-muted font-medium">No transactions yet</p>
+            <p className="text-accent text-sm mt-1 font-light">Add your first spend above</p>
           </div>
         ) : (
-          <div className="divide-y divide-[var(--bg)]">
+          <div className="divide-y divide-background">
             {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center gap-3 px-5 py-4 hover:bg-[var(--bg)] transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-[var(--bg)] border border-amber-400 flex items-center justify-center shrink-0">
-                  <span className="text-[10px] font-bold text-[var(--muted)] uppercase">{tx.category.slice(0, 2)}</span>
+              <div key={tx.id} className="flex items-center gap-3 px-5 py-4 hover:bg-background transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-background border border-amber-400 flex items-center justify-center shrink-0">
+                  <span className="text-[10px] font-bold text-muted uppercase">{tx.category.slice(0, 2)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--text)] truncate">{tx.description}</p>
+                  <p className="text-sm font-medium text-text truncate">{tx.description}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-[var(--accent)] font-light">{new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
-                    <span className="text-[var(--border)]">·</span>
-                    <span className="text-xs text-[var(--accent)] font-light">{tx.category}</span>
+                    <span className="text-xs text-accent font-light">{new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+                    <span className="text-border">·</span>
+                    <span className="text-xs text-accent font-light">{tx.category}</span>
                     {tx.isNecessary === false && <span className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-lg">unnecessary</span>}
                     {tx.isNecessary === true  && <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-lg">necessary</span>}
                   </div>
-                  {tx.aiNote && <p className="text-[11px] text-[var(--accent)] mt-0.5 truncate font-light">{tx.aiNote}</p>}
+                  {tx.aiNote && <p className="text-[11px] text-accent mt-0.5 truncate font-light">{tx.aiNote}</p>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-[var(--text)]">{formatCurrency(tx.amount)}</p>
-                  <button onClick={() => handleDelete(tx.id)} className="text-xs text-[var(--border2)] hover:text-red-400 transition-colors mt-0.5">remove</button>
+                  <p className="text-sm font-semibold text-text">{formatCurrency(tx.amount)}</p>
+                  <button onClick={() => handleDelete(tx.id)} className="text-xs text-border2 hover:text-red-400 transition-colors mt-0.5">remove</button>
                 </div>
               </div>
             ))}

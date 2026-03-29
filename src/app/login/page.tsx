@@ -12,24 +12,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
           <Logo size="lg" />
-          <p className="text-[var(--muted)] text-sm mt-2 font-light">your money, your rules</p>
+          <p className="text-muted text-sm mt-2 font-light">your money, your rules</p>
         </div>
 
-        <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 shadow-sm p-8 space-y-6">
+        <div className="bg-background rounded-2xl border border-amber-400 shadow-sm p-8 space-y-6">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-[var(--text)]">Welcome back</h1>
-            <p className="text-[var(--muted)] text-sm mt-1 font-light">Sign in to continue to your dashboard</p>
+            <h1 className="text-xl font-bold text-text">Welcome back</h1>
+            <p className="text-muted text-sm mt-1 font-light">Sign in to continue to your dashboard</p>
           </div>
 
           <button
             onClick={go}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-[var(--text)] text-[var(--bg)] font-semibold text-sm hover:bg-[var(--text2)] transition-all disabled:opacity-60 shadow-sm"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-text text-background font-semibold text-sm hover:bg-text2 transition-all disabled:opacity-60 shadow-sm"
           >
             {loading ? (
               <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -48,13 +48,13 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-            <p className="text-xs text-[var(--accent)]">
+            <p className="text-xs text-accent">
               Only your name and email are accessed. No passwords stored.
             </p>
           </div>
         </div>
 
-        <p className="text-center text-[var(--accent)] text-xs mt-6">
+        <p className="text-center text-accent text-xs mt-6">
           New here?{" "}
           <a href="/onboarding" className="text-amber-600 hover:underline font-medium">
             Get started free

@@ -78,17 +78,17 @@ export default function Landing() {
   const go = async () => { setSigning(true); await signIn("google", { callbackUrl: "/dashboard" }); };
 
   return (
-    <div className="bg-[var(--bg)] text-[var(--text)] min-h-screen overflow-x-hidden selection:bg-amber-100">
+    <div className="bg-background text-text min-h-screen overflow-x-hidden selection:bg-amber-100">
 
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-[var(--bg)]/80 backdrop-blur-lg border-b border-[var(--surface)]">
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-surface">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <Logo size="md" />
           <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-sm text-[var(--muted)]">Free · No credit card</span>
+            <span className="hidden sm:block text-sm text-muted">Free · No credit card</span>
             <button
               onClick={go} disabled={signing}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--text)] text-[var(--bg)] text-sm font-semibold hover:bg-[var(--text2)] transition-all disabled:opacity-60 shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-text text-background text-sm font-semibold hover:bg-text2 transition-all disabled:opacity-60 shadow-sm"
             >
               <GoogleIcon size={16} />
               Sign in
@@ -104,7 +104,7 @@ export default function Landing() {
           Vashisht 3.0 · IIITDM Kancheepuram
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-black leading-[1.0] tracking-tighter text-[var(--text)] mb-6 max-w-3xl mx-auto">
+        <h1 className="text-5xl md:text-7xl font-black leading-[1.0] tracking-tighter text-text mb-6 max-w-3xl mx-auto">
           Finance for people
           <br />
           <span className="text-amber-600">who actually want</span>
@@ -112,7 +112,7 @@ export default function Landing() {
           to be rich.
         </h1>
 
-        <p className="text-[var(--muted)] text-lg max-w-lg mx-auto mb-10 leading-relaxed font-light">
+        <p className="text-muted text-lg max-w-lg mx-auto mb-10 leading-relaxed font-light">
           Track spending, get AI-powered feedback, plan investments —
           all in one clean dashboard built for Gen Z.
         </p>
@@ -120,7 +120,7 @@ export default function Landing() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <button
             onClick={go} disabled={signing}
-            className="flex items-center gap-3 px-7 py-3.5 rounded-2xl bg-[var(--text)] text-[var(--bg)] font-bold text-sm hover:bg-[var(--text2)] active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-slate-200"
+            className="flex items-center gap-3 px-7 py-3.5 rounded-2xl bg-text text-background font-bold text-sm hover:bg-text2 active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-slate-200"
           >
             {signing
               ? <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
@@ -129,31 +129,31 @@ export default function Landing() {
             Continue with Google — it&apos;s free
           </button>
         </div>
-        <p className="text-[var(--accent)] text-xs">No password. No forms. 2 minutes to set up.</p>
+        <p className="text-accent text-xs">No password. No forms. 2 minutes to set up.</p>
 
         {/* Dashboard preview */}
         <div className="mt-16 relative">
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg)] to-transparent z-10 pointer-events-none rounded-b-3xl" />
-          <div className="rounded-2xl border border-amber-400 bg-[var(--bg)] overflow-hidden shadow-2xl shadow-slate-200/80 text-left">
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none rounded-b-3xl" />
+          <div className="rounded-2xl border border-amber-400 bg-background overflow-hidden shadow-2xl shadow-slate-200/80 text-left">
             {/* Chrome bar */}
-            <div className="flex items-center gap-1.5 px-4 py-3 bg-[var(--bg)] border-b border-[var(--border)]">
+            <div className="flex items-center gap-1.5 px-4 py-3 bg-background border-b border-border">
               <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#4ade80]" />
-              <div className="mx-auto flex items-center gap-2 bg-[var(--surface)] rounded-lg px-4 py-1.5">
+              <div className="mx-auto flex items-center gap-2 bg-surface rounded-lg px-4 py-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                <span className="text-[var(--muted)] text-xs">superfinz.app/dashboard</span>
+                <span className="text-muted text-xs">superfinz.app/dashboard</span>
               </div>
             </div>
 
             <div className="flex">
               {/* Sidebar */}
-              <div className="w-44 bg-[var(--bg)] border-r border-[var(--surface)] p-3 space-y-0.5 shrink-0">
+              <div className="w-44 bg-background border-r border-surface p-3 space-y-0.5 shrink-0">
                 <div className="px-3 py-1.5 mb-2">
                   <Logo size="sm" />
                 </div>
                 {["Overview","Transactions","Heatmap","Calculators","News","Goals"].map((label, i) => (
-                  <div key={label} className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs ${i === 0 ? "bg-amber-50 text-amber-700 font-semibold" : "text-[var(--muted)]"}`}>
+                  <div key={label} className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs ${i === 0 ? "bg-amber-50 text-amber-700 font-semibold" : "text-muted"}`}>
                     {i === 0 && <span className="w-1 h-1 rounded-full bg-amber-500 shrink-0" />}
                     {label}
                   </div>
@@ -163,40 +163,40 @@ export default function Landing() {
               {/* Main */}
               <div className="flex-1 p-5 space-y-4 min-w-0">
                 <div>
-                  <p className="text-sm font-bold text-[var(--text)]">Good morning, Yashvanth</p>
-                  <p className="text-[10px] text-[var(--accent)] mt-0.5">Saturday, 28 March 2026</p>
+                  <p className="text-sm font-bold text-text">Good morning, Yashvanth</p>
+                  <p className="text-[10px] text-accent mt-0.5">Saturday, 28 March 2026</p>
                 </div>
                 <div className="grid grid-cols-4 gap-2.5">
                   {[
-                    { l: "Spent",        v: "₹3,240", s: "of ₹5,000",       c: "text-[var(--text)]" },
+                    { l: "Spent",        v: "₹3,240", s: "of ₹5,000",       c: "text-text" },
                     { l: "Remaining",    v: "₹1,760", s: "left to spend",    c: "text-emerald-600" },
                     { l: "Savings rate", v: "28%",    s: "vs last month",    c: "text-emerald-600" },
-                    { l: "Budget used",  v: "65%",    s: "on track",         c: "text-[var(--text)]" },
+                    { l: "Budget used",  v: "65%",    s: "on track",         c: "text-text" },
                   ].map((s) => (
-                    <div key={s.l} className="bg-[var(--bg)] border border-amber-400 rounded-xl p-3 shadow-sm">
-                      <p className="text-[9px] text-[var(--accent)] uppercase tracking-wide mb-1">{s.l}</p>
+                    <div key={s.l} className="bg-background border border-amber-400 rounded-xl p-3 shadow-sm">
+                      <p className="text-[9px] text-accent uppercase tracking-wide mb-1">{s.l}</p>
                       <p className={`text-sm font-bold ${s.c}`}>{s.v}</p>
-                      <p className="text-[8px] text-[var(--border2)] mt-1">{s.s}</p>
+                      <p className="text-[8px] text-border2 mt-1">{s.s}</p>
                     </div>
                   ))}
                 </div>
-                <div className="bg-[var(--bg)] border border-amber-400 rounded-xl p-4 shadow-sm">
+                <div className="bg-background border border-amber-400 rounded-xl p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold text-[var(--text)]">Recent spends</p>
+                    <p className="text-xs font-semibold text-text">Recent spends</p>
                     <p className="text-[9px] text-amber-500">View all</p>
                   </div>
                   <div className="space-y-2.5">
                     {MOCK_TX.map((tx, i) => (
                       <div key={i} className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-md bg-[var(--bg)] border border-amber-400 flex items-center justify-center shrink-0">
-                          <span className="text-[8px] font-bold text-[var(--muted)] uppercase">{tx.cat.slice(0,2)}</span>
+                        <div className="w-6 h-6 rounded-md bg-background border border-amber-400 flex items-center justify-center shrink-0">
+                          <span className="text-[8px] font-bold text-muted uppercase">{tx.cat.slice(0,2)}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] text-[var(--text)] truncate font-medium">{tx.name}</p>
-                          <p className="text-[9px] text-[var(--accent)]">{tx.cat}</p>
+                          <p className="text-[11px] text-text truncate font-medium">{tx.name}</p>
+                          <p className="text-[9px] text-accent">{tx.cat}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-[11px] font-semibold text-[var(--text)]">{tx.amt}</p>
+                          <p className="text-[11px] font-semibold text-text">{tx.amt}</p>
                           <p className={`text-[9px] ${tx.ok ? "text-emerald-500" : "text-amber-500"}`}>
                             {tx.ok ? "necessary" : "unnecessary"}
                           </p>
@@ -208,26 +208,26 @@ export default function Landing() {
               </div>
 
               {/* Right panel */}
-              <div className="w-44 bg-[var(--bg)] border-l border-[var(--surface)] p-4 shrink-0 hidden lg:block">
-                <p className="text-[10px] font-semibold text-[var(--text)] mb-2.5">Spend heatmap</p>
+              <div className="w-44 bg-background border-l border-surface p-4 shrink-0 hidden lg:block">
+                <p className="text-[10px] font-semibold text-text mb-2.5">Spend heatmap</p>
                 <div className="grid grid-cols-7 gap-[3px]">
                   {HEATMAP.map((v, i) => (
                     <div key={i} className={`aspect-square rounded-[2px] ${HEATMAP_COLORS[v]}`} />
                   ))}
                 </div>
                 <div className="flex justify-between mt-1.5">
-                  <span className="text-[8px] text-[var(--border2)]">less</span>
-                  <span className="text-[8px] text-[var(--border2)]">more</span>
+                  <span className="text-[8px] text-border2">less</span>
+                  <span className="text-[8px] text-border2">more</span>
                 </div>
                 <div className="mt-4 space-y-2.5">
-                  <p className="text-[10px] font-semibold text-[var(--text)]">Goals</p>
+                  <p className="text-[10px] font-semibold text-text">Goals</p>
                   {[{ name: "New MacBook", pct: 62 }, { name: "Goa trip", pct: 34 }].map((g) => (
                     <div key={g.name}>
                       <div className="flex justify-between text-[9px] mb-1">
-                        <span className="text-[var(--muted)]">{g.name}</span>
+                        <span className="text-muted">{g.name}</span>
                         <span className="text-amber-500 font-medium">{g.pct}%</span>
                       </div>
-                      <div className="h-1 bg-[var(--surface)] rounded-full overflow-hidden">
+                      <div className="h-1 bg-surface rounded-full overflow-hidden">
                         <div className="h-full bg-amber-400 rounded-full" style={{ width: `${g.pct}%` }} />
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export default function Landing() {
       </section>
 
       {/* Stats */}
-      <section ref={statsRef} className="bg-[var(--bg)] border-y border-[var(--border)] py-20 px-6 mt-12">
+      <section ref={statsRef} className="bg-background border-y border-border py-20 px-6 mt-12">
         <div className="max-w-3xl mx-auto grid grid-cols-3 gap-8 text-center">
           {[
             { val: users.toLocaleString("en-IN") + "+",  label: "Active users" },
@@ -248,8 +248,8 @@ export default function Landing() {
             { val: txns.toLocaleString("en-IN") + "+",   label: "Transactions logged" },
           ].map((s) => (
             <div key={s.label}>
-              <p className="text-4xl md:text-5xl font-black text-[var(--text)] tabular-nums">{s.val}</p>
-              <p className="text-[var(--muted)] text-sm mt-2 font-light">{s.label}</p>
+              <p className="text-4xl md:text-5xl font-black text-text tabular-nums">{s.val}</p>
+              <p className="text-muted text-sm mt-2 font-light">{s.label}</p>
             </div>
           ))}
         </div>
@@ -261,37 +261,37 @@ export default function Landing() {
           <p className="text-amber-600 text-xs font-semibold tracking-widest uppercase mb-3">What&apos;s inside</p>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
             Everything you need.
-            <br /><span className="text-[var(--accent)]">Nothing you don&apos;t.</span>
+            <br /><span className="text-accent">Nothing you don&apos;t.</span>
           </h2>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--border)] rounded-2xl overflow-hidden border border-amber-400">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-border rounded-2xl overflow-hidden border border-amber-400">
           {FEATURES.map((f, i) => (
             <div
               key={f.title}
-              className="bg-[var(--bg)] p-7 hover:bg-[var(--bg)] transition-colors duration-200"
+              className="bg-background p-7 hover:bg-background transition-colors duration-200"
               style={{
                 opacity: featIn ? 1 : 0,
                 transform: featIn ? "translateY(0)" : "translateY(16px)",
                 transition: `opacity 0.5s ease ${i * 60}ms, transform 0.5s ease ${i * 60}ms`,
               }}
             >
-              <p className="text-[var(--border)] text-5xl font-black mb-5 select-none">{f.n}</p>
-              <h3 className="text-[var(--text)] font-semibold mb-2 text-sm">{f.title}</h3>
-              <p className="text-[var(--muted)] text-sm leading-relaxed font-light">{f.body}</p>
+              <p className="text-border text-5xl font-black mb-5 select-none">{f.n}</p>
+              <h3 className="text-text font-semibold mb-2 text-sm">{f.title}</h3>
+              <p className="text-muted text-sm leading-relaxed font-light">{f.body}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* AI Demo */}
-      <section ref={demoRef} className="bg-[var(--bg)] border-y border-[var(--border)] py-24 px-6">
+      <section ref={demoRef} className="bg-background border-y border-border py-24 px-6">
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div style={{ opacity: demoIn ? 1 : 0, transform: demoIn ? "none" : "translateX(-16px)", transition: "all 0.6s ease" }}>
             <p className="text-amber-600 text-xs font-semibold tracking-widest uppercase mb-3">AI Spend Check</p>
             <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight mb-4">
-              Your AI advisor<br /><span className="text-[var(--accent)]">keeps it real.</span>
+              Your AI advisor<br /><span className="text-accent">keeps it real.</span>
             </h2>
-            <p className="text-[var(--muted)] leading-relaxed font-light">
+            <p className="text-muted leading-relaxed font-light">
               Log a spend and get instant AI feedback based on your history.
               Powered by OpenRouter — honest and actually useful.
             </p>
@@ -304,8 +304,8 @@ export default function Landing() {
             ].map((msg, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex gap-2.5">
-                  <div className="w-6 h-6 rounded-full bg-[var(--surface)] border border-amber-400 flex items-center justify-center text-[9px] text-[var(--muted)] shrink-0 mt-0.5 font-medium">you</div>
-                  <div className="bg-[var(--bg)] border border-amber-400 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-[var(--text2)] shadow-sm">{msg.user}</div>
+                  <div className="w-6 h-6 rounded-full bg-surface border border-amber-400 flex items-center justify-center text-[9px] text-muted shrink-0 mt-0.5 font-medium">you</div>
+                  <div className="bg-background border border-amber-400 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-text2 shadow-sm">{msg.user}</div>
                 </div>
                 <div className="flex gap-2.5 flex-row-reverse">
                   <div className="w-6 h-6 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-[9px] text-amber-600 shrink-0 mt-0.5 font-semibold">AI</div>
@@ -322,15 +322,15 @@ export default function Landing() {
       {/* Final CTA */}
       <section className="py-32 px-6 text-center">
         <div className="max-w-xl mx-auto">
-          <p className="text-[var(--accent)] text-xs uppercase tracking-widest font-semibold mb-5">Start now</p>
+          <p className="text-accent text-xs uppercase tracking-widest font-semibold mb-5">Start now</p>
           <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-tight mb-5">
             Know your money.<br />
             <span className="text-amber-600">Own your future.</span>
           </h2>
-          <p className="text-[var(--muted)] mb-10 font-light">Free forever · Google sign-in · 2 minutes to start</p>
+          <p className="text-muted mb-10 font-light">Free forever · Google sign-in · 2 minutes to start</p>
           <button
             onClick={go} disabled={signing}
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-[var(--text)] text-[var(--bg)] font-bold text-sm hover:bg-[var(--text2)] active:scale-[0.98] transition-all disabled:opacity-60 shadow-xl shadow-slate-200"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-text text-background font-bold text-sm hover:bg-text2 active:scale-[0.98] transition-all disabled:opacity-60 shadow-xl shadow-slate-200"
           >
             {signing
               ? <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
@@ -342,10 +342,10 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border)] px-8 py-6">
+      <footer className="border-t border-border px-8 py-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Logo size="sm" />
-          <p className="text-[var(--accent)] text-xs">Vashisht 3.0 · IIITDM Kancheepuram · 2026</p>
+          <p className="text-accent text-xs">Vashisht 3.0 · IIITDM Kancheepuram · 2026</p>
         </div>
       </footer>
     </div>

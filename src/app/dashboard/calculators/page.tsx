@@ -56,8 +56,8 @@ const ChartTooltip = ({ active, payload, label }: {
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[var(--bg)] border border-amber-400 rounded-xl p-3 text-xs shadow-sm">
-      <p className="text-[var(--accent)] mb-1.5 font-medium">{label}</p>
+    <div className="bg-background border border-amber-400 rounded-xl p-3 text-xs shadow-sm">
+      <p className="text-accent mb-1.5 font-medium">{label}</p>
       {payload.map((p) => (
         <p key={p.name} style={{ color: p.color }} className="font-semibold">
           {p.name}: {formatCurrency(p.value)}
@@ -86,8 +86,8 @@ export default function CalculatorsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text)]">Calculators</h1>
-        <p className="text-[var(--accent)] text-sm mt-0.5 font-light">Plan your money moves</p>
+        <h1 className="text-2xl font-bold text-text">Calculators</h1>
+        <p className="text-accent text-sm mt-0.5 font-light">Plan your money moves</p>
       </div>
 
       <div className="flex gap-2">
@@ -98,7 +98,7 @@ export default function CalculatorsPage() {
             className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all border ${
               tab === t.id
                 ? "bg-amber-50 border-amber-200 text-amber-700"
-                : "border-[var(--border)] text-[var(--muted)] hover:border-[#c7d2e2] hover:text-[var(--text)] bg-[var(--bg)]"
+                : "border-border text-muted hover:border-[#c7d2e2] hover:text-text bg-background"
             }`}
           >
             {t.label}
@@ -108,34 +108,34 @@ export default function CalculatorsPage() {
 
       {tab === "sip" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-[var(--text)] mb-5">SIP inputs</h2>
+          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-text mb-5">SIP inputs</h2>
             <div className="space-y-5">
               <Input label="Monthly investment (₹)" type="number" value={sip.monthly} onChange={(e) => setSip((s) => ({ ...s, monthly: e.target.value }))} />
               <div>
-                <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">Expected return — {sip.rate}% p.a.</label>
+                <label className="text-xs font-medium text-muted uppercase tracking-wide">Expected return — {sip.rate}% p.a.</label>
                 <input type="range" min="1" max="30" value={sip.rate} onChange={(e) => setSip((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-amber-600" />
               </div>
               <div>
-                <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">Duration — {sip.years} years</label>
+                <label className="text-xs font-medium text-muted uppercase tracking-wide">Duration — {sip.years} years</label>
                 <input type="range" min="1" max="40" value={sip.years} onChange={(e) => setSip((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-amber-600" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
-                { label: "Invested",  value: sipResult.invested,  color: "text-[var(--muted)]" },
+                { label: "Invested",  value: sipResult.invested,  color: "text-muted" },
                 { label: "Gains",     value: sipResult.gains,     color: "text-emerald-600" },
                 { label: "Maturity",  value: sipResult.maturity,  color: "text-amber-600" },
               ].map((s) => (
-                <div key={s.label} className="bg-[var(--bg)] rounded-xl p-3 text-center border border-[var(--surface)]">
-                  <p className="text-[10px] text-[var(--accent)] font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
+                <div key={s.label} className="bg-background rounded-xl p-3 text-center border border-surface">
+                  <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
                   <p className={`text-sm font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-[var(--text)] mb-5">Growth chart</h2>
+          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={sipResult.data}>
                 <defs>
@@ -158,34 +158,34 @@ export default function CalculatorsPage() {
 
       {tab === "fd" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-[var(--text)] mb-5">FD inputs</h2>
+          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-text mb-5">FD inputs</h2>
             <div className="space-y-5">
               <Input label="Principal amount (₹)" type="number" value={fd.principal} onChange={(e) => setFd((s) => ({ ...s, principal: e.target.value }))} />
               <div>
-                <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">Interest rate — {fd.rate}% p.a.</label>
+                <label className="text-xs font-medium text-muted uppercase tracking-wide">Interest rate — {fd.rate}% p.a.</label>
                 <input type="range" min="1" max="15" step="0.1" value={fd.rate} onChange={(e) => setFd((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-amber-500" />
               </div>
               <div>
-                <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">Tenure — {fd.years} years</label>
+                <label className="text-xs font-medium text-muted uppercase tracking-wide">Tenure — {fd.years} years</label>
                 <input type="range" min="1" max="10" value={fd.years} onChange={(e) => setFd((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-amber-500" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
-                { label: "Principal", value: +fd.principal,   color: "text-[var(--muted)]" },
+                { label: "Principal", value: +fd.principal,   color: "text-muted" },
                 { label: "Interest",  value: fdResult.interest, color: "text-amber-600" },
                 { label: "Maturity",  value: fdResult.maturity, color: "text-amber-600" },
               ].map((s) => (
-                <div key={s.label} className="bg-[var(--bg)] rounded-xl p-3 text-center border border-[var(--surface)]">
-                  <p className="text-[10px] text-[var(--accent)] font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
+                <div key={s.label} className="bg-background rounded-xl p-3 text-center border border-surface">
+                  <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
                   <p className={`text-sm font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-[var(--text)] mb-5">Growth chart</h2>
+          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={fdResult.data}>
                 <defs>
@@ -207,16 +207,16 @@ export default function CalculatorsPage() {
 
       {tab === "emi" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-[var(--text)] mb-5">EMI inputs</h2>
+          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-text mb-5">EMI inputs</h2>
             <div className="space-y-5">
               <Input label="Loan amount (₹)" type="number" value={emi.principal} onChange={(e) => setEmi((s) => ({ ...s, principal: e.target.value }))} />
               <div>
-                <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">Interest rate — {emi.rate}% p.a.</label>
+                <label className="text-xs font-medium text-muted uppercase tracking-wide">Interest rate — {emi.rate}% p.a.</label>
                 <input type="range" min="1" max="25" step="0.5" value={emi.rate} onChange={(e) => setEmi((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-violet-600" />
               </div>
               <div>
-                <label className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">Tenure — {emi.years} years</label>
+                <label className="text-xs font-medium text-muted uppercase tracking-wide">Tenure — {emi.years} years</label>
                 <input type="range" min="1" max="30" value={emi.years} onChange={(e) => setEmi((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-violet-600" />
               </div>
             </div>
@@ -224,17 +224,17 @@ export default function CalculatorsPage() {
               {[
                 { label: "Monthly EMI",    value: emiResult.emi,      color: "text-violet-600" },
                 { label: "Total interest", value: emiResult.interest, color: "text-red-500" },
-                { label: "Total payment",  value: emiResult.total,    color: "text-[var(--text)]" },
+                { label: "Total payment",  value: emiResult.total,    color: "text-text" },
               ].map((s) => (
-                <div key={s.label} className="bg-[var(--bg)] rounded-xl p-3 text-center border border-[var(--surface)]">
-                  <p className="text-[10px] text-[var(--accent)] font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
+                <div key={s.label} className="bg-background rounded-xl p-3 text-center border border-surface">
+                  <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
                   <p className={`text-sm font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-[var(--text)] mb-5">Balance over time</h2>
+          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+            <h2 className="text-sm font-semibold text-text mb-5">Balance over time</h2>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={emiResult.data}>
                 <defs>

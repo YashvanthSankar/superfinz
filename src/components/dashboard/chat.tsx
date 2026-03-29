@@ -82,13 +82,13 @@ export function Chat() {
           "fixed z-50 flex items-center justify-center rounded-2xl shadow-xl transition-all duration-200 active:scale-95",
           "right-4 bottom-[5.5rem] lg:bottom-7 lg:right-7",
           "w-14 h-14",
-          "bg-[var(--text)] text-[var(--bg)] hover:bg-[var(--text2)]"
+          "bg-text text-background hover:bg-text2"
         )}
         aria-label="Open Finz AI"
       >
         {open ? <X size={22} /> : <Sparkles size={22} />}
         {!open && (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border-2 border-[var(--bg)] animate-pulse" />
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-400 rounded-full border-2 border-background animate-pulse" />
         )}
       </button>
 
@@ -96,7 +96,7 @@ export function Chat() {
       {open && (
         <div className={cn(
           "fixed z-50 flex flex-col overflow-hidden",
-          "bg-[var(--bg)] border-2 border-amber-400 rounded-2xl shadow-2xl shadow-amber-200/50",
+          "bg-background border-2 border-amber-400 rounded-2xl shadow-2xl shadow-amber-200/50",
           // Mobile: near full screen above bottom nav
           "right-3 left-3 bottom-[5rem] max-h-[78vh]",
           // Desktop: fixed width panel
@@ -104,17 +104,17 @@ export function Chat() {
         )}>
 
           {/* Header */}
-          <div className="flex items-center gap-3 px-5 py-4 bg-[var(--text)] shrink-0">
+          <div className="flex items-center gap-3 px-5 py-4 bg-text shrink-0">
             <div className="w-9 h-9 rounded-xl bg-amber-400/25 border border-amber-400/30 flex items-center justify-center shrink-0">
               <Sparkles size={17} className="text-amber-300" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[var(--bg)] font-bold text-base leading-tight">Finz</p>
+              <p className="text-background font-bold text-base leading-tight">Finz</p>
               <p className="text-amber-300/80 text-xs font-light">Knows your spending · Powered by AI</p>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-amber-300 hover:text-[var(--bg)] hover:bg-white/10 transition-all"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-amber-300 hover:text-background hover:bg-white/10 transition-all"
             >
               <X size={16} />
             </button>
@@ -132,8 +132,8 @@ export function Chat() {
                 <div className={cn(
                   "max-w-[82%] px-4 py-3 rounded-2xl text-sm leading-relaxed",
                   m.role === "user"
-                    ? "bg-[var(--text)] text-[var(--bg)] rounded-br-sm"
-                    : "bg-white border border-amber-200 text-[var(--text)] rounded-bl-sm shadow-sm"
+                    ? "bg-text text-background rounded-br-sm"
+                    : "bg-white border border-amber-200 text-text rounded-bl-sm shadow-sm"
                 )}>
                   {m.content}
                 </div>
@@ -160,7 +160,7 @@ export function Chat() {
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="text-xs px-3 py-2 rounded-xl bg-[var(--surface)] border border-amber-400 text-[var(--text)] hover:bg-amber-100 hover:border-amber-400 transition-all font-medium"
+                  className="text-xs px-3 py-2 rounded-xl bg-surface border border-amber-400 text-text hover:bg-amber-100 hover:border-amber-400 transition-all font-medium"
                 >
                   {s}
                 </button>
@@ -169,19 +169,19 @@ export function Chat() {
           )}
 
           {/* Input row */}
-          <div className="flex items-center gap-2.5 px-4 py-3.5 border-t-2 border-amber-200 bg-[var(--bg)] shrink-0">
+          <div className="flex items-center gap-2.5 px-4 py-3.5 border-t-2 border-amber-200 bg-background shrink-0">
             <input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               placeholder="Should I buy something today?"
-              className="flex-1 bg-[var(--surface)] border border-amber-400 rounded-xl px-4 py-2.5 text-sm text-[var(--text)] placeholder-[var(--accent)] focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/20 transition-all"
+              className="flex-1 bg-surface border border-amber-400 rounded-xl px-4 py-2.5 text-sm text-text placeholder-accent focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/20 transition-all"
             />
             <button
               onClick={() => send()}
               disabled={!input.trim() || loading}
-              className="w-10 h-10 rounded-xl bg-[var(--text)] text-[var(--bg)] flex items-center justify-center hover:bg-[var(--text2)] active:scale-95 transition-all disabled:opacity-40 shrink-0"
+              className="w-10 h-10 rounded-xl bg-text text-background flex items-center justify-center hover:bg-text2 active:scale-95 transition-all disabled:opacity-40 shrink-0"
             >
               <Send size={15} />
             </button>

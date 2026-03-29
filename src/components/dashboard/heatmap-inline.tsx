@@ -5,7 +5,7 @@ import { formatCurrency } from "@/lib/utils";
 type HeatDay = { date: string; total: number; count: number };
 
 const INTENSITY = [
-  "bg-[var(--surface)]",
+  "bg-surface",
   "bg-amber-100",
   "bg-amber-200",
   "bg-amber-400",
@@ -65,11 +65,11 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
   return (
     <div>
       {/* Stats row */}
-      <div className="flex items-center gap-6 mb-4 text-xs text-[var(--accent)]">
-        <span><span className="font-semibold text-[var(--text)]">{formatCurrency(totalSpend)}</span> in 3 months</span>
-        <span><span className="font-semibold text-[var(--text)]">{activeDays}</span> active days</span>
+      <div className="flex items-center gap-6 mb-4 text-xs text-accent">
+        <span><span className="font-semibold text-text">{formatCurrency(totalSpend)}</span> in 3 months</span>
+        <span><span className="font-semibold text-text">{activeDays}</span> active days</span>
         {activeDays > 0 && (
-          <span><span className="font-semibold text-[var(--text)]">{formatCurrency(totalSpend / activeDays)}</span> avg/active day</span>
+          <span><span className="font-semibold text-text">{formatCurrency(totalSpend / activeDays)}</span> avg/active day</span>
         )}
       </div>
 
@@ -79,7 +79,7 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
           <div className="flex flex-col gap-1 mr-1 shrink-0">
             <div className="h-4" /> {/* spacer for month row */}
             {DAY_LABELS.map((d, i) => (
-              <div key={d} className={`h-3 text-[9px] text-[var(--accent)] flex items-center ${i % 2 === 0 ? "opacity-0" : ""}`}>{d}</div>
+              <div key={d} className={`h-3 text-[9px] text-accent flex items-center ${i % 2 === 0 ? "opacity-0" : ""}`}>{d}</div>
             ))}
           </div>
 
@@ -91,7 +91,7 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
 
             return (
               <div key={wi} className="flex flex-col gap-1">
-                <div className="h-4 text-[9px] text-[var(--accent)] flex items-center whitespace-nowrap">
+                <div className="h-4 text-[9px] text-accent flex items-center whitespace-nowrap">
                   {monthLabel ?? ""}
                 </div>
                 {week.map((cell, di) => (
@@ -118,30 +118,30 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
       {/* Tooltip */}
       {tip && tip.date && (
         <div
-          className="fixed z-50 pointer-events-none bg-[var(--bg)] border border-amber-400 rounded-xl px-3 py-2 text-xs shadow-lg"
+          className="fixed z-50 pointer-events-none bg-background border border-amber-400 rounded-xl px-3 py-2 text-xs shadow-lg"
           style={{ left: tip.x + 20, top: tip.y - 10 }}
         >
-          <p className="font-semibold text-[var(--text)]">
+          <p className="font-semibold text-text">
             {new Date(tip.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
           </p>
           {tip.total > 0 ? (
             <>
-              <p className="text-[var(--accent)] mt-0.5">{formatCurrency(tip.total)}</p>
-              <p className="text-[var(--accent)]">{tip.count} transaction{tip.count !== 1 ? "s" : ""}</p>
+              <p className="text-accent mt-0.5">{formatCurrency(tip.total)}</p>
+              <p className="text-accent">{tip.count} transaction{tip.count !== 1 ? "s" : ""}</p>
             </>
           ) : (
-            <p className="text-[var(--accent)] mt-0.5">No spend</p>
+            <p className="text-accent mt-0.5">No spend</p>
           )}
         </div>
       )}
 
       {/* Legend */}
       <div className="flex items-center gap-1.5 mt-3">
-        <span className="text-[10px] text-[var(--accent)]">Less</span>
+        <span className="text-[10px] text-accent">Less</span>
         {INTENSITY.map((cls, i) => (
           <div key={i} className={`w-3 h-3 rounded-[2px] ${cls}`} />
         ))}
-        <span className="text-[10px] text-[var(--accent)]">More</span>
+        <span className="text-[10px] text-accent">More</span>
       </div>
     </div>
   );

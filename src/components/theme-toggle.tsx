@@ -33,7 +33,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-[var(--surface2)] text-[var(--accent)] border border-[var(--border2)] shadow-lg hover:scale-110 transition-transform"
+      className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-surface2 text-accent border border-border2 shadow-lg hover:scale-110 transition-transform"
       aria-label="Toggle Theme"
     >
       {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}

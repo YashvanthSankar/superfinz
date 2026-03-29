@@ -20,7 +20,7 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
     <span className={`inline-flex items-center gap-1.5 ${className}`}>
       <span className={`${markCls} bg-amber-500 rounded-[2px] rotate-45 shrink-0`} />
       <span className={`${textCls} font-black tracking-tight`}>
-        <span className="text-[var(--text)]">super</span><span className="text-amber-600">finz</span>
+        <span className="text-text">super</span><span className="text-amber-600">finz</span>
       </span>
     </span>
   );

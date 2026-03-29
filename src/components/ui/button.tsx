@@ -17,10 +17,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
           {
-            "bg-[var(--muted)] text-[var(--bg)] hover:bg-[var(--text2)] shadow-sm": variant === "primary",
-            "bg-[var(--bg)] text-[var(--text)] border border-amber-400 hover:bg-[var(--surface)] shadow-sm": variant === "secondary",
+            "bg-muted text-background hover:bg-text2 shadow-sm": variant === "primary",
+            "bg-background text-text border border-amber-400 hover:bg-surface shadow-sm": variant === "secondary",
             "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100": variant === "outline",
-            "bg-transparent text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]": variant === "ghost",
+            "bg-transparent text-muted hover:text-text hover:bg-surface": variant === "ghost",
             "bg-[#fef2f2] text-red-600 border border-red-100 hover:bg-red-50": variant === "danger",
             "px-3 py-1.5 text-xs": size === "sm",
             "px-4 py-2.5 text-sm": size === "md",

@@ -28,9 +28,9 @@ export function Sidebar() {
   return (
     <>
       {/* ─── Desktop sidebar ─────────────────────────────────────── */}
-      <aside className="hidden lg:flex w-52 shrink-0 bg-[var(--bg)] border-r border-[var(--surface)] flex-col h-screen sticky top-0">
+      <aside className="hidden lg:flex w-52 shrink-0 bg-background border-r border-surface flex-col h-screen sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-[var(--surface)]">
+        <div className="px-5 py-5 border-b border-surface">
           <Logo size="md" />
         </div>
 
@@ -46,10 +46,10 @@ export function Sidebar() {
                   "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all",
                   active
                     ? "bg-amber-50 text-amber-700 font-semibold"
-                    : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-amber-50/50 font-medium"
+                    : "text-muted hover:text-text hover:bg-amber-50/50 font-medium"
                 )}
               >
-                <Icon size={15} className={active ? "text-amber-600" : "text-[var(--accent)]"} />
+                <Icon size={15} className={active ? "text-amber-600" : "text-accent"} />
                 {label}
               </a>
             );
@@ -57,7 +57,7 @@ export function Sidebar() {
         </nav>
 
         {/* Profile + sign out */}
-        <div className="p-3 border-t border-[var(--surface)] space-y-0.5">
+        <div className="p-3 border-t border-surface space-y-0.5">
           {session?.user && (
             <a
               href="/dashboard/profile"
@@ -70,21 +70,21 @@ export function Sidebar() {
             >
               {session.user.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-[var(--border)] shrink-0" />
+                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-border shrink-0" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center shrink-0">
                   {session.user.name?.[0]?.toUpperCase()}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[var(--text)] truncate">{session.user.name}</p>
-                <p className="text-[10px] text-[var(--accent)] truncate">{session.user.email}</p>
+                <p className="text-xs font-semibold text-text truncate">{session.user.name}</p>
+                <p className="text-[10px] text-accent truncate">{session.user.email}</p>
               </div>
             </a>
           )}
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-[var(--accent)] hover:text-red-500 hover:bg-red-50 transition-all font-medium"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium"
           >
             <LogOut size={14} />
             Sign out
@@ -93,7 +93,7 @@ export function Sidebar() {
       </aside>
 
       {/* ─── Mobile top bar ──────────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-[var(--bg)]/95 backdrop-blur border-b border-[var(--surface)] flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background/95 backdrop-blur border-b border-surface flex items-center justify-between px-4">
         <Logo size="md" />
         <div className="flex items-center gap-2">
           <a
@@ -102,7 +102,7 @@ export function Sidebar() {
           >
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-[var(--border)]" />
+              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-border" />
             ) : (
               <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">
                 {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
@@ -113,7 +113,7 @@ export function Sidebar() {
       </div>
 
       {/* ─── Mobile bottom nav ───────────────────────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg)]/95 backdrop-blur border-t border-[var(--surface)] flex items-stretch pb-safe">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-surface flex items-stretch pb-safe">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
@@ -122,7 +122,7 @@ export function Sidebar() {
               href={href}
               className={cn(
                 "relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all",
-                active ? "text-amber-700" : "text-[var(--accent)]"
+                active ? "text-amber-700" : "text-accent"
               )}
             >
               {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-amber-500 rounded-b-full" />}

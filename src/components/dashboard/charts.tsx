@@ -57,8 +57,8 @@ export function SpendTrendChart({ data }: { data: TrendPoint[] }) {
           content={({ active, payload, label }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-[var(--bg)] border border-amber-400 rounded-xl p-3 text-xs shadow-md">
-                <p className="text-[var(--accent)] mb-1.5 font-medium">Day {label}</p>
+              <div className="bg-background border border-amber-400 rounded-xl p-3 text-xs shadow-md">
+                <p className="text-accent mb-1.5 font-medium">Day {label}</p>
                 {payload.map((p) => (
                   <p key={p.name as string} style={{ color: p.color as string }} className="font-semibold">
                     {p.name}: {formatCurrency(p.value as number)}
@@ -98,7 +98,7 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
     return (
       <div className="flex flex-col items-center justify-center h-[210px] text-center">
         <p className="text-3xl mb-2">🫙</p>
-        <p className="text-[var(--accent)] text-sm font-light">No spends yet</p>
+        <p className="text-accent text-sm font-light">No spends yet</p>
       </div>
     );
   }
@@ -127,9 +127,9 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           content={({ active, payload }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-[var(--bg)] border border-amber-400 rounded-xl p-3 text-xs shadow-md">
-                <p className="font-semibold text-[var(--text)]">{payload[0].name as string}</p>
-                <p className="text-[var(--muted)] mt-0.5">{formatCurrency(payload[0].value as number)}</p>
+              <div className="bg-background border border-amber-400 rounded-xl p-3 text-xs shadow-md">
+                <p className="font-semibold text-text">{payload[0].name as string}</p>
+                <p className="text-muted mt-0.5">{formatCurrency(payload[0].value as number)}</p>
               </div>
             );
           }}
@@ -141,7 +141,7 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           iconType="circle"
           iconSize={7}
           formatter={(value) => (
-            <span className="text-[11px] text-[var(--muted)]">{value}</span>
+            <span className="text-[11px] text-muted">{value}</span>
           )}
         />
       </PieChart>

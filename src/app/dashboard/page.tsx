@@ -280,10 +280,10 @@ export default async function DashboardPage() {
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text)]">
+          <h1 className="text-2xl font-bold text-text">
             {greeting}, {user.name.split(" ")[0]}
           </h1>
-          <p className="text-[var(--accent)] text-sm mt-0.5 font-light">
+          <p className="text-accent text-sm mt-0.5 font-light">
             {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
         </div>
@@ -299,7 +299,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Retirement Readiness Banner ──────────────────────────── */}
-      <div className="bg-[var(--text)] rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="bg-text rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
         {/* Score ring */}
         <div className="flex items-center gap-4 shrink-0">
           <div className="relative w-16 h-16 shrink-0">
@@ -308,11 +308,11 @@ export default async function DashboardPage() {
               <circle cx="18" cy="18" r="15.9" fill="none" stroke={scoreColor} strokeWidth="3"
                 strokeDasharray={`${retirementScore} 100`} strokeLinecap="round" />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-[var(--bg)]">{retirementScore}</span>
+            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-background">{retirementScore}</span>
           </div>
           <div>
             <p className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Retirement Readiness</p>
-            <p className="text-lg font-black text-[var(--bg)] leading-tight" style={{ color: scoreColor }}>{scoreLabel}</p>
+            <p className="text-lg font-black text-background leading-tight" style={{ color: scoreColor }}>{scoreLabel}</p>
             <p className="text-xs text-amber-300/80 font-light">Target: retire at {targetRetire}</p>
           </div>
         </div>
@@ -324,12 +324,12 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-3 gap-3 flex-1 text-center">
           <div>
             <p className="text-[10px] text-amber-400 uppercase tracking-wide font-semibold"><FinTip term="SIP">Invest %</FinTip></p>
-            <p className="text-base font-black text-[var(--bg)] mt-0.5">{investPct.toFixed(0)}%</p>
+            <p className="text-base font-black text-background mt-0.5">{investPct.toFixed(0)}%</p>
             <p className="text-[10px] text-amber-400/70">of income</p>
           </div>
           <div>
             <p className="text-[10px] text-amber-400 uppercase tracking-wide font-semibold"><FinTip term="corpus">Corpus gap</FinTip></p>
-            <p className="text-base font-black text-[var(--bg)] mt-0.5">{fmtCrore(Math.max(fireCorpus - projCorpus, 0))}</p>
+            <p className="text-base font-black text-background mt-0.5">{fmtCrore(Math.max(fireCorpus - projCorpus, 0))}</p>
             <p className="text-[10px] text-amber-400/70">needed by {targetRetire}</p>
           </div>
           <div>
@@ -341,7 +341,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <a href="/dashboard/retirement" className="shrink-0 text-xs px-4 py-2 rounded-xl bg-amber-500 text-[var(--text)] font-bold hover:bg-amber-400 transition-all text-center">
+        <a href="/dashboard/retirement" className="shrink-0 text-xs px-4 py-2 rounded-xl bg-amber-500 text-text font-bold hover:bg-amber-400 transition-all text-center">
           Full plan →
         </a>
       </div>
@@ -379,7 +379,7 @@ export default async function DashboardPage() {
           {
             label: "Spent this month",
             value: formatCurrency(monthlySpend),
-            valueColor: "text-[var(--text)]",
+            valueColor: "text-text",
             sub: budget > 0 ? `${budgetPct.toFixed(0)}% of ${formatCurrency(budget)}` : "no budget set",
             showBar: budget > 0,
             iconD: "M12 6v12m-4-6h8",
@@ -387,7 +387,7 @@ export default async function DashboardPage() {
           {
             label: "Remaining",
             value: formatCurrency(Math.abs(remaining)),
-            valueColor: remaining < 0 ? "text-red-500" : "text-[var(--text)]",
+            valueColor: remaining < 0 ? "text-red-500" : "text-text",
             sub: remaining < 0 ? "over budget" : budget > 0 ? "left this month" : "no budget set",
             showBar: false,
             iconD: "M5 13l4 4L19 7",
@@ -395,7 +395,7 @@ export default async function DashboardPage() {
           {
             label: "Savings rate",
             value: `${savingsRate.toFixed(0)}%`,
-            valueColor: "text-[var(--text)]",
+            valueColor: "text-text",
             sub: goalAmt > 0 ? `target ${formatCurrency(goalAmt)}/mo` : "set a savings goal",
             showBar: false,
             iconD: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
@@ -403,23 +403,23 @@ export default async function DashboardPage() {
           {
             label: "Transactions",
             value: monthTx.length.toString(),
-            valueColor: "text-[var(--text)]",
+            valueColor: "text-text",
             sub: dailyAvg > 0 ? `${formatCurrency(dailyAvg)}/day avg` : "this month",
             showBar: false,
             iconD: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
           },
         ] as const).map((s) => (
-          <div key={s.label} className="bg-[var(--surface)] rounded-2xl border border-amber-400 p-5 shadow-sm">
-            <div className="w-7 h-7 rounded-lg bg-[var(--bg)] border border-amber-300 flex items-center justify-center mb-3">
-              <svg className="w-3.5 h-3.5 text-[var(--text2)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div key={s.label} className="bg-surface rounded-2xl border border-amber-400 p-5 shadow-sm">
+            <div className="w-7 h-7 rounded-lg bg-background border border-amber-300 flex items-center justify-center mb-3">
+              <svg className="w-3.5 h-3.5 text-text2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={s.iconD} />
               </svg>
             </div>
-            <p className="text-[10px] text-[var(--text2)] font-semibold uppercase tracking-wider">{s.label}</p>
+            <p className="text-[10px] text-text2 font-semibold uppercase tracking-wider">{s.label}</p>
             <p className={`text-xl font-bold mt-1 ${s.valueColor}`}>{s.value}</p>
-            <p className="text-xs text-[var(--accent)] mt-0.5 font-light">{s.sub}</p>
+            <p className="text-xs text-accent mt-0.5 font-light">{s.sub}</p>
             {s.showBar && (
-              <div className="mt-3 h-1.5 bg-[var(--bg)] rounded-full overflow-hidden">
+              <div className="mt-3 h-1.5 bg-background rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${budgetPct > 90 ? "bg-red-400" : budgetPct > 70 ? "bg-amber-600" : "bg-amber-500"}`}
                   style={{ width: `${Math.min(budgetPct, 100)}%` }}
@@ -433,34 +433,34 @@ export default async function DashboardPage() {
       {/* ── Insight strip ────────────────────────────────────────── */}
       {!noSpends && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-[var(--bg)] rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
+          <div className="bg-background rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--accent)] font-semibold uppercase tracking-wide">Daily average</p>
-              <p className="text-sm font-bold text-[var(--text)]">{formatCurrency(dailyAvg)}</p>
+              <p className="text-[10px] text-accent font-semibold uppercase tracking-wide">Daily average</p>
+              <p className="text-sm font-bold text-text">{formatCurrency(dailyAvg)}</p>
             </div>
           </div>
-          <div className="bg-[var(--bg)] rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
+          <div className="bg-background rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             </div>
             <div>
-              <p className="text-[10px] text-[var(--accent)] font-semibold uppercase tracking-wide">Month projection</p>
-              <p className={`text-sm font-bold ${projectedSpend > budget && budget > 0 ? "text-red-500" : "text-[var(--text)]"}`}>
+              <p className="text-[10px] text-accent font-semibold uppercase tracking-wide">Month projection</p>
+              <p className={`text-sm font-bold ${projectedSpend > budget && budget > 0 ? "text-red-500" : "text-text"}`}>
                 {formatCurrency(projectedSpend)}
               </p>
             </div>
           </div>
           {topCategory && (
-            <div className="bg-[var(--bg)] rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
+            <div className="bg-background rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
                 <span className="text-[11px] font-bold text-amber-700 uppercase">{topCategory.name.slice(0, 2)}</span>
               </div>
               <div>
-                <p className="text-[10px] text-[var(--accent)] font-semibold uppercase tracking-wide">Top category</p>
-                <p className="text-sm font-bold text-[var(--text)]">{topCategory.name} · {formatCurrency(topCategory.value)}</p>
+                <p className="text-[10px] text-accent font-semibold uppercase tracking-wide">Top category</p>
+                <p className="text-sm font-bold text-text">{topCategory.name} · {formatCurrency(topCategory.value)}</p>
               </div>
             </div>
           )}
@@ -469,37 +469,37 @@ export default async function DashboardPage() {
 
       {/* ── Spending trend + Category ─────────────────────────── */}
       <div className="grid md:grid-cols-5 gap-4">
-        <div className="md:col-span-3 bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="md:col-span-3 bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm font-semibold text-[var(--text)]">Spending trend</h2>
-              <p className="text-xs text-[var(--accent)] font-light mt-0.5">Cumulative vs budget pace (dashed)</p>
+              <h2 className="text-sm font-semibold text-text">Spending trend</h2>
+              <p className="text-xs text-accent font-light mt-0.5">Cumulative vs budget pace (dashed)</p>
             </div>
             {budget > 0 && (
-              <span className="text-xs text-[var(--accent)] bg-[var(--surface)] px-2 py-1 rounded-lg font-medium">{budgetPct.toFixed(0)}% used</span>
+              <span className="text-xs text-accent bg-surface px-2 py-1 rounded-lg font-medium">{budgetPct.toFixed(0)}% used</span>
             )}
           </div>
           {noSpends ? (
             <div className="flex flex-col items-center justify-center h-[210px]">
-              <p className="text-[var(--accent)] text-sm font-light">Log a spend to see your trend</p>
+              <p className="text-accent text-sm font-light">Log a spend to see your trend</p>
             </div>
           ) : (
             <SpendTrendChart data={trendData} />
           )}
         </div>
-        <div className="md:col-span-2 bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-[var(--text)] mb-0.5">By category</h2>
-          <p className="text-xs text-[var(--accent)] font-light mb-1">Where your money goes</p>
+        <div className="md:col-span-2 bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-text mb-0.5">By category</h2>
+          <p className="text-xs text-accent font-light mb-1">Where your money goes</p>
           <CategoryChart data={categoryData} />
         </div>
       </div>
 
       {/* ── Spending heatmap ─────────────────────────────────── */}
-      <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-sm font-semibold text-[var(--text)]">Spending heatmap</h2>
-            <p className="text-xs text-[var(--accent)] font-light mt-0.5">Last 3 months — darker = more spent</p>
+            <h2 className="text-sm font-semibold text-text">Spending heatmap</h2>
+            <p className="text-xs text-accent font-light mt-0.5">Last 3 months — darker = more spent</p>
           </div>
         </div>
         <HeatmapInline data={heatData} />
@@ -508,31 +508,31 @@ export default async function DashboardPage() {
       {/* ── Recent spends + Goals ─────────────────────────────── */}
       <div className="grid md:grid-cols-2 gap-4">
 
-        <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-[var(--text)]">Recent spends</h2>
+            <h2 className="text-sm font-semibold text-text">Recent spends</h2>
             <a href="/dashboard/transactions" className="text-xs text-amber-600 hover:underline font-medium">View all</a>
           </div>
           {recentTx.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-[var(--muted)] text-sm">No transactions yet</p>
+              <p className="text-muted text-sm">No transactions yet</p>
               <a href="/dashboard/transactions" className="text-amber-600 text-xs hover:underline mt-1 inline-block font-medium">Add your first spend</a>
             </div>
           ) : (
             <div className="space-y-2.5">
               {recentTx.map((tx) => (
-                <div key={tx.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[var(--surface)] transition-colors">
+                <div key={tx.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface transition-colors">
                   <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
                     <span className="text-[10px] font-bold text-amber-700 uppercase">{tx.category.slice(0, 2)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--text)] font-medium truncate">{tx.description}</p>
-                    <p className="text-xs text-[var(--accent)] font-light">
+                    <p className="text-sm text-text font-medium truncate">{tx.description}</p>
+                    <p className="text-xs text-accent font-light">
                       {tx.category} · {new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-[var(--text)]">{formatCurrency(tx.amount)}</p>
+                    <p className="text-sm font-semibold text-text">{formatCurrency(tx.amount)}</p>
                     {tx.isNecessary === false && <span className="text-[10px] text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded-md">skip</span>}
                     {tx.isNecessary === true  && <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">ok</span>}
                   </div>
@@ -542,14 +542,14 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-[var(--text)]">Savings goals</h2>
+            <h2 className="text-sm font-semibold text-text">Savings goals</h2>
             <a href="/dashboard/goals" className="text-xs text-amber-600 hover:underline font-medium">Manage</a>
           </div>
           {goals.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-[var(--muted)] text-sm">No goals yet</p>
+              <p className="text-muted text-sm">No goals yet</p>
               <a href="/dashboard/goals" className="text-amber-600 text-xs hover:underline mt-1 inline-block font-medium">Set a goal</a>
             </div>
           ) : (
@@ -557,20 +557,20 @@ export default async function DashboardPage() {
               {goals.map((goal) => {
                 const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
                 return (
-                  <div key={goal.id} className="p-3 rounded-xl bg-[var(--surface)] border border-amber-400">
+                  <div key={goal.id} className="p-3 rounded-xl bg-surface border border-amber-400">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-[var(--text)] font-semibold">{goal.title}</span>
+                      <span className="text-sm text-text font-semibold">{goal.title}</span>
                       <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
                         {pct.toFixed(0)}%
                       </span>
                     </div>
-                    <div className="h-2 bg-[var(--bg)] rounded-full overflow-hidden">
+                    <div className="h-2 bg-background rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${pct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-[var(--accent)] mt-1.5 font-light">
+                    <div className="flex justify-between text-xs text-accent mt-1.5 font-light">
                       <span>{formatCurrency(goal.savedAmount)} saved</span>
                       <span>{formatCurrency(goal.targetAmount)} target</span>
                     </div>

@@ -41,8 +41,8 @@ export function DashboardBreadcrumbs() {
   };
 
   return (
-    <nav className="mb-2 flex items-center gap-1.5 text-xs text-[var(--accent)]" aria-label="Breadcrumb">
-      <Link href="/dashboard" className="font-medium hover:text-[var(--text)] transition-colors">
+    <nav className="mb-2 flex items-center gap-1.5 text-xs text-accent" aria-label="Breadcrumb">
+      <Link href="/dashboard" className="font-medium hover:text-text transition-colors">
         Dashboard
       </Link>
 
@@ -55,9 +55,9 @@ export function DashboardBreadcrumbs() {
           <div key={`${segment}-${index}`} className="contents">
             <ChevronRight size={12} className="text-amber-500" />
             {isLast || segment === "overview" ? (
-              <span className="font-semibold text-[var(--text)] truncate">{label}</span>
+              <span className="font-semibold text-text truncate">{label}</span>
             ) : (
-              <Link href={href} className="font-medium hover:text-[var(--text)] transition-colors truncate">
+              <Link href={href} className="font-medium hover:text-text transition-colors truncate">
                 {label}
               </Link>
             )}
