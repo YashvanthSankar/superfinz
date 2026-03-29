@@ -59,8 +59,8 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
   const [tip, setTip] = useState<(HeatDay & { x: number; y: number }) | null>(null);
   const cols = buildGrid(data);
   const max = Math.max(...data.map((d) => d.total), 1);
-  const totalSpend = data.reduce((s: number, d) => s + d.total, 0);
-  const activeDays = data.filter((d) => d.total > 0).length;
+  const totalSpend = data.reduce((s: number, d: HeatDay) => s + d.total, 0);
+  const activeDays = data.filter((d: HeatDay) => d.total > 0).length;
 
   return (
     <div>

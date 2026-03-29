@@ -193,8 +193,8 @@ export default function GoalsPage() {
     fetchGoals();
   };
 
-  const active   = goals.filter((g) => !g.achieved);
-  const achieved = goals.filter((g) => g.achieved);
+  const active   = goals.filter((g: Goal) => !g.achieved);
+  const achieved = goals.filter((g: Goal) => g.achieved);
 
   const prefillFire = (title: string, amount: number) => {
     setForm({ title, targetAmount: String(Math.round(amount)), deadline: "" });

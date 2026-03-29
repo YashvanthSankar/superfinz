@@ -52,7 +52,7 @@ export default function TransactionsPage() {
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/transactions/${id}`, { method: "DELETE" });
-    setTransactions((p) => p.filter((t) => t.id !== id));
+    setTransactions((p: Transaction[]) => p.filter((t: Transaction) => t.id !== id));
   };
 
   return (

@@ -44,7 +44,7 @@ export default function OnboardingPage() {
   const set = (k: string, v: string | string[]) => setForm((f) => ({ ...f, [k]: v }));
   const toggleSrc = (val: string) => set("incomeSources",
     form.incomeSources.includes(val)
-      ? form.incomeSources.filter((s) => s !== val)
+      ? form.incomeSources.filter((s: string) => s !== val)
       : [...form.incomeSources, val]
   );
 
