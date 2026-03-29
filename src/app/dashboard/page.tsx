@@ -86,7 +86,7 @@ export default async function DashboardPage() {
 
   // New AI Allocation based on spending pattern
   // Weeks defined strictly as: W1(1-7), W2(8-14), W3(15-21), W4(22-28), W5(29-end)
-  const rawPattern = (user.profile as any)?.spendingPattern || "BALANCED";
+  const rawPattern = user.profile?.spendingPattern ?? "BALANCED";
   let wWeights = [1, 1, 1, 1, 1];
   if (rawPattern === "FRONT_HEAVY") wWeights = [1.5, 1.2, 1.0, 0.8, 0.5];
   if (rawPattern === "CONSERVATIVE") wWeights = [0.5, 0.8, 1.0, 1.2, 1.5];
