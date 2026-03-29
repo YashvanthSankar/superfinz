@@ -67,72 +67,72 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   };
 
   return (
-    <div className="bg-text rounded-2xl p-5 shadow-sm text-background">
+    <div className="bg-[#fff8e6] rounded-2xl p-5 shadow-sm text-[#4A2C19] border border-amber-300">
       <div className="flex items-center gap-2 mb-1">
         <Flame size={18} className="text-amber-400" />
-        <h2 className="font-bold text-base">Your Freedom Number</h2>
-        <span className="ml-auto text-xs text-amber-300 font-light">FIRE Calculator</span>
+        <h2 className="font-bold text-base text-[#4A2C19]">Your Freedom Number</h2>
+        <span className="ml-auto text-xs text-amber-700 font-medium">FIRE Calculator</span>
       </div>
-      <p className="text-amber-300/80 text-xs mb-4">How much do you need to never work again?</p>
+      <p className="text-amber-800 text-sm mb-4">How much do you need to never work again?</p>
 
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div>
-          <label className="text-[10px] text-amber-300 block mb-1">Monthly savings (₹)</label>
+          <label className="text-[11px] text-amber-800 block mb-1 font-medium">Monthly savings (₹)</label>
           <input
             type="number"
             placeholder="3000"
             value={monthly}
             onChange={(e) => setMonthly(e.target.value)}
-            className="w-full bg-text2/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-background placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#fffdf5] border border-amber-400 rounded-lg px-3 py-2 text-sm text-[#4A2C19] placeholder-amber-400 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div>
-          <label className="text-[10px] text-amber-300 block mb-1">Monthly expenses (₹)</label>
+          <label className="text-[11px] text-amber-800 block mb-1 font-medium">Monthly expenses (₹)</label>
           <input
             type="number"
             placeholder="15000"
             value={expenses}
             onChange={(e) => setExpenses(e.target.value)}
-            className="w-full bg-text2/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-background placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#fffdf5] border border-amber-400 rounded-lg px-3 py-2 text-sm text-[#4A2C19] placeholder-amber-400 focus:outline-none focus:border-amber-500"
           />
         </div>
         <div>
-          <label className="text-[10px] text-amber-300 block mb-1">Your age</label>
+          <label className="text-[11px] text-amber-800 block mb-1 font-medium">Your age</label>
           <input
             type="number"
             placeholder="21"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            className="w-full bg-text2/40 border border-amber-600/50 rounded-lg px-3 py-2 text-xs text-background placeholder-amber-400/50 focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#fffdf5] border border-amber-400 rounded-lg px-3 py-2 text-sm text-[#4A2C19] placeholder-amber-400 focus:outline-none focus:border-amber-500"
           />
         </div>
       </div>
 
       <button
         onClick={recalc}
-        className="w-full py-2 rounded-xl bg-amber-500 text-text text-xs font-bold hover:bg-amber-400 transition-all mb-3"
+        className="w-full py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-all mb-3"
       >
         Recalculate
       </button>
 
       {result && (
-        <div className="bg-text2/40 rounded-xl p-4 space-y-2">
+        <div className="bg-[#fff2cc] rounded-xl p-4 space-y-2 border border-amber-300">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-amber-300">Freedom corpus needed</span>
-            <span className="font-bold text-amber-300 text-sm">{fmtCr(result.corpus)}</span>
+            <span className="text-sm text-amber-900 font-medium">Freedom corpus needed</span>
+            <span className="font-bold text-amber-700 text-2xl">{fmtCr(result.corpus)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-amber-300">Retire at age</span>
-            <span className={`font-bold text-sm ${result.retireAt && result.retireAt <= 45 ? "text-emerald-300" : result.retireAt && result.retireAt <= 55 ? "text-amber-300" : "text-red-300"}`}>
+            <span className="text-sm text-amber-900 font-medium">Retire at age</span>
+            <span className={`font-bold text-xl ${result.retireAt && result.retireAt <= 45 ? "text-emerald-700" : result.retireAt && result.retireAt <= 55 ? "text-amber-700" : "text-red-700"}`}>
               {result.retireAt ? `${result.retireAt} years` : "50+ years (save more!)"}
             </span>
           </div>
           {result.retireAt && result.retireAt > 50 && (
-            <p className="text-[10px] text-amber-400/80">Double your monthly savings to retire earlier — small increases compound massively</p>
+            <p className="text-xs text-amber-800">Double your monthly savings to retire earlier. Small increases compound massively.</p>
           )}
           <button
             onClick={() => onAddFund("Freedom Fund", result.corpus)}
-            className="w-full mt-1 py-1.5 rounded-lg border border-amber-500/50 text-amber-300 text-xs hover:bg-amber-500/20 transition-all"
+            className="w-full mt-1 py-2 rounded-lg border border-amber-500 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-all"
           >
             + Add as savings goal
           </button>
@@ -208,7 +208,7 @@ export default function GoalsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Goals</h1>
-          <p className="text-accent text-sm mt-0.5 font-light">Stack your savings towards what matters</p>
+          <p className="text-accent text-sm mt-0.5 font-normal">Stack your savings towards what matters</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ New goal"}
@@ -240,7 +240,7 @@ export default function GoalsPage() {
               <Target size={22} className="text-amber-600" />
             </div>
             <p className="font-semibold text-text">No goals yet</p>
-            <p className="text-accent text-sm mt-1 font-light max-w-xs">
+            <p className="text-accent text-sm mt-1 font-normal max-w-xs">
               Set a target — MacBook, trip, emergency fund — and track every rupee toward it
             </p>
             <button
@@ -251,7 +251,7 @@ export default function GoalsPage() {
             </button>
           </div>
           <div className="border-t border-surface px-5 py-4">
-            <p className="text-xs text-accent font-light mb-3">Popular goals to get started</p>
+            <p className="text-xs text-accent font-normal mb-3">Popular goals to get started</p>
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "Emergency Fund", amount: "50000" },
@@ -295,7 +295,7 @@ export default function GoalsPage() {
 
                 <div className="space-y-1.5 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted font-light">{formatCurrency(goal.savedAmount)} saved</span>
+                    <span className="text-muted font-normal">{formatCurrency(goal.savedAmount)} saved</span>
                     <span className="text-text font-semibold">{formatCurrency(goal.targetAmount)}</span>
                   </div>
                   <div className="h-2 bg-surface rounded-full overflow-hidden">
@@ -304,7 +304,7 @@ export default function GoalsPage() {
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <p className="text-xs text-accent font-light">{formatCurrency(remaining)} remaining</p>
+                  <p className="text-xs text-accent font-normal">{formatCurrency(remaining)} remaining</p>
                 </div>
 
                 <div className="flex gap-2">
