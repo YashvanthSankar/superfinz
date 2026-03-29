@@ -26,6 +26,11 @@ export const proxy = auth((req) => {
     return NextResponse.next();
   }
 
+  // Allow login page when logged out (prevents /login -> /login redirect loop)
+  if (!session && pathname === "/login") {
+    return NextResponse.next();
+  }
+
   // Not logged in — redirect to login
   if (!session) {
     const url = new URL("/login", req.url);
