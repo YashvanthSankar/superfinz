@@ -21,6 +21,10 @@ export type SavingsProps = {
 export type DashboardGridProps = {
   spend: SpendProps;
   savings: SavingsProps;
+  plans?: any;
+  calendar?: any;
+  investments?: any;
+  news?: any;
 };
 
 // Shared card shell — same light cream as the rest of the page

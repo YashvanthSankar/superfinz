@@ -6,6 +6,7 @@ import { SpendTrendChart, CategoryChart } from "@/components/dashboard/charts";
 import { HeatmapInline } from "@/components/dashboard/heatmap-inline";
 import { DashboardGrids } from "@/components/dashboard/grid-widgets";
 import { FinTip } from "@/components/ui/fin-tip";
+import { SmartSplitModal } from "@/components/dashboard/smart-split-modal";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -274,10 +275,11 @@ export default async function DashboardPage() {
   const fireDelayMonths  = monthlySip > 0 ? Math.round(unnecessarySpend / monthlySip) : 0;
   const fmtCrore = (n: number) => n >= 10000000 ? `₹${(n / 10000000).toFixed(1)}Cr` : `₹${(n / 100000).toFixed(0)}L`;
 
-  return (
-    <div className="space-y-5">
+  const unallocated = remaining;
 
-      {/* ── Header ──────────────────────────────────────────────── */}
+  return (
+      <div className="space-y-5">
+        <SmartSplitModal unallocated={unallocated > 0 ? unallocated : 0} goals={activeGoals} />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">
