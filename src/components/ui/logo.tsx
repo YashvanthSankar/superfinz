@@ -16,7 +16,7 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
   const { h, w } = SIZE_MAP[size];
   return (
     <Image
-      src="/superfinz.png"
+      src="/superfinz.webp"
       alt="SuperFinz"
       width={w}
       height={h}
