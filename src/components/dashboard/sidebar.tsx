@@ -1,14 +1,11 @@
 "use client";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
 import {
   LayoutDashboard, ArrowLeftRight, Calculator,
-  Newspaper, Target, LogOut, TrendingUp, BookOpen,
-  MoreHorizontal, X,
+  Newspaper, Target, User, LogOut, TrendingUp, BookOpen,
 } from "lucide-react";
 
 const NAV = [
@@ -21,25 +18,19 @@ const NAV = [
   { href: "/dashboard/news",         label: "News",         icon: Newspaper       },
 ];
 
-const NAV_PRIMARY = NAV.slice(0, 4);   // Overview, Transactions, Retirement, Goals
-const NAV_MORE    = NAV.slice(4);       // Learn, Calculators, News
-
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [moreOpen, setMoreOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
 
-  const moreActive = NAV_MORE.some(({ href }) => isActive(href));
-
   return (
     <>
       {/* ─── Desktop sidebar ─────────────────────────────────────── */}
-      <aside className="hidden lg:flex w-52 shrink-0 bg-[#fefce8] border-r border-[#e8ddd0] flex-col h-screen sticky top-0">
+      <aside className="hidden lg:flex w-52 shrink-0 bg-[var(--bg)] border-r border-[var(--surface)] flex-col h-screen sticky top-0">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-[#e8ddd0]">
+        <div className="px-5 py-5 border-b border-[var(--surface)]">
           <Logo size="md" />
         </div>
 
@@ -48,27 +39,27 @@ export function Sidebar() {
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = isActive(href);
             return (
-              <Link
+              <a
                 key={href}
                 href={href}
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all",
                   active
                     ? "bg-amber-50 text-amber-700 font-semibold"
-                    : "text-[#78350f] hover:text-[#713f12] hover:bg-amber-50/50 font-medium"
+                    : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-amber-50/50 font-medium"
                 )}
               >
-                <Icon size={15} className={active ? "text-amber-600" : "text-[#b45309]"} />
+                <Icon size={15} className={active ? "text-amber-600" : "text-[var(--accent)]"} />
                 {label}
-              </Link>
+              </a>
             );
           })}
         </nav>
 
         {/* Profile + sign out */}
-        <div className="p-3 border-t border-[#e8ddd0] space-y-0.5">
+        <div className="p-3 border-t border-[var(--surface)] space-y-0.5">
           {session?.user && (
-            <Link
+            <a
               href="/dashboard/profile"
               className={cn(
                 "flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all",
@@ -79,21 +70,21 @@ export function Sidebar() {
             >
               {session.user.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-[#fde68a] shrink-0" />
+                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-[var(--border)] shrink-0" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center shrink-0">
                   {session.user.name?.[0]?.toUpperCase()}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#713f12] truncate">{session.user.name}</p>
-                <p className="text-[10px] text-[#b45309] truncate">{session.user.email}</p>
+                <p className="text-xs font-semibold text-[var(--text)] truncate">{session.user.name}</p>
+                <p className="text-[10px] text-[var(--accent)] truncate">{session.user.email}</p>
               </div>
-            </Link>
+            </a>
           )}
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-[#b45309] hover:text-red-500 hover:bg-red-50 transition-all font-medium"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-[var(--accent)] hover:text-red-500 hover:bg-red-50 transition-all font-medium"
           >
             <LogOut size={14} />
             Sign out
@@ -102,91 +93,49 @@ export function Sidebar() {
       </aside>
 
       {/* ─── Mobile top bar ──────────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-[#FDFCF6]/95 backdrop-blur border-b border-[#e8ddd0] flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-[var(--bg)]/95 backdrop-blur border-b border-[var(--surface)] flex items-center justify-between px-4">
         <Logo size="md" />
         <div className="flex items-center gap-2">
-          <Link
+          <a
             href="/dashboard/profile"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl hover:bg-amber-50 transition-all"
           >
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-[#fde68a]" />
+              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-[var(--border)]" />
             ) : (
               <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">
                 {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
               </div>
             )}
-          </Link>
+          </a>
         </div>
       </div>
 
       {/* ─── Mobile bottom nav ───────────────────────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FDFCF6]/95 backdrop-blur border-t border-[#e8ddd0] flex items-stretch pb-safe">
-        {NAV_PRIMARY.map(({ href, label, icon: Icon }) => {
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg)]/95 backdrop-blur border-t border-[var(--surface)] flex items-stretch pb-safe">
+        {NAV.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (
-            <Link
+            <a
               key={href}
               href={href}
               className={cn(
                 "relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all",
-                active ? "text-amber-700" : "text-[#b45309]"
+                active ? "text-amber-700" : "text-[var(--accent)]"
               )}
             >
               {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-amber-500 rounded-b-full" />}
-              <Icon size={19} strokeWidth={active ? 2.5 : 1.75} />
+              <Icon
+                size={19}
+                className={cn("transition-all", active ? "text-amber-600" : "")}
+                strokeWidth={active ? 2.5 : 1.75}
+              />
               <span className={active ? "font-semibold" : ""}>{label}</span>
-            </Link>
+            </a>
           );
         })}
-
-        {/* More button */}
-        <button
-          onClick={() => setMoreOpen((o) => !o)}
-          className={cn(
-            "relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all",
-            moreActive ? "text-amber-700" : "text-[#b45309]"
-          )}
-        >
-          {moreActive && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-amber-500 rounded-b-full" />}
-          {moreOpen ? <X size={19} strokeWidth={2} /> : <MoreHorizontal size={19} strokeWidth={1.75} />}
-          <span className={moreActive ? "font-semibold" : ""}>More</span>
-        </button>
       </nav>
-
-      {/* ─── More sheet ──────────────────────────────────────────── */}
-      {moreOpen && (
-        <>
-          <div
-            className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
-            onClick={() => setMoreOpen(false)}
-          />
-          <div className="lg:hidden fixed bottom-[57px] left-3 right-3 z-50 bg-[#fefce8] border border-[#e8ddd0] rounded-2xl shadow-xl p-3">
-            <div className="grid grid-cols-3 gap-2">
-              {NAV_MORE.map(({ href, label, icon: Icon }) => {
-                const active = isActive(href);
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setMoreOpen(false)}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-xs font-medium transition-all",
-                      active
-                        ? "bg-amber-100 text-amber-700 font-semibold"
-                        : "text-[#78350f] hover:bg-amber-50"
-                    )}
-                  >
-                    <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 }

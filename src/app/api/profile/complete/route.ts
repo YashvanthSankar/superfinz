@@ -92,5 +92,21 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Ensure every user has a default Emergency Fund / Safety Goal
+  const existingGoals = await prisma.goal.count({
+    where: { userId: session.user.id }
+  });
+
+  if (existingGoals === 0 && data.savingsGoal > 0) {
+    await prisma.goal.create({
+      data: {
+        userId: session.user.id,
+        title: "Emergency Fund",
+        targetAmount: data.savingsGoal * 6, // 6 months of savings target
+        savedAmount: 0,
+      }
+    });
+  }
+
   return NextResponse.json({ success: true });
 }

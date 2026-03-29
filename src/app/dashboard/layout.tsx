@@ -4,7 +4,7 @@ import { DashboardBreadcrumbs } from "@/components/dashboard/breadcrumbs";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-[#FDFCF6]">
+    <div className="flex h-screen overflow-hidden bg-[var(--bg)]">
       <Sidebar />
       <main className="flex-1 overflow-y-auto">
         {/* pt-14 = mobile top bar height, pb-20 = mobile bottom nav + safe area */}

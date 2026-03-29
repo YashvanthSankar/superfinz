@@ -10,7 +10,7 @@ function getIntensity(amount: number, max: number): number {
 }
 
 const INTENSITY_CLASSES = [
-  "bg-[#fef9c3]",
+  "bg-[var(--surface)]",
   "bg-amber-100",
   "bg-amber-200",
   "bg-amber-400",
@@ -61,8 +61,8 @@ export default function HeatmapPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#713f12]">Spending Heatmap</h1>
-        <p className="text-[#b45309] text-sm mt-0.5 font-light">Your last 3 months at a glance</p>
+        <h1 className="text-2xl font-bold text-[var(--text)]">Spending Heatmap</h1>
+        <p className="text-[var(--accent)] text-sm mt-0.5 font-light">Your last 3 months at a glance</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -71,15 +71,15 @@ export default function HeatmapPage() {
           { label: "Active spend days", value: activeDays.toString() },
           { label: "Avg per spend day", value: formatCurrency(avgPerActiveDay) },
         ].map((s) => (
-          <div key={s.label} className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm">
-            <p className="text-[10px] text-[#b45309] font-semibold uppercase tracking-wider mb-2">{s.label}</p>
-            <p className="text-xl font-bold text-[#713f12]">{s.value}</p>
+          <div key={s.label} className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+            <p className="text-[10px] text-[var(--accent)] font-semibold uppercase tracking-wider mb-2">{s.label}</p>
+            <p className="text-xl font-bold text-[var(--text)]">{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-6 shadow-sm">
-        <h2 className="text-sm font-semibold text-[#713f12] mb-5">Activity</h2>
+      <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-[var(--text)] mb-5">Activity</h2>
 
         {loading ? (
           <div className="flex justify-center py-12">
@@ -89,7 +89,7 @@ export default function HeatmapPage() {
           <>
             <div className="grid grid-cols-7 gap-1 mb-1.5">
               {DAYS.map((d) => (
-                <div key={d} className="text-center text-[10px] text-[#b45309] font-medium">{d}</div>
+                <div key={d} className="text-center text-[10px] text-[var(--accent)] font-medium">{d}</div>
               ))}
             </div>
 
@@ -109,21 +109,21 @@ export default function HeatmapPage() {
             </div>
 
             <div className="flex items-center gap-1.5 mt-4 justify-end">
-              <span className="text-[10px] text-[#b45309]">Less</span>
+              <span className="text-[10px] text-[var(--accent)]">Less</span>
               {INTENSITY_CLASSES.map((c, i) => (
                 <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-amber-400`} />
               ))}
-              <span className="text-[10px] text-[#b45309]">More</span>
+              <span className="text-[10px] text-[var(--accent)]">More</span>
             </div>
 
             {tooltip && tooltip.total > 0 && (
-              <div className="mt-4 bg-[#fefce8] border border-amber-400 rounded-xl p-4 text-sm">
-                <p className="font-semibold text-[#713f12]">
+              <div className="mt-4 bg-[var(--bg)] border border-amber-400 rounded-xl p-4 text-sm">
+                <p className="font-semibold text-[var(--text)]">
                   {new Date(tooltip.date).toLocaleDateString("en-IN", {
                     weekday: "long", day: "numeric", month: "long",
                   })}
                 </p>
-                <p className="text-[#78350f] mt-0.5 font-light">
+                <p className="text-[var(--muted)] mt-0.5 font-light">
                   Spent <span className="text-amber-600 font-semibold">{formatCurrency(tooltip.total)}</span>{" "}
                   across {tooltip.count} transaction{tooltip.count !== 1 ? "s" : ""}
                 </p>
@@ -132,8 +132,8 @@ export default function HeatmapPage() {
 
             {data.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-[#78350f] text-sm">No transaction data yet</p>
-                <p className="text-[#b45309] text-xs mt-1 font-light">Log some spends to see your heatmap</p>
+                <p className="text-[var(--muted)] text-sm">No transaction data yet</p>
+                <p className="text-[var(--accent)] text-xs mt-1 font-light">Log some spends to see your heatmap</p>
               </div>
             )}
           </>

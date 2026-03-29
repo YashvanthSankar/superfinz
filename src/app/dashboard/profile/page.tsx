@@ -137,35 +137,35 @@ export default function ProfilePage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-[#713f12]">Profile</h1>
-        <p className="text-[#b45309] text-sm mt-0.5 font-light">Manage your details and financial limits</p>
+        <h1 className="text-2xl font-bold text-[var(--text)]">Profile</h1>
+        <p className="text-[var(--accent)] text-sm mt-0.5 font-light">Manage your details and financial limits</p>
       </div>
 
       {/* Identity card */}
-      <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm">
+      <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
         <div className="flex items-center gap-4">
           {session?.user?.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={session.user.image} alt="" className="w-14 h-14 rounded-2xl ring-2 ring-[#fde68a] shrink-0" />
+            <img src={session.user.image} alt="" className="w-14 h-14 rounded-2xl ring-2 ring-[var(--border)] shrink-0" />
           ) : (
             <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 text-xl font-black flex items-center justify-center shrink-0">
               {user?.name?.[0]?.toUpperCase()}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-[#713f12] text-lg truncate">{user?.name}</p>
-            <p className="text-[#b45309] text-sm truncate">{user?.email}</p>
+            <p className="font-bold text-[var(--text)] text-lg truncate">{user?.name}</p>
+            <p className="text-[var(--accent)] text-sm truncate">{user?.email}</p>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold border border-amber-200">
                 {USER_TYPE_LABELS[user?.userType ?? ""] ?? user?.userType}
               </span>
               {user?.age && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#fef9c3] text-[#78350f] font-medium border border-amber-400">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface)] text-[var(--muted)] font-medium border border-amber-400">
                   {user.age} yrs
                 </span>
               )}
               {user?.createdAt && (
-                <span className="text-[10px] text-[#b45309] font-light">
+                <span className="text-[10px] text-[var(--accent)] font-light">
                   Since {new Date(user.createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
                 </span>
               )}
@@ -175,28 +175,28 @@ export default function ProfilePage() {
 
         {/* Quick stats */}
         {user?.profile && (
-          <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-[#fef9c3]">
+          <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-[var(--surface)]">
             <div className="text-center">
-              <p className="text-xs font-bold text-[#713f12]">{formatCurrency(user.profile.monthlyBudget)}</p>
-              <p className="text-[10px] text-[#b45309] font-light">Monthly budget</p>
+              <p className="text-xs font-bold text-[var(--text)]">{formatCurrency(user.profile.monthlyBudget)}</p>
+              <p className="text-[10px] text-[var(--accent)] font-light">Monthly budget</p>
             </div>
-            <div className="text-center border-x border-[#fef9c3]">
-              <p className="text-xs font-bold text-[#713f12]">{formatCurrency(user.profile.savingsGoal)}</p>
-              <p className="text-[10px] text-[#b45309] font-light">Savings goal</p>
+            <div className="text-center border-x border-[var(--surface)]">
+              <p className="text-xs font-bold text-[var(--text)]">{formatCurrency(user.profile.savingsGoal)}</p>
+              <p className="text-[10px] text-[var(--accent)] font-light">Savings goal</p>
             </div>
             <div className="text-center">
-              <p className="text-xs font-bold text-[#713f12]">
+              <p className="text-xs font-bold text-[var(--text)]">
                 {formatCurrency(user.profile.monthlySalary ?? user.profile.monthlyAllowance ?? 0)}
               </p>
-              <p className="text-[10px] text-[#b45309] font-light">{isStudent ? "Allowance" : "Salary"}</p>
+              <p className="text-[10px] text-[var(--accent)] font-light">{isStudent ? "Allowance" : "Salary"}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Edit form */}
-      <form onSubmit={handleSave} className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
-        <h2 className="text-sm font-semibold text-[#713f12]">Financial limits</h2>
+      <form onSubmit={handleSave} className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
+        <h2 className="text-sm font-semibold text-[var(--text)]">Financial limits</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -291,9 +291,9 @@ export default function ProfilePage() {
       </form>
 
       {/* Danger zone */}
-      <div className="bg-[#fefce8] rounded-2xl border border-red-100 p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-[#713f12] mb-1">Account</h2>
-        <p className="text-xs text-[#b45309] font-light mb-4">Sign out from all devices</p>
+      <div className="bg-[var(--bg)] rounded-2xl border border-red-100 p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-[var(--text)] mb-1">Account</h2>
+        <p className="text-xs text-[var(--accent)] font-light mb-4">Sign out from all devices</p>
         <Button
           variant="danger"
           onClick={() => signOut({ callbackUrl: "/" })}

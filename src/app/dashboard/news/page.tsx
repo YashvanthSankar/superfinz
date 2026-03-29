@@ -39,8 +39,8 @@ export default function NewsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#713f12]">Finance News</h1>
-          <p className="text-[#b45309] text-sm mt-0.5 font-light">What&apos;s moving the market today</p>
+          <h1 className="text-2xl font-bold text-[var(--text)]">Finance News</h1>
+          <p className="text-[var(--accent)] text-sm mt-0.5 font-light">What&apos;s moving the market today</p>
         </div>
         {source === "mock" && (
           <span className="text-xs bg-amber-50 text-amber-600 border border-amber-100 px-3 py-1.5 rounded-lg font-medium">
@@ -52,11 +52,11 @@ export default function NewsPage() {
       {loading ? (
         <div className="grid md:grid-cols-2 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-[#fefce8] border border-amber-400 rounded-2xl p-5 animate-pulse shadow-sm">
-              <div className="h-3 bg-[#fef9c3] rounded w-1/4 mb-4" />
-              <div className="h-4 bg-[#fef9c3] rounded w-3/4 mb-3" />
-              <div className="h-3 bg-[#fef9c3] rounded w-full mb-2" />
-              <div className="h-3 bg-[#fef9c3] rounded w-2/3" />
+            <div key={i} className="bg-[var(--bg)] border border-amber-400 rounded-2xl p-5 animate-pulse shadow-sm">
+              <div className="h-3 bg-[var(--surface)] rounded w-1/4 mb-4" />
+              <div className="h-4 bg-[var(--surface)] rounded w-3/4 mb-3" />
+              <div className="h-3 bg-[var(--surface)] rounded w-full mb-2" />
+              <div className="h-3 bg-[var(--surface)] rounded w-2/3" />
             </div>
           ))}
         </div>
@@ -70,27 +70,27 @@ export default function NewsPage() {
               rel="noopener noreferrer"
               className="block group"
             >
-              <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
+              <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
                 {article.category && (
                   <span
                     className={`inline-block text-[10px] px-2.5 py-1 rounded-lg font-semibold uppercase tracking-wide border mb-3 ${
-                      CATEGORY_COLORS[article.category] ?? "bg-[#fef9c3] text-[#78350f] border-[#fde68a]"
+                      CATEGORY_COLORS[article.category] ?? "bg-[var(--surface)] text-[var(--muted)] border-[var(--border)]"
                     }`}
                   >
                     {article.category}
                   </span>
                 )}
-                <h3 className="text-[#713f12] font-semibold text-sm leading-snug mb-2 group-hover:text-amber-600 transition-colors">
+                <h3 className="text-[var(--text)] font-semibold text-sm leading-snug mb-2 group-hover:text-amber-600 transition-colors">
                   {article.title}
                 </h3>
                 {article.description && (
-                  <p className="text-[#78350f] text-xs leading-relaxed line-clamp-2 font-light">
+                  <p className="text-[var(--muted)] text-xs leading-relaxed line-clamp-2 font-light">
                     {article.description}
                   </p>
                 )}
-                <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#fef9c3]">
-                  <span className="text-[10px] text-[#b45309] font-medium">{article.source.name}</span>
-                  <span className="text-[10px] text-[#b45309]">
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--surface)]">
+                  <span className="text-[10px] text-[var(--accent)] font-medium">{article.source.name}</span>
+                  <span className="text-[10px] text-[var(--accent)]">
                     {new Date(article.publishedAt).toLocaleDateString("en-IN", {
                       day: "numeric", month: "short",
                     })}

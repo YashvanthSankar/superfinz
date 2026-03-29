@@ -40,7 +40,7 @@ export function FinTip({ term, children }: FinTipProps) {
         ?
       </button>
       {show && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 bg-[#713f12] text-[#fefce8] rounded-xl px-3 py-2.5 shadow-xl text-left pointer-events-auto">
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 bg-[var(--text)] text-[var(--bg)] rounded-xl px-3 py-2.5 shadow-xl text-left pointer-events-auto">
           <span className="block text-[10px] font-bold text-amber-300 mb-0.5">{term}</span>
           <span className="block text-[11px] font-light leading-relaxed">{tip.short}</span>
           {tip.learnId && (
@@ -53,7 +53,7 @@ export function FinTip({ term, children }: FinTipProps) {
             </Link>
           )}
           {/* Arrow */}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#713f12]" />
+          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[var(--text)]" />
         </span>
       )}
     </span>

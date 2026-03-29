@@ -89,31 +89,31 @@ export default function RetirementPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#713f12]">Retirement Planner</h1>
-        <p className="text-[#b45309] text-sm mt-0.5 font-light">
+        <h1 className="text-2xl font-bold text-[var(--text)]">Retirement Planner</h1>
+        <p className="text-[var(--accent)] text-sm mt-0.5 font-light">
           Calculate your <FinTip term="FIRE" /> number — the <FinTip term="corpus" /> you need to retire on your terms
         </p>
       </div>
 
       {/* ── Summary banner ── */}
-      <div className={`rounded-2xl p-5 border ${onTrack ? "bg-emerald-50 border-emerald-200" : "bg-[#fefce8] border-amber-400"}`}>
+      <div className={`rounded-2xl p-5 border-2 ${onTrack ? "bg-emerald-50 border-emerald-200" : "bg-[var(--text)] border-amber-600"}`}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
-            <p className={`text-[10px] font-semibold uppercase tracking-wider ${onTrack ? "text-emerald-600" : "text-[#b45309]"}`}>
+            <p className={`text-[10px] font-semibold uppercase tracking-wider ${onTrack ? "text-emerald-600" : "text-amber-300"}`}>
               {onTrack ? "You're on track 🎉" : "Gap to close 🔥"}
             </p>
-            <p className={`text-2xl font-black mt-1 ${onTrack ? "text-emerald-700" : "text-[#713f12]"}`}>
+            <p className={`text-2xl font-black mt-1 ${onTrack ? "text-emerald-700" : "text-[var(--bg)]"}`}>
               {onTrack ? `${fmtCrore(projCorpus)} projected` : `${fmtCrore(corpusGap)} short`}
             </p>
-            <p className={`text-xs mt-1 font-light ${onTrack ? "text-emerald-600" : "text-[#b45309]"}`}>
+            <p className={`text-xs mt-1 font-light ${onTrack ? "text-emerald-600" : "text-amber-300/80"}`}>
               Freedom corpus needed by age {retireAge}: {fmtCrore(fireCorpus)}
             </p>
           </div>
           {!onTrack && (
-            <div className="shrink-0 bg-amber-100 border border-amber-300 rounded-xl px-4 py-3 text-center">
-              <p className="text-[10px] text-[#b45309] uppercase tracking-wide font-semibold"><FinTip term="SIP">SIP</FinTip> needed</p>
-              <p className="text-xl font-black text-amber-600 mt-0.5">{formatCurrency(Math.round(requiredSip))}</p>
-              <p className="text-[10px] text-[#b45309]">per month to hit target</p>
+            <div className="shrink-0 bg-[var(--text2)]/40 rounded-xl px-4 py-3 text-center">
+              <p className="text-[10px] text-amber-300 uppercase tracking-wide font-semibold"><FinTip term="SIP">SIP</FinTip> needed</p>
+              <p className="text-xl font-black text-amber-300 mt-0.5">{formatCurrency(Math.round(requiredSip))}</p>
+              <p className="text-[10px] text-amber-400/70">per month to hit target</p>
             </div>
           )}
         </div>
@@ -121,8 +121,8 @@ export default function RetirementPage() {
 
       <div className="grid lg:grid-cols-3 gap-4">
         {/* ── Inputs ── */}
-        <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
-          <h2 className="text-sm font-semibold text-[#713f12]">Your numbers</h2>
+        <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--text)]">Your numbers</h2>
 
           {[
             { label: "Current age", value: currentAge, set: setCurrentAge, min: 15, max: 50 },
@@ -130,7 +130,7 @@ export default function RetirementPage() {
           ].map(({ label, value, set, min, max }) => (
             <div key={label}>
               <div className="flex justify-between mb-1">
-                <label className="text-xs text-[#713f12] font-medium">{label}</label>
+                <label className="text-xs text-[var(--text)] font-medium">{label}</label>
                 <span className="text-xs font-bold text-amber-700">{value} yrs</span>
               </div>
               <input type="range" min={min} max={max} value={value}
@@ -141,30 +141,30 @@ export default function RetirementPage() {
           ))}
 
           <div>
-            <label className="text-xs text-[#713f12] font-medium block mb-1">Monthly SIP (₹)</label>
+            <label className="text-xs text-[var(--text)] font-medium block mb-1">Monthly SIP (₹)</label>
             <input type="number" value={monthlySip} onChange={e => setMonthlySip(Number(e.target.value))}
-              className="w-full bg-[#fef9c3] border border-amber-400 rounded-xl px-3 py-2 text-sm text-[#713f12] focus:outline-none focus:border-amber-500" />
+              className="w-full bg-[var(--surface)] border border-amber-400 rounded-xl px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-amber-500" />
           </div>
           <div>
-            <label className="text-xs text-[#713f12] font-medium block mb-1">Monthly expenses (₹)</label>
+            <label className="text-xs text-[var(--text)] font-medium block mb-1">Monthly expenses (₹)</label>
             <input type="number" value={monthlyExpenses} onChange={e => setMonthlyExpenses(Number(e.target.value))}
-              className="w-full bg-[#fef9c3] border border-amber-400 rounded-xl px-3 py-2 text-sm text-[#713f12] focus:outline-none focus:border-amber-500" />
+              className="w-full bg-[var(--surface)] border border-amber-400 rounded-xl px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-amber-500" />
           </div>
           <div>
-            <label className="text-xs text-[#713f12] font-medium block mb-1">Existing savings (₹)</label>
+            <label className="text-xs text-[var(--text)] font-medium block mb-1">Existing savings (₹)</label>
             <input type="number" value={currentSaved} onChange={e => setCurrentSaved(Number(e.target.value))}
-              className="w-full bg-[#fef9c3] border border-amber-400 rounded-xl px-3 py-2 text-sm text-[#713f12] focus:outline-none focus:border-amber-500" />
+              className="w-full bg-[var(--surface)] border border-amber-400 rounded-xl px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-amber-500" />
           </div>
 
           <div className="border-t border-amber-200 pt-3 space-y-3">
-            <p className="text-[10px] text-[#b45309] uppercase tracking-wide font-semibold">Assumptions</p>
+            <p className="text-[10px] text-[var(--accent)] uppercase tracking-wide font-semibold">Assumptions</p>
             {[
               { label: `Expected return: ${returns}% CAGR`, value: returns, set: setReturns, min: 6, max: 18 },
               { label: `Inflation: ${inflation}%`, value: inflation, set: setInflation, min: 3, max: 10 },
             ].map(({ label, value, set, min, max }) => (
               <div key={label}>
                 <div className="flex justify-between mb-1">
-                  <label className="text-xs text-[#b45309] font-light">{label}</label>
+                  <label className="text-xs text-[var(--accent)] font-light">{label}</label>
                 </div>
                 <input type="range" min={min} max={max} value={value}
                   onChange={e => set(Number(e.target.value))}
@@ -176,9 +176,9 @@ export default function RetirementPage() {
         </div>
 
         {/* ── Chart ── */}
-        <div className="lg:col-span-2 bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-[#713f12] mb-1">Corpus growth trajectory</h2>
-          <p className="text-xs text-[#b45309] font-light mb-4">Your projected wealth vs freedom corpus target</p>
+        <div className="lg:col-span-2 bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-[var(--text)] mb-1">Corpus growth trajectory</h2>
+          <p className="text-xs text-[var(--accent)] font-light mb-4">Your projected wealth vs freedom corpus target</p>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
               <defs>
@@ -187,26 +187,26 @@ export default function RetirementPage() {
                   <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" />
-              <XAxis dataKey="age" tick={{ fontSize: 10, fill: "#b45309" }} label={{ value: "Age", position: "insideBottom", offset: -2, fontSize: 10, fill: "#b45309" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="age" tick={{ fontSize: 10, fill: "var(--accent)" }} label={{ value: "Age", position: "insideBottom", offset: -2, fontSize: 10, fill: "var(--accent)" }} />
               <YAxis tickFormatter={(v) => v >= 10000000 ? `${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `${(v/100000).toFixed(0)}L` : `${v}`}
-                tick={{ fontSize: 9, fill: "#b45309" }} width={50} />
+                tick={{ fontSize: 9, fill: "var(--accent)" }} width={50} />
               <Tooltip
                 formatter={(value, name) => [fmtCrore(Number(value)), name === "corpus" ? "Your corpus" : "Target corpus"]}
                 labelFormatter={(l) => `Age ${l}`}
-                contentStyle={{ background: "#fefce8", border: "1px solid #fcd34d", borderRadius: 8, fontSize: 11 }}
+                contentStyle={{ background: "var(--bg)", border: "1px solid var(--border2)", borderRadius: 8, fontSize: 11 }}
               />
-              <Area type="monotone" dataKey="target" stroke="#fcd34d" strokeDasharray="4 4" fill="none" strokeWidth={1.5} name="target" />
+              <Area type="monotone" dataKey="target" stroke="var(--border2)" strokeDasharray="4 4" fill="none" strokeWidth={1.5} name="target" />
               <Area type="monotone" dataKey="corpus" stroke="#d97706" fill="url(#corpusGrad)" strokeWidth={2} name="corpus" />
-              <ReferenceLine x={retireAge} stroke="#713f12" strokeDasharray="3 3" label={{ value: `Retire ${retireAge}`, fontSize: 9, fill: "#713f12" }} />
+              <ReferenceLine x={retireAge} stroke="var(--text)" strokeDasharray="3 3" label={{ value: `Retire ${retireAge}`, fontSize: 9, fill: "var(--text)" }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* ── Key milestones ── */}
-      <div className="bg-[#fefce8] rounded-2xl border border-amber-400 p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-[#713f12] mb-4">What this means for you</h2>
+      <div className="bg-[var(--bg)] rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-[var(--text)] mb-4">What this means for you</h2>
         <div className="grid sm:grid-cols-3 gap-3">
           {[
             {
@@ -228,10 +228,10 @@ export default function RetirementPage() {
               highlight: false,
             },
           ].map(({ label, value, sub, highlight }) => (
-            <div key={label} className={`rounded-xl p-4 border ${highlight ? "bg-amber-100 border-amber-400" : "bg-[#fef9c3] border-amber-400"}`}>
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#b45309]">{label}</p>
-              <p className={`text-xl font-black mt-1 ${highlight ? "text-amber-700" : "text-[#713f12]"}`}>{value}</p>
-              <p className="text-[11px] mt-0.5 font-light text-[#b45309]">{sub}</p>
+            <div key={label} className={`rounded-xl p-4 border ${highlight ? "bg-[var(--text)] border-amber-600 text-[var(--bg)]" : "bg-[var(--surface)] border-amber-400 text-[var(--text)]"}`}>
+              <p className={`text-[10px] font-semibold uppercase tracking-wide ${highlight ? "text-amber-300" : "text-[var(--accent)]"}`}>{label}</p>
+              <p className={`text-xl font-black mt-1 ${highlight ? "text-amber-300" : "text-[var(--text)]"}`}>{value}</p>
+              <p className={`text-[11px] mt-0.5 font-light ${highlight ? "text-amber-400/80" : "text-[var(--accent)]"}`}>{sub}</p>
             </div>
           ))}
         </div>
