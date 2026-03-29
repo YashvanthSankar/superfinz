@@ -180,17 +180,23 @@ export function SmartSplitModal({
         {step === "split" && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-text">Smart Split</h2>
-              <p className="text-xs text-accent mt-1">
-                AI suggested this split for your <strong className="text-emerald-400">{formatCurrency(unallocated)}</strong> extra savings based on deadlines:
-              </p>
+              <h2 className="text-xl font-bold text-text">AI Smart Split 🌱</h2>
+              <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-3">
+                <p className="text-xs text-text leading-relaxed">
+                  We built a baseline recommendation for your <strong className="text-emerald-400">{formatCurrency(unallocated)}</strong>. 
+                  <br/><br/>
+                  💡 <strong>Pro tip:</strong> We prioritized your "essential" tags and closest deadlines to keep you safe. But hey, it's <em>your</em> money! If that non-essential concert ticket means everything right now, grab the sliders and move the cash wherever you want. 
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-4 max-h-60 overflow-y-auto pr-1">
+            <div className="space-y-4 max-h-60 overflow-y-auto pr-1 mt-4">
               {goals.map(g => (
-                <div key={g.id} className="bg-background rounded-xl p-3 border border-border">
+                <div key={g.id} className={`bg-background rounded-xl p-3 border ${g.isEssential ? 'border-amber-500/30' : 'border-border'}`}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-semibold">{g.title}</span>
+                    <span className="text-sm font-semibold flex items-center gap-2">
+                      {g.title} {g.isEssential && <span className="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded">Essential</span>}
+                    </span>
                     <span className="text-emerald-400 font-bold">{formatCurrency(allocations[g.id] || 0)}</span>
                   </div>
                   <input
