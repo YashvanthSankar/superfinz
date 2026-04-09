@@ -220,7 +220,7 @@ export function Sidebar() {
             </nav>
 
             {/* Profile + sign out */}
-            <div className="px-3 pb-6 pt-1 space-y-0.5" style={{ borderTop: "1px solid #fde68a" }}>
+            <div className="px-3 pt-1 space-y-0.5" style={{ borderTop: "1px solid #fde68a", paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}>
               {session?.user && (
                 <a
                   href="/dashboard/profile"
