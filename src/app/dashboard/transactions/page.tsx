@@ -5,10 +5,32 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
 import type { Transaction } from "@/generated/prisma/client";
-import { TrendingUp, ArrowLeftRight } from "lucide-react";
+import { TrendingUp, ArrowLeftRight, Download } from "lucide-react";
 
 const stripEmoji = (s: string) =>
   s.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]/gu, "").trim();
+
+function exportCSV(transactions: Transaction[]) {
+  const header = "Date,Category,Description,Amount,Necessary,AI Note";
+  const rows = transactions.map((tx) =>
+    [
+      new Date(tx.date).toLocaleDateString("en-IN"),
+      tx.category,
+      `"${tx.description.replace(/"/g, '""')}"`,
+      tx.amount,
+      tx.isNecessary === null ? "" : tx.isNecessary ? "Yes" : "No",
+      tx.aiNote ? `"${tx.aiNote.replace(/"/g, '""')}"` : "",
+    ].join(",")
+  );
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `superfinz-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -66,9 +88,19 @@ export default function TransactionsPage() {
           <h1 className="text-2xl font-bold text-text">Transactions</h1>
           <p className="text-accent text-sm font-light mt-0.5">Track every rupee you spend</p>
         </div>
-        <Button onClick={() => { setShowForm(!showForm); setAiNote(null); }}>
-          {showForm ? "Cancel" : "+ Add spend"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {transactions.length > 0 && (
+            <button
+              onClick={() => exportCSV(transactions)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-surface text-xs font-medium text-accent hover:text-amber-700 hover:bg-amber-50 transition-all"
+            >
+              <Download size={13} /> Export CSV
+            </button>
+          )}
+          <Button onClick={() => { setShowForm(!showForm); setAiNote(null); }}>
+            {showForm ? "Cancel" : "+ Add spend"}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
@@ -155,7 +187,7 @@ export default function TransactionsPage() {
                   <p className="text-sm font-medium text-text truncate">{tx.description}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-xs text-accent font-light">{new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
-                    <span className="text-border">·</span>
+                    <span className="text-accent/40">·</span>
                     <span className="text-xs text-accent font-light">{tx.category}</span>
                     {tx.isNecessary === false && <span className="text-[10px] bg-orange-50 text-orange-600 border border-orange-100 px-1.5 py-0.5 rounded-md">skip</span>}
                     {tx.isNecessary === true  && <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md">ok</span>}
@@ -164,7 +196,7 @@ export default function TransactionsPage() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-text">{formatCurrency(tx.amount)}</p>
-                  <button onClick={() => handleDelete(tx.id)} className="text-xs text-border2 hover:text-red-400 transition-colors mt-0.5">remove</button>
+                  <button onClick={() => handleDelete(tx.id)} className="text-xs text-accent/40 hover:text-red-500 transition-colors mt-0.5">remove</button>
                 </div>
               </div>
             ))}

@@ -15,7 +15,6 @@ import {
   BarChart3,
   Flame,
   Calculator,
-  Newspaper,
   Target,
   ArrowRight,
   Sparkles,
@@ -177,12 +176,12 @@ const MOCK_TX = [
 ];
 
 const FEATURES = [
-  { n: "01", icon: Brain,       title: "Smart onboarding",       body: "For students and young professionals. Set your profile once and get a plan that fits your real life." },
-  { n: "02", icon: Sparkles,    title: "AI spend analysis",      body: "Every spend is checked instantly. You get clear feedback on what is necessary and what delays your future." },
-  { n: "03", icon: BarChart3,   title: "Spending heatmap",       body: "See your 90-day money pattern in one glance. Spot impulse-spend streaks before they become habits." },
-  { n: "04", icon: Calculator,  title: "Investment calculators", body: "SIP, FD, and EMI tools with live charts. Convert confusing money math into simple decisions." },
-  { n: "05", icon: Newspaper,   title: "Finance news",           body: "India-focused market and personal finance updates, curated for quick Gen Z learning." },
-  { n: "06", icon: Target,      title: "Goal tracker",           body: "Track short-term goals and long-term FIRE targets in one place, with progress you can act on." },
+  { n: "01", icon: Brain,       title: "Smart onboarding",       body: "Tailored for students and professionals. Set your profile once and get a budget plan built for your actual life." },
+  { n: "02", icon: Sparkles,    title: "AI spend analysis",      body: "Every rupee you log gets an instant AI verdict — necessary or not — plus a Gen Z-flavoured roast to keep you honest." },
+  { n: "03", icon: BarChart3,   title: "Spending heatmap",       body: "90 days of spending in one GitHub-style grid. Spot impulse streaks and daily patterns before they calcify." },
+  { n: "04", icon: Calculator,  title: "Investment calculators", body: "SIP, FD, and EMI calculators with live Recharts. Turn confusing money math into one clear number." },
+  { n: "05", icon: Target,      title: "Goals & budgets",        body: "Set per-category monthly budgets, track savings goals, and get a smart-split when you have leftover cash." },
+  { n: "06", icon: Flame,       title: "Retirement planner",     body: "See your FIRE score, corpus gap, and exactly how many biryani skips away your target retirement is." },
 ];
 
 const AI_CHAT = [
@@ -434,9 +433,9 @@ export default function Landing() {
   const { ref: demoRef,  inView: demoIn  } = useInView(0.2);
   const { ref: heatRef,  inView: heatIn  } = useInView(0.3);
 
-  const users  = useCountUp(12847, 1800, statsIn);
-  const crores = useCountUp(42,    2000, statsIn);
-  const txns   = useCountUp(93000, 1600, statsIn);
+  const users  = useCountUp(2400,  1800, statsIn);
+  const crores = useCountUp(8,     2000, statsIn);
+  const txns   = useCountUp(21000, 1600, statsIn);
 
   const go = async () => {
     setSigning(true);
@@ -479,7 +478,7 @@ export default function Landing() {
           <Logo size="xl" />
           <div className="flex items-center gap-6">
             <span className="hidden sm:block text-sm text-[#b45309] pr-2 border-r border-[#DDD0BE]" style={{ fontFamily: "var(--font-inter)" }}>
-              Free · No credit card
+              Free forever for students
             </span>
             <MagButton
               onClick={go}
@@ -516,7 +515,7 @@ export default function Landing() {
           }}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-[#C2410C] animate-pulse" />
-          Vashisht 3.0 · IIITDM Kancheepuram · 2026
+          Now in public beta · Free forever for students
         </motion.div>
 
         {/* Headline */}
@@ -988,7 +987,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-2 justify-between">
           <Logo size="sm" />
           <p className="text-xs" style={{ color: "rgba(253,252,246,0.35)", fontFamily: "var(--font-inter)" }}>
-            Built for Gen Z to beat retirement blindness · Vashisht 3.0
+            Built for Gen Z to finally get their money right · SuperFinz © 2026
           </p>
         </div>
       </footer>

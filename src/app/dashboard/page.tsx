@@ -50,7 +50,7 @@ export default async function DashboardPage() {
   const newsUrl = new URL("/api/news", process.env.NEXTAUTH_URL ?? "http://localhost:3000");
   const quoteUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${holdings.map((h) => h.ticker).join(",")}`;
 
-  const [monthTx, goalsAll, heatTx, weekTx, newsPayload, quotePayload] = await Promise.all([
+  const [monthTx, goalsAll, heatTx, weekTx, newsPayload, quotePayload, categoryBudgets] = await Promise.all([
     prisma.transaction.findMany({
       where: { userId: session.userId, date: { gte: financialMonthStart } },
       orderBy: { date: "asc" },
@@ -67,6 +67,9 @@ export default async function DashboardPage() {
     }),
     fetch(newsUrl.toString(), { cache: "no-store" }).then((r) => r.json()).catch(() => ({ articles: [] })),
     fetch(quoteUrl, { next: { revalidate: 900 } }).then((r) => r.json()).catch(() => null),
+    prisma.budget.findMany({
+      where: { userId: session.userId, month: now.getMonth() + 1, year: now.getFullYear() },
+    }),
   ]);
 
   // ── Monthly stats ──────────────────────────────────────────────────
@@ -211,13 +214,24 @@ export default async function DashboardPage() {
   const shortfallWeek   = weeklyBudget > 0 ? Math.max(0, weeklySpend - weeklyBudget) : 0;
   const totalSaved      = goalsAll.reduce((s, g) => s + g.savedAmount, 0);
 
-  const newsItems = (newsPayload?.articles ?? []).map((a: any) => ({
+  const newsItems = (newsPayload?.articles ?? []).map((a: { title: string; url?: string; link?: string; source?: { name?: string }; publishedAt?: string; category?: string }) => ({
     title: a.title,
     url: a.url ?? a.link ?? "#",
     source: a.source?.name ?? "News",
     publishedAt: a.publishedAt ?? new Date().toISOString(),
     category: a.category ?? "Markets",
   }));
+
+  // Budget alerts: categories at or over 90% of their limit
+  const budgetAlerts = categoryBudgets
+    .filter((b) => b.limit > 0 && b.spent >= b.limit * 0.9)
+    .map((b) => ({
+      category: b.category,
+      spent: b.spent,
+      limit: b.limit,
+      over: b.spent > b.limit,
+      pct: Math.round((b.spent / b.limit) * 100),
+    }));
 
   const quoteResults: Record<string, { price: number; changePct: number }> = {};
   try {
@@ -295,6 +309,28 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* ── Budget alert banner ──────────────────────────────────── */}
+      {budgetAlerts.length > 0 && (
+        <div className={`rounded-2xl border px-4 py-3 flex items-start gap-3 ${
+          budgetAlerts.some((a) => a.over)
+            ? "bg-red-50 border-red-200"
+            : "bg-amber-50 border-amber-300"
+        }`}>
+          <svg className={`w-4 h-4 mt-0.5 shrink-0 ${budgetAlerts.some((a) => a.over) ? "text-red-500" : "text-amber-600"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <p className={`text-xs font-semibold ${budgetAlerts.some((a) => a.over) ? "text-red-700" : "text-amber-800"}`}>
+              {budgetAlerts.some((a) => a.over) ? "Budget exceeded" : "Approaching budget limit"}
+            </p>
+            <p className="text-xs text-muted mt-0.5">
+              {budgetAlerts.map((a) => `${a.category} ${a.pct}%${a.over ? " over" : ""}`).join(" · ")}
+            </p>
+          </div>
+          <a href="/dashboard/budgets" className="text-xs font-semibold text-amber-700 hover:underline shrink-0">Review →</a>
+        </div>
+      )}
 
       {/* ── Retirement Readiness Banner ──────────────────────────── */}
       <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
@@ -513,6 +549,53 @@ export default async function DashboardPage() {
         ) : (
           <HeatmapInline data={heatData} />
         )}
+      </div>
+
+      {/* ── Portfolio tracker ────────────────────────────────── */}
+      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-semibold text-text">Portfolio snapshot</h2>
+            <p className="text-xs text-accent font-light mt-0.5">Live quotes · refreshes every 15 min</p>
+          </div>
+          <a href="/dashboard/calculators" className="text-xs text-amber-600 hover:underline font-medium">SIP calculator →</a>
+        </div>
+        <div className="space-y-2">
+          {investments.map((inv) => {
+            const gain = inv.current - inv.invested;
+            const up = gain >= 0;
+            return (
+              <div key={inv.ticker} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
+                  <span className="text-[9px] font-black text-amber-700 uppercase leading-none text-center">{inv.ticker.replace(".NS","").slice(0,4)}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-text truncate">{inv.name}</p>
+                  <p className="text-xs text-accent font-light">{inv.shares} shares · invested {formatCurrency(inv.invested)}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-semibold text-text">{formatCurrency(inv.current)}</p>
+                  <p className={`text-xs font-medium ${up ? "text-emerald-600" : "text-red-500"}`}>
+                    {up ? "+" : ""}{inv.changePct.toFixed(2)}%
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-3 pt-3 border-t border-surface flex items-center justify-between">
+          <span className="text-xs text-accent font-medium">Total invested</span>
+          <div className="text-right">
+            <span className="text-sm font-bold text-text">{formatCurrency(investments.reduce((s, i) => s + i.current, 0))}</span>
+            {(() => {
+              const totalInv = investments.reduce((s, i) => s + i.invested, 0);
+              const totalCur = investments.reduce((s, i) => s + i.current, 0);
+              const totalGain = totalCur - totalInv;
+              const up = totalGain >= 0;
+              return <p className={`text-xs font-medium ${up ? "text-emerald-600" : "text-red-500"}`}>{up ? "+" : ""}{formatCurrency(totalGain)} overall</p>;
+            })()}
+          </div>
+        </div>
       </div>
 
       {/* ── Recent spends + Goals ─────────────────────────────── */}

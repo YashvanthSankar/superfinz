@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import type { Goal } from "@/generated/prisma/client";
-import { Flame, Target } from "lucide-react";
+import { Flame, Target, CheckCircle2, Plus } from "lucide-react";
 
 function retireAge(currentAge: number, monthlySavings: number, corpus: number): number | null {
   if (monthlySavings <= 0) return null;
@@ -28,7 +28,6 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   const [result, setResult] = useState<{ corpus: number; retireAt: number | null } | null>(null);
   const [loaded, setLoaded] = useState(false);
 
-  // Auto-fill from profile
   useEffect(() => {
     fetch("/api/profile")
       .then((r) => r.json())
@@ -38,14 +37,12 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
         const income = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
         const savings = user.profile?.savingsGoal ?? 0;
         if (savings > 0) setMonthly(String(savings));
-        // Estimate expenses = income - savings
         if (income > 0 && income > savings) setExpenses(String(income - savings));
         setLoaded(true);
       })
       .catch(() => setLoaded(true));
   }, []);
 
-  // Auto-calculate once data is loaded
   useEffect(() => {
     if (!loaded) return;
     const m = parseFloat(monthly);
@@ -67,72 +64,67 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   };
 
   return (
-    <div className="bg-[#fff8e6] rounded-2xl p-5 shadow-sm text-[#4A2C19] border border-amber-300">
+    <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-1">
-        <Flame size={18} className="text-amber-400" />
-        <h2 className="font-bold text-base text-[#4A2C19]">Your Freedom Number</h2>
-        <span className="ml-auto text-xs text-amber-700 font-medium">FIRE Calculator</span>
+        <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+          <Flame size={14} className="text-amber-600" />
+        </div>
+        <div>
+          <h2 className="font-semibold text-sm text-text">Freedom Number</h2>
+        </div>
+        <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-accent bg-surface border border-border px-2 py-0.5 rounded-full">FIRE</span>
       </div>
-      <p className="text-amber-800 text-sm mb-4">How much do you need to never work again?</p>
+      <p className="text-xs text-accent font-light mb-4 mt-1">How much corpus do you need to never work again?</p>
 
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div>
-          <label className="text-[11px] text-amber-800 block mb-1 font-medium">Monthly savings (₹)</label>
-          <input
-            type="number"
-            placeholder="3000"
-            value={monthly}
-            onChange={(e) => setMonthly(e.target.value)}
-            className="w-full bg-[#fffdf5] border border-amber-400 rounded-lg px-3 py-2 text-sm text-[#4A2C19] placeholder-amber-400 focus:outline-none focus:border-amber-500"
-          />
-        </div>
-        <div>
-          <label className="text-[11px] text-amber-800 block mb-1 font-medium">Monthly expenses (₹)</label>
-          <input
-            type="number"
-            placeholder="15000"
-            value={expenses}
-            onChange={(e) => setExpenses(e.target.value)}
-            className="w-full bg-[#fffdf5] border border-amber-400 rounded-lg px-3 py-2 text-sm text-[#4A2C19] placeholder-amber-400 focus:outline-none focus:border-amber-500"
-          />
-        </div>
-        <div>
-          <label className="text-[11px] text-amber-800 block mb-1 font-medium">Your age</label>
-          <input
-            type="number"
-            placeholder="21"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
-            className="w-full bg-[#fffdf5] border border-amber-400 rounded-lg px-3 py-2 text-sm text-[#4A2C19] placeholder-amber-400 focus:outline-none focus:border-amber-500"
-          />
-        </div>
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        {[
+          { label: "Monthly savings (₹)", placeholder: "3,000", value: monthly, set: setMonthly },
+          { label: "Monthly expenses (₹)", placeholder: "15,000", value: expenses, set: setExpenses },
+          { label: "Current age", placeholder: "21", value: age, set: setAge },
+        ].map(({ label, placeholder, value, set }) => (
+          <div key={label}>
+            <label className="text-[10px] text-muted font-medium uppercase tracking-wide block mb-1.5">{label}</label>
+            <input
+              type="number"
+              placeholder={placeholder}
+              value={value}
+              onChange={(e) => set(e.target.value)}
+              className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm text-text placeholder-accent/40 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+        ))}
       </div>
 
       <button
         onClick={recalc}
-        className="w-full py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-all mb-3"
+        className="w-full py-2.5 rounded-xl border border-amber-400 bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 hover:border-amber-500 transition-all"
       >
         Recalculate
       </button>
 
       {result && (
-        <div className="bg-[#fff2cc] rounded-xl p-4 space-y-2 border border-amber-300">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-amber-900 font-medium">Freedom corpus needed</span>
-            <span className="font-bold text-amber-700 text-2xl">{fmtCr(result.corpus)}</span>
+        <div className="mt-4 bg-surface rounded-xl p-4 border border-border grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-[10px] text-muted font-semibold uppercase tracking-wide mb-1">Corpus needed</p>
+            <p className="text-xl font-black text-text">{fmtCr(result.corpus)}</p>
+            <p className="text-[11px] text-accent font-light mt-0.5">at 4% annual drawdown</p>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-amber-900 font-medium">Retire at age</span>
-            <span className={`font-bold text-xl ${result.retireAt && result.retireAt <= 45 ? "text-emerald-700" : result.retireAt && result.retireAt <= 55 ? "text-amber-700" : "text-red-700"}`}>
-              {result.retireAt ? `${result.retireAt} years` : "50+ years (save more!)"}
-            </span>
+          <div>
+            <p className="text-[10px] text-muted font-semibold uppercase tracking-wide mb-1">Retire at age</p>
+            <p className={`text-xl font-black ${
+              result.retireAt && result.retireAt <= 45 ? "text-emerald-600"
+              : result.retireAt && result.retireAt <= 55 ? "text-amber-700"
+              : "text-red-600"
+            }`}>
+              {result.retireAt ? `${result.retireAt} yrs` : "50+ yrs"}
+            </p>
+            {result.retireAt && result.retireAt > 50 && (
+              <p className="text-[10px] text-accent font-light mt-0.5">increase savings to retire earlier</p>
+            )}
           </div>
-          {result.retireAt && result.retireAt > 50 && (
-            <p className="text-xs text-amber-800">Double your monthly savings to retire earlier. Small increases compound massively.</p>
-          )}
           <button
             onClick={() => onAddFund("Freedom Fund", result.corpus)}
-            className="w-full mt-1 py-2 rounded-lg border border-amber-500 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-all"
+            className="col-span-2 py-2 rounded-lg border border-border text-xs text-accent hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-all font-medium"
           >
             + Add as savings goal
           </button>
@@ -204,11 +196,11 @@ export default function GoalsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Goals</h1>
-          <p className="text-accent text-sm mt-0.5 font-normal">Stack your savings towards what matters</p>
+          <p className="text-accent text-sm mt-0.5 font-light">Stack your savings towards what matters</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ New goal"}
@@ -231,27 +223,27 @@ export default function GoalsPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : active.length === 0 && !showForm ? (
         <div className="bg-background rounded-2xl border border-amber-400 shadow-sm">
           <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-4">
-              <Target size={22} className="text-amber-600" />
+            <div className="w-14 h-14 rounded-2xl bg-surface border border-border flex items-center justify-center mb-4">
+              <Target size={22} className="text-accent" />
             </div>
             <p className="font-semibold text-text">No goals yet</p>
-            <p className="text-accent text-sm mt-1 font-normal max-w-xs">
+            <p className="text-accent text-sm mt-1 font-light max-w-xs">
               Set a target — MacBook, trip, emergency fund — and track every rupee toward it
             </p>
             <button
               onClick={() => setShowForm(true)}
-              className="mt-5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-400 transition-all"
+              className="mt-5 flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-amber-400 bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 transition-all"
             >
-              + Set your first goal
+              <Plus size={14} /> Set your first goal
             </button>
           </div>
           <div className="border-t border-surface px-5 py-4">
-            <p className="text-xs text-accent font-normal mb-3">Popular goals to get started</p>
+            <p className="text-xs text-accent font-medium mb-3">Popular goals to get started</p>
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "Emergency Fund", amount: "50000" },
@@ -262,7 +254,7 @@ export default function GoalsPage() {
                 <button
                   key={label}
                   onClick={() => { setForm({ title: label, targetAmount: amount, deadline: "" }); setShowForm(true); }}
-                  className="text-xs px-3 py-1.5 rounded-xl border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all font-medium"
+                  className="text-xs px-3 py-1.5 rounded-lg border border-border text-accent hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-all font-medium"
                 >
                   {label}
                 </button>
@@ -287,24 +279,24 @@ export default function GoalsPage() {
                     )}
                   </div>
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
-                    pct >= 100 ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                    pct >= 50  ? "bg-amber-50 text-amber-600 border-amber-100" :
-                                 "bg-background text-muted border-border"
+                    pct >= 100 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                    pct >= 50  ? "bg-amber-50 text-amber-700 border-amber-200" :
+                                 "bg-surface text-muted border-border"
                   }`}>{pct.toFixed(0)}%</span>
                 </div>
 
                 <div className="space-y-1.5 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted font-normal">{formatCurrency(goal.savedAmount)} saved</span>
+                    <span className="text-accent font-light">{formatCurrency(goal.savedAmount)} saved</span>
                     <span className="text-text font-semibold">{formatCurrency(goal.targetAmount)}</span>
                   </div>
-                  <div className="h-2 bg-surface rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-surface rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-amber-500 transition-all duration-500"
+                      className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <p className="text-xs text-accent font-normal">{formatCurrency(remaining)} remaining</p>
+                  <p className="text-xs text-accent font-light">{formatCurrency(remaining)} remaining</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -312,14 +304,14 @@ export default function GoalsPage() {
                     <button
                       key={amt}
                       onClick={() => addSavings(goal.id, goal.savedAmount, amt)}
-                      className="flex-1 text-xs py-2 rounded-lg border border-amber-400 text-muted hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50 transition-all font-medium"
+                      className="flex-1 text-xs py-2 rounded-lg border border-border text-muted hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-all font-medium"
                     >
                       +{amt >= 1000 ? `${amt / 1000}k` : amt}
                     </button>
                   ))}
                   <button
                     onClick={() => markDone(goal.id)}
-                    className="px-3 py-2 rounded-lg border border-amber-400 text-xs text-accent hover:border-emerald-200 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                    className="px-3 py-2 rounded-lg border border-border text-xs text-accent hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
                     title="Mark as achieved"
                   >
                     Done
@@ -336,9 +328,9 @@ export default function GoalsPage() {
           <h2 className="text-xs font-semibold text-accent uppercase tracking-wide mb-3">Achieved</h2>
           <div className="grid md:grid-cols-2 gap-3">
             {achieved.map((goal) => (
-              <div key={goal.id} className="bg-background rounded-2xl border border-emerald-100 p-4 opacity-70">
+              <div key={goal.id} className="bg-background rounded-2xl border border-emerald-200 p-4 opacity-70">
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                   <p className="text-text font-medium text-sm">{goal.title}</p>
                   <span className="ml-auto text-emerald-600 text-sm font-semibold">{formatCurrency(goal.targetAmount)}</span>
                 </div>

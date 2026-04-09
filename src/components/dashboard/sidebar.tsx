@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -7,14 +7,15 @@ import { Logo } from "@/components/ui/logo";
 import {
   LayoutDashboard, ArrowLeftRight, Calculator,
   Newspaper, Target, LogOut, TrendingUp, BookOpen,
-  MoreHorizontal, X, Flame,
+  MoreHorizontal, X, Flame, Wallet,
 } from "lucide-react";
 
 const NAV = [
   { href: "/dashboard",              label: "Overview",     icon: LayoutDashboard },
   { href: "/dashboard/transactions", label: "Transactions", icon: ArrowLeftRight  },
-  { href: "/dashboard/retirement",   label: "Retirement",   icon: TrendingUp      },
   { href: "/dashboard/goals",        label: "Goals",        icon: Target          },
+  { href: "/dashboard/budgets",      label: "Budgets",      icon: Wallet          },
+  { href: "/dashboard/retirement",   label: "Retirement",   icon: TrendingUp      },
   { href: "/dashboard/learn",        label: "Learn",        icon: BookOpen        },
   { href: "/dashboard/calculators",  label: "Calculators",  icon: Calculator      },
   { href: "/dashboard/news",         label: "News",         icon: Newspaper       },
@@ -28,6 +29,20 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [budgetAlert, setBudgetAlert] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const now = new Date();
+        const r = await fetch(`/api/budgets?month=${now.getMonth() + 1}&year=${now.getFullYear()}`);
+        const d = await r.json();
+        const over = (d.budgets ?? []).some((b: { limit: number; spent: number }) => b.limit > 0 && b.spent > b.limit);
+        setBudgetAlert(over);
+      } catch { /* ignore */ }
+    };
+    check();
+  }, [pathname]);
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
@@ -45,6 +60,7 @@ export function Sidebar() {
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = isActive(href);
+            const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
             return (
               <a
                 key={href}
@@ -57,7 +73,10 @@ export function Sidebar() {
                 )}
               >
                 <Icon size={15} className={active ? "text-amber-600" : "text-accent"} />
-                {label}
+                <span className="flex-1">{label}</span>
+                {showBadge && (
+                  <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" title="Budget exceeded" />
+                )}
               </a>
             );
           })}
@@ -168,6 +187,7 @@ export function Sidebar() {
             <div className="px-4 py-3 space-y-0.5">
               {NAV.slice(4).map(({ href, label, icon: Icon }) => {
                 const active = isActive(href);
+                const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
                 return (
                   <a
                     key={href}
@@ -179,7 +199,10 @@ export function Sidebar() {
                     )}
                   >
                     <Icon size={17} className={active ? "text-amber-600" : "text-accent"} />
-                    {label}
+                    <span className="flex-1">{label}</span>
+                    {showBadge && (
+                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" title="Budget exceeded" />
+                    )}
                   </a>
                 );
               })}

@@ -226,7 +226,7 @@ export default function ProfilePage() {
             />
             <Input
               label="Institution"
-              placeholder="IIITDM Kancheepuram"
+              placeholder="e.g. IIT Delhi, St. Xavier's College"
               value={form.institution}
               onChange={(e) => setForm((f) => ({ ...f, institution: e.target.value }))}
             />

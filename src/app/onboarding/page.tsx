@@ -167,7 +167,7 @@ export default function OnboardingPage() {
                     className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
                       form.userType === opt.value
                         ? "border-amber-300 bg-amber-50"
-                        : "border-border hover:border-[#c7d2e2] bg-background"
+                        : "border-border hover:border-amber-300 bg-background"
                     }`}
                   >
                     <div className="flex-1">
@@ -196,7 +196,7 @@ export default function OnboardingPage() {
               </div>
               {isStudent ? (
                 <>
-                  <Input label="Institution" placeholder="IIITDM Kancheepuram" value={form.institution} onChange={(e) => set("institution", e.target.value)} />
+                  <Input label="Institution" placeholder="e.g. IIT Delhi, St. Xavier's College" value={form.institution} onChange={(e) => set("institution", e.target.value)} />
                   <Input label="Monthly allowance (₹)" type="number" placeholder="5000" value={form.monthlyAllowance} onChange={(e) => set("monthlyAllowance", e.target.value)} />
                   <div className="space-y-2">
                     <p className="text-xs font-medium text-muted">Income sources</p>
@@ -208,7 +208,7 @@ export default function OnboardingPage() {
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                             form.incomeSources.includes(src.value)
                               ? "bg-amber-50 border-amber-200 text-amber-700"
-                              : "bg-background border-border text-muted hover:border-[#c7d2e2]"
+                              : "bg-background border-border text-muted hover:border-amber-300"
                           }`}
                         >
                           {src.label}
@@ -252,7 +252,7 @@ export default function OnboardingPage() {
                     className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
                       form.spendingPattern === opt.value
                         ? "border-amber-400 bg-amber-50"
-                        : "border-border hover:border-[#c7d2e2] bg-background"
+                        : "border-border hover:border-amber-300 bg-background"
                     }`}
                   >
                     <div className="flex-1">

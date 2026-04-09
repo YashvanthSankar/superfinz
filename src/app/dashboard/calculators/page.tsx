@@ -97,8 +97,8 @@ export default function CalculatorsPage() {
             onClick={() => setTab(t.id)}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all border ${
               tab === t.id
-                ? "bg-amber-50 border-amber-200 text-amber-700"
-                : "border-border text-muted hover:border-[#c7d2e2] hover:text-text bg-background"
+                ? "bg-amber-50 border-amber-400 text-amber-700"
+                : "border-border text-muted hover:border-amber-300 hover:text-text bg-background"
             }`}
           >
             {t.label}
@@ -140,16 +140,16 @@ export default function CalculatorsPage() {
               <AreaChart data={sipResult.data}>
                 <defs>
                   <linearGradient id="sipGain" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    <stop offset="5%"  stopColor="#d97706" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" stroke="#cbd5e1" tick={{ fontSize: 10 }} tickFormatter={(v) => `M${v}`} />
-                <YAxis stroke="#cbd5e1" tick={{ fontSize: 10 }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
+                <XAxis dataKey="month" stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `M${v}`} axisLine={false} tickLine={false} />
+                <YAxis stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="invested" stroke="#cbd5e1" fill="none" name="Invested" strokeWidth={1.5} />
-                <Area type="monotone" dataKey="value"    stroke="#6366f1" fill="url(#sipGain)" name="Value" strokeWidth={2} />
+                <Area type="monotone" dataKey="invested" stroke="#fcd34d" fill="none" name="Invested" strokeWidth={1.5} strokeDasharray="4 4" />
+                <Area type="monotone" dataKey="value"    stroke="#d97706" fill="url(#sipGain)" name="Value" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -190,15 +190,15 @@ export default function CalculatorsPage() {
               <AreaChart data={fdResult.data}>
                 <defs>
                   <linearGradient id="fdGain" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#f59e0b" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                    <stop offset="5%"  stopColor="#d97706" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="year" stroke="#cbd5e1" tick={{ fontSize: 10 }} tickFormatter={(v) => `Y${v}`} />
-                <YAxis stroke="#cbd5e1" tick={{ fontSize: 10 }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
+                <XAxis dataKey="year" stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `Y${v}`} axisLine={false} tickLine={false} />
+                <YAxis stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="value" stroke="#f59e0b" fill="url(#fdGain)" name="Value" strokeWidth={2} />
+                <Area type="monotone" dataKey="value" stroke="#d97706" fill="url(#fdGain)" name="Value" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -213,16 +213,16 @@ export default function CalculatorsPage() {
               <Input label="Loan amount (₹)" type="number" value={emi.principal} onChange={(e) => setEmi((s) => ({ ...s, principal: e.target.value }))} />
               <div>
                 <label className="text-xs font-medium text-muted uppercase tracking-wide">Interest rate — {emi.rate}% p.a.</label>
-                <input type="range" min="1" max="25" step="0.5" value={emi.rate} onChange={(e) => setEmi((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-violet-600" />
+                <input type="range" min="1" max="25" step="0.5" value={emi.rate} onChange={(e) => setEmi((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-amber-600" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted uppercase tracking-wide">Tenure — {emi.years} years</label>
-                <input type="range" min="1" max="30" value={emi.years} onChange={(e) => setEmi((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-violet-600" />
+                <input type="range" min="1" max="30" value={emi.years} onChange={(e) => setEmi((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-amber-600" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
-                { label: "Monthly EMI",    value: emiResult.emi,      color: "text-violet-600" },
+                { label: "Monthly EMI",    value: emiResult.emi,      color: "text-amber-700" },
                 { label: "Total interest", value: emiResult.interest, color: "text-red-500" },
                 { label: "Total payment",  value: emiResult.total,    color: "text-text" },
               ].map((s) => (
@@ -239,15 +239,15 @@ export default function CalculatorsPage() {
               <AreaChart data={emiResult.data}>
                 <defs>
                   <linearGradient id="emiGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#7c3aed" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                    <stop offset="5%"  stopColor="#dc2626" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" stroke="#cbd5e1" tick={{ fontSize: 10 }} tickFormatter={(v) => `M${v}`} />
-                <YAxis stroke="#cbd5e1" tick={{ fontSize: 10 }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
+                <XAxis dataKey="month" stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `M${v}`} axisLine={false} tickLine={false} />
+                <YAxis stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="balance" stroke="#7c3aed" fill="url(#emiGrad)" name="Balance" strokeWidth={2} />
+                <Area type="monotone" dataKey="balance" stroke="#dc2626" fill="url(#emiGrad)" name="Balance" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
