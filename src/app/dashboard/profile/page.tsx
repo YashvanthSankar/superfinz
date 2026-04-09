@@ -142,7 +142,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Identity card */}
-      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
         <div className="flex items-center gap-4">
           {session?.user?.image ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -195,7 +195,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Edit form */}
-      <form onSubmit={handleSave} className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
+      <form onSubmit={handleSave} className="bg-background rounded-2xl border border-surface p-5 shadow-sm space-y-4">
         <h2 className="text-sm font-semibold text-text">Financial limits</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -71,14 +71,14 @@ export default function HeatmapPage() {
           { label: "Active spend days", value: activeDays.toString() },
           { label: "Avg per spend day", value: formatCurrency(avgPerActiveDay) },
         ].map((s) => (
-          <div key={s.label} className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+          <div key={s.label} className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
             <p className="text-[10px] text-accent font-semibold uppercase tracking-wider mb-2">{s.label}</p>
             <p className="text-xl font-bold text-text">{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+      <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
         <h2 className="text-sm font-semibold text-text mb-5">Activity</h2>
 
         {loading ? (

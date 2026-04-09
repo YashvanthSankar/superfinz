@@ -1,0 +1,49 @@
+{
+  "name": "SuperFinz",
+  "short_name": "SuperFinz",
+  "description": "All-in-one finance dashboard for Gen Z — track spends, crush goals, retire early.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fefce8",
+  "theme_color": "#b45309",
+  "categories": ["finance", "productivity"],
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Transaction",
+      "url": "/dashboard/transactions",
+      "description": "Log a spend"
+    },
+    {
+      "name": "View Goals",
+      "url": "/dashboard/goals",
+      "description": "Check savings goals"
+    },
+    {
+      "name": "Budgets",
+      "url": "/dashboard/budgets",
+      "description": "Check your budget"
+    }
+  ],
+  "screenshots": []
+}

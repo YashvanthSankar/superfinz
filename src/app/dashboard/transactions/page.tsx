@@ -104,7 +104,7 @@ export default function TransactionsPage() {
       </div>
 
       {showForm && (
-        <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+        <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-text mb-5">Log a spend</h2>
           <form onSubmit={handleAdd} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -152,7 +152,7 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      <div className="bg-background rounded-2xl border border-amber-400 shadow-sm overflow-hidden">
+      <div className="bg-background rounded-2xl border border-surface shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-surface">
           <h2 className="text-sm font-semibold text-text">All transactions</h2>
         </div>
@@ -180,7 +180,7 @@ export default function TransactionsPage() {
           <div className="divide-y divide-background">
             {transactions.map((tx) => (
               <div key={tx.id} className="flex items-center gap-3 px-5 py-4 hover:bg-background transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-background border border-amber-400 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-background border border-surface flex items-center justify-center shrink-0">
                   <span className="text-[10px] font-bold text-muted uppercase">{tx.category.slice(0, 2)}</span>
                 </div>
                 <div className="flex-1 min-w-0">

@@ -70,7 +70,7 @@ export default function NewsPage() {
               rel="noopener noreferrer"
               className="block group"
             >
-              <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
+              <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
                 {article.category && (
                   <span
                     className={`inline-block text-[10px] px-2.5 py-1 rounded-lg font-semibold uppercase tracking-wide border mb-3 ${

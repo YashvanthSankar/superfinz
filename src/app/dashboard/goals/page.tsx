@@ -64,7 +64,7 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   };
 
   return (
-    <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+    <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-1">
         <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
           <Flame size={14} className="text-amber-600" />
@@ -97,7 +97,7 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
 
       <button
         onClick={recalc}
-        className="w-full py-2.5 rounded-xl border border-amber-400 bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 hover:border-amber-500 transition-all"
+        className="w-full py-2.5 rounded-xl border border-surface bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 hover:border-amber-500 transition-all"
       >
         Recalculate
       </button>
@@ -210,7 +210,7 @@ export default function GoalsPage() {
       <FIRECard onAddFund={prefillFire} />
 
       {showForm && (
-        <div id="goals-form" className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+        <div id="goals-form" className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-text mb-5">Create a goal</h2>
           <form onSubmit={handleAdd} className="space-y-4">
             <Input label="Goal name" placeholder="New laptop, Trip to Goa..." value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
@@ -226,7 +226,7 @@ export default function GoalsPage() {
           <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : active.length === 0 && !showForm ? (
-        <div className="bg-background rounded-2xl border border-amber-400 shadow-sm">
+        <div className="bg-background rounded-2xl border border-surface shadow-sm">
           <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
             <div className="w-14 h-14 rounded-2xl bg-surface border border-border flex items-center justify-center mb-4">
               <Target size={22} className="text-accent" />
@@ -237,7 +237,7 @@ export default function GoalsPage() {
             </p>
             <button
               onClick={() => setShowForm(true)}
-              className="mt-5 flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-amber-400 bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 transition-all"
+              className="mt-5 flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-surface bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 transition-all"
             >
               <Plus size={14} /> Set your first goal
             </button>
@@ -268,7 +268,7 @@ export default function GoalsPage() {
             const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
             const remaining = goal.targetAmount - goal.savedAmount;
             return (
-              <div key={goal.id} className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+              <div key={goal.id} className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="font-semibold text-text">{goal.title}</h3>

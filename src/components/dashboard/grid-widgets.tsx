@@ -29,7 +29,7 @@ export type DashboardGridProps = {
 
 // Shared card shell — same light cream as the rest of the page
 const Card = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("bg-[#fefce8] border border-amber-400 rounded-3xl p-4 shadow-sm", className)}>
+  <div className={cn("bg-[#fefce8] border border-surface rounded-3xl p-4 shadow-sm", className)}>
     {children}
   </div>
 );

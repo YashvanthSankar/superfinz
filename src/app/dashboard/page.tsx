@@ -333,7 +333,7 @@ export default async function DashboardPage() {
       )}
 
       {/* ── Retirement Readiness Banner ──────────────────────────── */}
-      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
         {/* Score ring */}
         <div className="flex items-center gap-4 shrink-0">
           <div className="relative w-16 h-16 shrink-0">
@@ -443,7 +443,7 @@ export default async function DashboardPage() {
             iconD: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
           },
         ] as const).map((s) => (
-          <div key={s.label} className="bg-surface rounded-2xl border border-amber-400 p-5 shadow-sm">
+          <div key={s.label} className="bg-surface rounded-2xl border border-surface p-5 shadow-sm">
             <div className="w-7 h-7 rounded-lg bg-background border border-amber-300 flex items-center justify-center mb-3">
               <svg className="w-3.5 h-3.5 text-text2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d={s.iconD} />
@@ -467,7 +467,7 @@ export default async function DashboardPage() {
       {/* ── Insight strip ────────────────────────────────────────── */}
       {!noSpends && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-background rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
+          <div className="bg-background rounded-xl border border-surface px-4 py-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
@@ -476,7 +476,7 @@ export default async function DashboardPage() {
               <p className="text-sm font-bold text-text">{formatCurrency(dailyAvg)}</p>
             </div>
           </div>
-          <div className="bg-background rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
+          <div className="bg-background rounded-xl border border-surface px-4 py-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
               <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             </div>
@@ -488,7 +488,7 @@ export default async function DashboardPage() {
             </div>
           </div>
           {topCategory && (
-            <div className="bg-background rounded-xl border border-amber-400 px-4 py-3 flex items-center gap-3">
+            <div className="bg-background rounded-xl border border-surface px-4 py-3 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
                 <span className="text-[11px] font-bold text-amber-700 uppercase">{topCategory.name.slice(0, 2)}</span>
               </div>
@@ -503,7 +503,7 @@ export default async function DashboardPage() {
 
       {/* ── Spending trend + Category ─────────────────────────── */}
       <div className="grid md:grid-cols-5 gap-4">
-        <div className="md:col-span-3 bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="md:col-span-3 bg-background rounded-2xl border border-surface p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-sm font-semibold text-text">Spending trend</h2>
@@ -521,7 +521,7 @@ export default async function DashboardPage() {
             <SpendTrendChart data={trendData} />
           )}
         </div>
-        <div className="md:col-span-2 bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="md:col-span-2 bg-background rounded-2xl border border-surface p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-text mb-0.5">By category</h2>
           <p className="text-xs text-accent font-light mb-1">Where your money goes</p>
           <CategoryChart data={categoryData} />
@@ -529,7 +529,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Spending heatmap ─────────────────────────────────── */}
-      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-semibold text-text">Spending heatmap</h2>
@@ -552,7 +552,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Portfolio tracker ────────────────────────────────── */}
-      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-semibold text-text">Portfolio snapshot</h2>
@@ -601,7 +601,7 @@ export default async function DashboardPage() {
       {/* ── Recent spends + Goals ─────────────────────────────── */}
       <div className="grid md:grid-cols-2 gap-4">
 
-        <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-text">Recent spends</h2>
             <a href="/dashboard/transactions" className="text-xs text-amber-600 hover:underline font-medium">View all</a>
@@ -635,7 +635,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-text">Savings goals</h2>
             <a href="/dashboard/goals" className="text-xs text-amber-600 hover:underline font-medium">Manage</a>

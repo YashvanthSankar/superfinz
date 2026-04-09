@@ -108,7 +108,7 @@ export default function CalculatorsPage() {
 
       {tab === "sip" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">SIP inputs</h2>
             <div className="space-y-5">
               <Input label="Monthly investment (₹)" type="number" value={sip.monthly} onChange={(e) => setSip((s) => ({ ...s, monthly: e.target.value }))} />
@@ -134,7 +134,7 @@ export default function CalculatorsPage() {
               ))}
             </div>
           </div>
-          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={sipResult.data}>
@@ -158,7 +158,7 @@ export default function CalculatorsPage() {
 
       {tab === "fd" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">FD inputs</h2>
             <div className="space-y-5">
               <Input label="Principal amount (₹)" type="number" value={fd.principal} onChange={(e) => setFd((s) => ({ ...s, principal: e.target.value }))} />
@@ -184,7 +184,7 @@ export default function CalculatorsPage() {
               ))}
             </div>
           </div>
-          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={fdResult.data}>
@@ -207,7 +207,7 @@ export default function CalculatorsPage() {
 
       {tab === "emi" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">EMI inputs</h2>
             <div className="space-y-5">
               <Input label="Loan amount (₹)" type="number" value={emi.principal} onChange={(e) => setEmi((s) => ({ ...s, principal: e.target.value }))} />
@@ -233,7 +233,7 @@ export default function CalculatorsPage() {
               ))}
             </div>
           </div>
-          <div className="bg-background rounded-2xl border border-amber-400 p-6 shadow-sm">
+          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">Balance over time</h2>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={emiResult.data}>

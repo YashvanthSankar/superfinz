@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -38,9 +38,38 @@ const gatwick = localFont({
   fallback: ["Inter", "Arial", "sans-serif"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#b45309",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "SuperFinz — Gen Z Finance Dashboard",
-  description: "All-in-one finance dashboard for students and young professionals",
+  description: "All-in-one finance dashboard for students and young professionals. Track spends, crush savings goals, and plan your retirement early.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SuperFinz",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png",   sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180" },
+    ],
+    shortcut: "/favicon.ico",
+  },
+  openGraph: {
+    title: "SuperFinz — Gen Z Finance Dashboard",
+    description: "Track spends, crush savings goals, and plan your retirement early.",
+    type: "website",
+    images: [{ url: "/superfinz.png", width: 2000, height: 2000, alt: "SuperFinz" }],
+  },
 };
 
 export default function RootLayout({
@@ -53,6 +82,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${inter.variable} ${gatwick.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="SuperFinz" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body className="min-h-screen relative">
         <Providers>{children}</Providers>
       </body>

@@ -121,7 +121,7 @@ export default function RetirementPage() {
 
       <div className="grid lg:grid-cols-3 gap-4">
         {/* ── Inputs ── */}
-        <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm space-y-4">
+        <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm space-y-4">
           <h2 className="text-sm font-semibold text-text">Your numbers</h2>
 
           {[
@@ -176,7 +176,7 @@ export default function RetirementPage() {
         </div>
 
         {/* ── Chart ── */}
-        <div className="lg:col-span-2 bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+        <div className="lg:col-span-2 bg-background rounded-2xl border border-surface p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-text mb-1">Corpus growth trajectory</h2>
           <p className="text-xs text-accent font-light mb-4">Your projected wealth vs freedom corpus target</p>
           <ResponsiveContainer width="100%" height={280}>
@@ -205,7 +205,7 @@ export default function RetirementPage() {
       </div>
 
       {/* ── Key milestones ── */}
-      <div className="bg-background rounded-2xl border border-amber-400 p-5 shadow-sm">
+      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
         <h2 className="text-sm font-semibold text-text mb-4">What this means for you</h2>
         <div className="grid sm:grid-cols-3 gap-3">
           {[

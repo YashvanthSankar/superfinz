@@ -427,6 +427,27 @@ function Marquee() {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Landing() {
   const [signing, setSigning] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const [installed, setInstalled] = useState(false);
+
+  useEffect(() => {
+    // Register service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+    // Capture PWA install prompt
+    const handler = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => setInstalled(true));
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (installPrompt as any).prompt();
+    setInstallPrompt(null);
+  };
   const scrolled = useScrolled(60);
   const { ref: statsRef, inView: statsIn } = useInView(0.3);
   const { ref: featRef,  inView: featIn  } = useInView(0.1);
@@ -978,6 +999,71 @@ export default function Landing() {
               Continue with Google
               <ArrowRight size={16} />
             </MagButton>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── PWA Install section ─────────────────────────────────────────── */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 relative z-10" style={{ background: "#F9F5EE" }}>
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="rounded-3xl border p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-8"
+            style={{ background: "#1A0E08", borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            {/* App icon */}
+            <div className="shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/icon-192.png"
+                alt="SuperFinz"
+                className="w-24 h-24 rounded-3xl shadow-2xl"
+                style={{ boxShadow: "0 0 40px rgba(180,83,9,0.4)" }}
+              />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>
+                Installable · No app store needed
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-2" style={{ color: "#FDFCF6", fontFamily: "var(--font-gatwick)" }}>
+                Add to home screen
+              </h2>
+              <p className="text-sm font-light mb-6" style={{ color: "rgba(253,252,246,0.55)", fontFamily: "var(--font-inter)" }}>
+                Install SuperFinz on your phone or desktop for an app-like experience — instant launch, native feel, no Play Store or App Store required.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                {installed ? (
+                  <div className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold" style={{ background: "rgba(5,150,105,0.15)", color: "#34d399", border: "1px solid rgba(52,211,153,0.3)" }}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    Installed!
+                  </div>
+                ) : installPrompt ? (
+                  <button
+                    onClick={handleInstall}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all"
+                    style={{ background: "#b45309", color: "#FDFCF6", fontFamily: "var(--font-inter)" }}
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Install App
+                  </button>
+                ) : (
+                  <div className="text-sm" style={{ color: "rgba(253,252,246,0.4)", fontFamily: "var(--font-inter)" }}>
+                    On Chrome/Edge: tap the install icon in the address bar · On Safari: Share → Add to Home Screen
+                  </div>
+                )}
+                <button
+                  onClick={go}
+                  disabled={signing}
+                  className="text-sm font-semibold px-6 py-3 rounded-xl transition-all disabled:opacity-60"
+                  style={{ background: "rgba(255,255,255,0.08)", color: "#FDFCF6", border: "1px solid rgba(255,255,255,0.12)", fontFamily: "var(--font-inter)" }}
+                >
+                  Or open in browser →
+                </button>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
