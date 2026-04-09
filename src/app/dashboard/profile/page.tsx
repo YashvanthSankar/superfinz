@@ -133,7 +133,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-xl space-y-5">
+    <div className="max-w-xl mx-auto space-y-5">
 
       {/* Header */}
       <div>
