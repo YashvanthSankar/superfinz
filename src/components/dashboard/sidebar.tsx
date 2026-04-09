@@ -7,7 +7,7 @@ import { Logo } from "@/components/ui/logo";
 import {
   LayoutDashboard, ArrowLeftRight, Calculator,
   Newspaper, Target, LogOut, TrendingUp, BookOpen,
-  MoreHorizontal, X, Flame, Wallet, ChevronLeft, ChevronRight, Menu,
+  MoreHorizontal, Flame, Wallet, ChevronLeft, ChevronRight,
 } from "lucide-react";
 
 const NAV = [
@@ -23,17 +23,19 @@ const NAV = [
 ];
 
 const BOTTOM_NAV_PRIMARY = NAV.slice(0, 4);
+const BOTTOM_NAV_MORE    = NAV.slice(4);
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [budgetAlert, setBudgetAlert] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem("sidebar-collapsed");
     if (saved === "true") setCollapsed(true);
   }, []);
-  const [budgetAlert, setBudgetAlert] = useState(false);
 
   useEffect(() => {
     const check = async () => {
@@ -48,7 +50,6 @@ export function Sidebar() {
     check();
   }, [pathname]);
 
-  // Close mobile drawer on route change
   useEffect(() => { setDrawerOpen(false); }, [pathname]);
 
   const isActive = (href: string) =>
@@ -56,14 +57,13 @@ export function Sidebar() {
 
   return (
     <>
-      {/* ─── Desktop sidebar ─────────────────────────────────────── */}
+      {/* ─── Desktop sidebar — Tailwind classes work fine here ───── */}
       <aside className={cn(
-        "hidden lg:flex shrink-0 bg-background border-r border-surface flex-col h-screen sticky top-0 transition-all duration-200",
+        "hidden lg:flex shrink-0 bg-background border-r border-border flex-col h-screen sticky top-0 transition-all duration-200",
         collapsed ? "w-[60px]" : "w-52"
       )}>
-        {/* Logo + collapse toggle */}
         <div className={cn(
-          "flex items-center border-b border-surface",
+          "flex items-center border-b border-border",
           collapsed ? "px-3 py-5 justify-center" : "px-5 py-5 justify-between"
         )}>
           {!collapsed && <Logo size="md" />}
@@ -80,7 +80,6 @@ export function Sidebar() {
           </button>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = isActive(href);
@@ -104,15 +103,14 @@ export function Sidebar() {
                   <span className={cn(
                     "w-2 h-2 rounded-full bg-red-500 shrink-0",
                     collapsed ? "absolute top-1.5 right-1.5" : ""
-                  )} title="Budget exceeded" />
+                  )} />
                 )}
               </a>
             );
           })}
         </nav>
 
-        {/* Profile + sign out */}
-        <div className="p-2 border-t border-surface space-y-0.5">
+        <div className="p-2 border-t border-border space-y-0.5">
           {session?.user && (
             <a
               href="/dashboard/profile"
@@ -120,9 +118,7 @@ export function Sidebar() {
               className={cn(
                 "flex items-center rounded-xl transition-all",
                 collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
-                isActive("/dashboard/profile")
-                  ? "bg-amber-50 text-amber-700"
-                  : "hover:bg-surface"
+                isActive("/dashboard/profile") ? "bg-amber-50 text-amber-700" : "hover:bg-surface"
               )}
             >
               {session.user.image ? (
@@ -155,33 +151,29 @@ export function Sidebar() {
         </div>
       </aside>
 
-      {/* ─── Mobile top bar ──────────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background border-b border-surface flex items-center justify-between px-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setDrawerOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-surface transition-all text-accent"
-          >
-            <Menu size={18} />
-          </button>
-          <Logo size="md" />
-        </div>
+      {/* ─── Mobile top bar — inline styles (Tailwind vars unreliable on mobile) */}
+      <div
+        className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4"
+        style={{ background: "#fefce8", borderBottom: "1px solid #fde68a", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+      >
+        <Logo size="md" />
         <div className="flex items-center gap-2">
           {budgetAlert && (
-            <a href="/dashboard/budgets" className="flex items-center gap-1 text-[10px] font-semibold text-red-600 bg-red-50 border border-red-200 px-2 py-1 rounded-lg">
+            <a
+              href="/dashboard/budgets"
+              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg"
+              style={{ color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca" }}
+            >
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              Budget exceeded
+              Over budget
             </a>
           )}
-          <a
-            href="/dashboard/profile"
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl hover:bg-surface transition-all"
-          >
+          <a href="/dashboard/profile">
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-border" />
+              <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" style={{ outline: "1px solid #fde68a" }} />
             ) : (
-              <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center" style={{ background: "#fef3c7", color: "#92400e" }}>
                 {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
               </div>
             )}
@@ -189,78 +181,73 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* ─── Mobile full-screen drawer ───────────────────────────── */}
+      {/* ─── Mobile "More" bottom sheet ──────────────────────────── */}
       {drawerOpen && (
         <>
           <div
             className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
             onClick={() => setDrawerOpen(false)}
           />
-          <div className="lg:hidden fixed top-0 left-0 bottom-0 z-50 w-64 bg-background border-r border-surface flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
-            {/* Drawer header */}
-            <div className="flex items-center justify-between px-5 py-5 border-b border-surface">
-              <Logo size="md" />
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-accent hover:text-text hover:bg-surface transition-all"
-              >
-                <X size={16} />
-              </button>
+          <div
+            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom duration-200"
+            style={{ background: "#fefce8", borderTop: "2px solid #fde68a", borderLeft: "1px solid #fde68a", borderRight: "1px solid #fde68a" }}
+          >
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full" style={{ background: "#fde68a" }} />
             </div>
 
-            {/* Nav links */}
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-              {NAV.map(({ href, label, icon: Icon }) => {
+            {/* Nav items — same style as desktop sidebar links */}
+            <nav className="px-3 py-3 space-y-0.5">
+              {BOTTOM_NAV_MORE.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href);
-                const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
                 return (
                   <a
                     key={href}
                     href={href}
                     onClick={() => setDrawerOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all",
-                      active ? "bg-amber-50 text-amber-700 font-semibold" : "text-muted hover:text-text hover:bg-surface font-medium"
-                    )}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
+                    style={active
+                      ? { background: "#fef3c7", color: "#92400e", fontWeight: 600 }
+                      : { color: "#78350f", fontWeight: 500 }
+                    }
                   >
-                    <Icon size={16} className={active ? "text-amber-600" : "text-accent"} />
+                    <Icon size={15} style={{ color: "#b45309" }} />
                     <span className="flex-1">{label}</span>
-                    {showBadge && <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
                   </a>
                 );
               })}
             </nav>
 
             {/* Profile + sign out */}
-            <div className="p-3 border-t border-surface space-y-1">
+            <div className="px-3 pb-6 pt-1 space-y-0.5" style={{ borderTop: "1px solid #fde68a" }}>
               {session?.user && (
                 <a
                   href="/dashboard/profile"
                   onClick={() => setDrawerOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
-                    isActive("/dashboard/profile") ? "bg-amber-50 text-amber-700" : "hover:bg-surface"
-                  )}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+                  style={isActive("/dashboard/profile") ? { background: "#fef3c7", color: "#92400e" } : { color: "#78350f" }}
                 >
                   {session.user.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={session.user.image} alt="" className="w-8 h-8 rounded-full ring-1 ring-border shrink-0" />
+                    <img src={session.user.image} alt="" className="w-7 h-7 rounded-full shrink-0" style={{ outline: "1px solid #fde68a" }} />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0" style={{ background: "#fef3c7", color: "#92400e" }}>
                       {session.user.name?.[0]?.toUpperCase()}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-text truncate">{session.user.name}</p>
-                    <p className="text-xs text-accent font-light truncate">{session.user.email}</p>
+                    <p className="text-xs font-semibold truncate" style={{ color: "#713f12" }}>{session.user.name}</p>
+                    <p className="text-[10px] truncate" style={{ color: "#b45309" }}>{session.user.email}</p>
                   </div>
                 </a>
               )}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium"
+                style={{ color: "#dc2626" }}
               >
-                <LogOut size={16} />
+                <LogOut size={14} />
                 Sign out
               </button>
             </div>
@@ -268,8 +255,16 @@ export function Sidebar() {
         </>
       )}
 
-      {/* ─── Mobile bottom nav (4 items + More) ────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-surface flex items-stretch pb-safe shadow-[0_-1px_0_rgba(0,0,0,0.04)]">
+      {/* ─── Mobile bottom nav ───────────────────────────────────── */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch"
+        style={{
+          background: "#fefce8",
+          borderTop: "1px solid #fde68a",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
+        }}
+      >
         {BOTTOM_NAV_PRIMARY.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
@@ -277,26 +272,28 @@ export function Sidebar() {
             <a
               key={href}
               href={href}
-              className={cn(
-                "relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all",
-                active ? "text-amber-700" : "text-accent"
-              )}
+              className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all"
+              style={{ color: active ? "#92400e" : "#b45309" }}
             >
-              {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-amber-500 rounded-b-full" />}
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full" style={{ background: "#b45309" }} />
+              )}
               <div className="relative">
-                <Icon size={19} className={cn("transition-all", active ? "text-amber-600" : "")} strokeWidth={active ? 2.5 : 1.75} />
-                {showBadge && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 border border-background" />}
+                <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
+                {showBadge && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" style={{ border: "2px solid #fefce8" }} />
+                )}
               </div>
-              <span className={active ? "font-semibold" : ""}>{label}</span>
+              <span style={{ fontWeight: active ? 700 : 500 }}>{label}</span>
             </a>
           );
         })}
-        {/* More button */}
         <button
           onClick={() => setDrawerOpen(true)}
-          className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium text-accent transition-all"
+          className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium"
+          style={{ color: "#b45309" }}
         >
-          <MoreHorizontal size={19} strokeWidth={1.75} />
+          <MoreHorizontal size={20} strokeWidth={1.75} />
           <span>More</span>
         </button>
       </nav>
