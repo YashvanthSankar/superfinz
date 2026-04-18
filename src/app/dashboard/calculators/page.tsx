@@ -1,10 +1,22 @@
 "use client";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
+
+const ChartSkeleton = () => (
+  <div className="h-[260px] w-full bg-surface/40 rounded-xl animate-pulse" />
+);
+
+const SipChart = dynamic(() => import("@/components/charts/calc-charts").then((m) => m.SipChart), {
+  ssr: false, loading: ChartSkeleton,
+});
+const FdChart = dynamic(() => import("@/components/charts/calc-charts").then((m) => m.FdChart), {
+  ssr: false, loading: ChartSkeleton,
+});
+const EmiChart = dynamic(() => import("@/components/charts/calc-charts").then((m) => m.EmiChart), {
+  ssr: false, loading: ChartSkeleton,
+});
 
 type Tab = "sip" | "fd" | "emi";
 
@@ -49,33 +61,20 @@ function calcEMI(principal: number, rate: number, years: number) {
   return { emi, total, interest, data };
 }
 
-const ChartTooltip = ({ active, payload, label }: {
-  active?: boolean;
-  payload?: Array<{ value: number; name: string; color: string }>;
-  label?: string | number;
-}) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-background border border-amber-400 rounded-xl p-3 text-xs shadow-sm">
-      <p className="text-accent mb-1.5 font-medium">{label}</p>
-      {payload.map((p) => (
-        <p key={p.name} style={{ color: p.color }} className="font-semibold">
-          {p.name}: {formatCurrency(p.value)}
-        </p>
-      ))}
-    </div>
-  );
-};
-
 export default function CalculatorsPage() {
   const [tab, setTab] = useState<Tab>("sip");
   const [sip, setSip] = useState({ monthly: "5000", rate: "12", years: "10" });
   const [fd,  setFd]  = useState({ principal: "100000", rate: "7", years: "3" });
   const [emi, setEmi] = useState({ principal: "500000", rate: "10", years: "5" });
 
-  const sipResult = calcSIP(+sip.monthly, +sip.rate, +sip.years);
-  const fdResult  = calcFD(+fd.principal,  +fd.rate,  +fd.years);
-  const emiResult = calcEMI(+emi.principal, +emi.rate, +emi.years);
+  const num = (s: string, fallback = 0) => {
+    const n = parseFloat(s);
+    return Number.isFinite(n) && n > 0 ? n : fallback;
+  };
+
+  const sipResult = calcSIP(num(sip.monthly), num(sip.rate, 1), num(sip.years, 1));
+  const fdResult  = calcFD(num(fd.principal), num(fd.rate, 1), num(fd.years, 1));
+  const emiResult = calcEMI(num(emi.principal), num(emi.rate, 1), num(emi.years, 1));
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "sip", label: "SIP" },
@@ -136,22 +135,7 @@ export default function CalculatorsPage() {
           </div>
           <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={sipResult.data}>
-                <defs>
-                  <linearGradient id="sipGain" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#d97706" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
-                <XAxis dataKey="month" stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `M${v}`} axisLine={false} tickLine={false} />
-                <YAxis stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="invested" stroke="#fcd34d" fill="none" name="Invested" strokeWidth={1.5} strokeDasharray="4 4" />
-                <Area type="monotone" dataKey="value"    stroke="#d97706" fill="url(#sipGain)" name="Value" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
+            <SipChart data={sipResult.data} />
           </div>
         </div>
       )}
@@ -173,7 +157,7 @@ export default function CalculatorsPage() {
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
-                { label: "Principal", value: +fd.principal,   color: "text-muted" },
+                { label: "Principal", value: num(fd.principal), color: "text-muted" },
                 { label: "Interest",  value: fdResult.interest, color: "text-amber-600" },
                 { label: "Maturity",  value: fdResult.maturity, color: "text-amber-600" },
               ].map((s) => (
@@ -186,21 +170,7 @@ export default function CalculatorsPage() {
           </div>
           <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={fdResult.data}>
-                <defs>
-                  <linearGradient id="fdGain" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#d97706" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
-                <XAxis dataKey="year" stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `Y${v}`} axisLine={false} tickLine={false} />
-                <YAxis stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="value" stroke="#d97706" fill="url(#fdGain)" name="Value" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
+            <FdChart data={fdResult.data} />
           </div>
         </div>
       )}
@@ -235,21 +205,7 @@ export default function CalculatorsPage() {
           </div>
           <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-text mb-5">Balance over time</h2>
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={emiResult.data}>
-                <defs>
-                  <linearGradient id="emiGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#dc2626" stopOpacity={0.15} />
-                    <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
-                <XAxis dataKey="month" stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `M${v}`} axisLine={false} tickLine={false} />
-                <YAxis stroke="#b45309" tick={{ fontSize: 10, fill: "#b45309" }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} />
-                <Tooltip content={<ChartTooltip />} />
-                <Area type="monotone" dataKey="balance" stroke="#dc2626" fill="url(#emiGrad)" name="Balance" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
+            <EmiChart data={emiResult.data} />
           </div>
         </div>
       )}

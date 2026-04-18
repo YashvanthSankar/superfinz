@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
+import { apiFetch, FetchError } from "@/lib/fetcher";
 import type { Goal } from "@/generated/prisma/client";
 import { Flame, Target, CheckCircle2, Plus } from "lucide-react";
 
@@ -25,43 +26,31 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   const [monthly, setMonthly] = useState("");
   const [expenses, setExpenses] = useState("");
   const [age, setAge] = useState("");
-  const [result, setResult] = useState<{ corpus: number; retireAt: number | null } | null>(null);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then((r) => r.json())
+    let cancelled = false;
+    apiFetch<{ user: { age?: number; profile?: { monthlySalary?: number; monthlyAllowance?: number; savingsGoal?: number } } }>("/api/profile")
       .then(({ user }) => {
-        if (!user) return;
+        if (cancelled || !user) return;
         if (user.age) setAge(String(user.age));
         const income = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
         const savings = user.profile?.savingsGoal ?? 0;
         if (savings > 0) setMonthly(String(savings));
         if (income > 0 && income > savings) setExpenses(String(income - savings));
-        setLoaded(true);
       })
-      .catch(() => setLoaded(true));
+      .catch(() => { /* fall back to empty inputs */ });
+    return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    if (!loaded) return;
+  // Derived directly from inputs — no effect needed.
+  const result = (() => {
     const m = parseFloat(monthly);
     const e = parseFloat(expenses);
     const a = parseInt(age);
-    if (m > 0 && e > 0 && a > 0) {
-      const corpus = e * 12 * 25;
-      setResult({ corpus, retireAt: retireAge(a, m, corpus) });
-    }
-  }, [loaded, monthly, expenses, age]);
-
-  const recalc = () => {
-    const m = parseFloat(monthly);
-    const e = parseFloat(expenses);
-    const a = parseInt(age);
-    if (!m || !e || !a) return;
+    if (!(m > 0) || !(e > 0) || !(a > 0)) return null;
     const corpus = e * 12 * 25;
-    setResult({ corpus, retireAt: retireAge(a, m, corpus) });
-  };
+    return { corpus, retireAt: retireAge(a, m, corpus) };
+  })();
 
   return (
     <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
@@ -94,13 +83,6 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
           </div>
         ))}
       </div>
-
-      <button
-        onClick={recalc}
-        className="w-full py-2.5 rounded-xl border border-surface bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 hover:border-amber-500 transition-all"
-      >
-        Recalculate
-      </button>
 
       {result && (
         <div className="mt-4 bg-surface rounded-xl p-4 border border-border grid grid-cols-2 gap-4">
@@ -137,15 +119,22 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
 export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [form, setForm] = useState({ title: "", targetAmount: "", deadline: "" });
 
   const fetchGoals = async () => {
-    const res = await fetch("/api/goals");
-    const data = await res.json();
-    setGoals(data.goals ?? []);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const data = await apiFetch<{ goals: Goal[] }>("/api/goals");
+      setGoals(data.goals ?? []);
+    } catch (err) {
+      setLoadError(err instanceof FetchError ? err.message : "Failed to load goals");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchGoals(); }, []);
@@ -153,37 +142,55 @@ export default function GoalsPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    await fetch("/api/goals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: form.title,
-        targetAmount: parseFloat(form.targetAmount),
-        deadline: form.deadline || undefined,
-      }),
-    });
-    setForm({ title: "", targetAmount: "", deadline: "" });
-    setShowForm(false);
-    setSubmitting(false);
-    fetchGoals();
+    setSubmitError(null);
+    try {
+      await apiFetch("/api/goals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title,
+          targetAmount: parseFloat(form.targetAmount),
+          deadline: form.deadline || undefined,
+        }),
+      });
+      setForm({ title: "", targetAmount: "", deadline: "" });
+      setShowForm(false);
+      fetchGoals();
+    } catch (err) {
+      setSubmitError(err instanceof FetchError ? err.message : "Could not create goal");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const addSavings = async (id: string, current: number, amount: number) => {
-    await fetch("/api/goals", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, savedAmount: current + amount }),
-    });
-    fetchGoals();
+    const snapshot = goals;
+    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, savedAmount: current + amount } : g)));
+    try {
+      await apiFetch("/api/goals", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, savedAmount: current + amount }),
+      });
+    } catch {
+      setGoals(snapshot);
+      setLoadError("Failed to update savings");
+    }
   };
 
   const markDone = async (id: string) => {
-    await fetch("/api/goals", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, achieved: true }),
-    });
-    fetchGoals();
+    const snapshot = goals;
+    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, achieved: true } : g)));
+    try {
+      await apiFetch("/api/goals", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, achieved: true }),
+      });
+    } catch {
+      setGoals(snapshot);
+      setLoadError("Failed to mark as done");
+    }
   };
 
   const active   = goals.filter((g) => !g.achieved);
@@ -216,8 +223,18 @@ export default function GoalsPage() {
             <Input label="Goal name" placeholder="New laptop, Trip to Goa..." value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
             <Input label="Target amount (₹)" type="number" placeholder="20000" value={form.targetAmount} onChange={(e) => setForm((f) => ({ ...f, targetAmount: e.target.value }))} required />
             <Input label="Deadline (optional)" type="date" value={form.deadline} onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value }))} />
+            {submitError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">{submitError}</p>
+            )}
             <Button type="submit" loading={submitting} className="w-full">Set goal</Button>
           </form>
+        </div>
+      )}
+
+      {loadError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-red-600">{loadError}</span>
+          <button onClick={fetchGoals} className="text-xs font-semibold text-red-700 hover:underline">Retry</button>
         </div>
       )}
 

@@ -193,7 +193,7 @@ export default function LearnPage() {
           <MessageSquare size={14} className="text-amber-700" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-text">Can't find what you're looking for?</p>
+          <p className="text-sm font-semibold text-text">Can&apos;t find what you&apos;re looking for?</p>
           <p className="text-xs text-accent font-light mt-0.5 leading-relaxed">
             Ask Finz — the AI in the bottom-right corner can explain any financial concept in plain language, instantly.
           </p>

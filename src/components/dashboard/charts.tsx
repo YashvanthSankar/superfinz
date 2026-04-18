@@ -4,20 +4,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
-
-const CAT_COLORS: Record<string, string> = {
-  Food: "#f97316",
-  Transport: "#3b82f6",
-  Entertainment: "#8b5cf6",
-  Shopping: "#ec4899",
-  Health: "#10b981",
-  Education: "#6366f1",
-  Utilities: "#f59e0b",
-  Rent: "#64748b",
-  Subscriptions: "#06b6d4",
-  Other: "#94a3b8",
-};
-const FALLBACK = ["#6366f1","#f97316","#10b981","#ec4899","#3b82f6","#8b5cf6","#f59e0b","#06b6d4"];
+import { categoryColor } from "@/lib/categories";
 
 type TrendPoint = { day: number; cumulative: number; pace: number };
 type CatPoint   = { name: string; value: number };
@@ -116,10 +103,7 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           strokeWidth={0}
         >
           {data.map((entry, i) => (
-            <Cell
-              key={entry.name}
-              fill={CAT_COLORS[entry.name] ?? FALLBACK[i % FALLBACK.length]}
-            />
+            <Cell key={entry.name} fill={categoryColor(entry.name, i)} />
           ))}
         </Pie>
         <Tooltip

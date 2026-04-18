@@ -1,10 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { formatCurrency } from "@/lib/utils";
+import { apiFetch } from "@/lib/fetcher";
 import { FinTip } from "@/components/ui/fin-tip";
+
+const RetirementChart = dynamic(
+  () => import("@/components/charts/retirement-chart").then((m) => m.RetirementChart),
+  { ssr: false, loading: () => <div className="h-[280px] w-full bg-surface/40 rounded-xl animate-pulse" /> }
+);
 
 function fmtCrore(n: number) {
   if (n >= 10000000) return `₹${(n / 10000000).toFixed(2)}Cr`;
@@ -25,12 +29,10 @@ function buildCorpusData(
   let corpus = currentSaved;
   const baseExpenses = monthlySip; // used as proxy for expenses
 
+  const inflatedExpenses = baseExpenses * 12 * Math.pow(1 + inflationRate, retireAge - currentAge);
+  const targetCorpus = inflatedExpenses * 25;
   for (let age = currentAge; age <= retireAge; age++) {
-    const yearsLeft = retireAge - age;
-    const inflatedExpenses = baseExpenses * 12 * Math.pow(1 + inflationRate, retireAge - currentAge);
-    const target = inflatedExpenses * 25 * ((retireAge - age) / (retireAge - currentAge));
-    data.push({ age, corpus: Math.round(corpus), target: Math.round(inflatedExpenses * 25) });
-    // compound for 12 months
+    data.push({ age, corpus: Math.round(corpus), target: Math.round(targetCorpus) });
     for (let m = 0; m < 12; m++) {
       corpus = corpus * (1 + r) + monthlySip;
     }
@@ -57,28 +59,35 @@ export default function RetirementPage() {
   const [monthlyExpenses, setMonthlyExpenses] = useState(15000);
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then(r => r.json())
+    let cancelled = false;
+    apiFetch<{ user: { age?: number; profile?: { monthlySalary?: number; monthlyAllowance?: number; savingsGoal?: number } } }>("/api/profile")
       .then(({ user }) => {
-        if (!user) return;
+        if (cancelled || !user) return;
         if (user.age) setCurrentAge(user.age);
         const income = user.profile?.monthlySalary ?? user.profile?.monthlyAllowance ?? 0;
         const savings = user.profile?.savingsGoal ?? 0;
         if (savings > 0) setMonthlySip(savings);
         if (income > 0) setMonthlyExpenses(Math.max(income - savings, income * 0.7));
       })
-      .catch(() => {});
+      .catch(() => { /* non-critical */ });
+    return () => { cancelled = true; };
   }, []);
 
   const yearsLeft         = Math.max(retireAge - currentAge, 1);
-  const inflatedExpenses  = monthlyExpenses * 12 * Math.pow(1 + inflation / 100, yearsLeft);
+  const safeInflation     = Math.max(inflation, 0) / 100;
+  const safeReturns       = Math.max(returns, 0) / 100;
+  const safeExpenses      = Math.max(monthlyExpenses, 0);
+  const safeSip           = Math.max(monthlySip, 0);
+  const safeSaved         = Math.max(currentSaved, 0);
+
+  const inflatedExpenses  = safeExpenses * 12 * Math.pow(1 + safeInflation, yearsLeft);
   const fireCorpus        = inflatedExpenses * 25;
-  const requiredSip       = sipNeeded(fireCorpus, yearsLeft, currentSaved, returns / 100);
+  const requiredSip       = sipNeeded(fireCorpus, yearsLeft, safeSaved, safeReturns);
   const projCorpus        = (() => {
-    const r = (returns / 100) / 12;
+    const r = safeReturns / 12;
     const n = yearsLeft * 12;
-    const fvExisting = currentSaved * Math.pow(1 + r, n);
-    const fvSip = monthlySip * ((Math.pow(1 + r, n) - 1) / r);
+    const fvExisting = safeSaved * Math.pow(1 + r, n);
+    const fvSip = r === 0 ? safeSip * n : safeSip * ((Math.pow(1 + r, n) - 1) / r);
     return fvExisting + fvSip;
   })();
   const onTrack  = projCorpus >= fireCorpus;
@@ -179,28 +188,7 @@ export default function RetirementPage() {
         <div className="lg:col-span-2 bg-background rounded-2xl border border-surface p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-text mb-1">Corpus growth trajectory</h2>
           <p className="text-xs text-accent font-light mb-4">Your projected wealth vs freedom corpus target</p>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
-              <defs>
-                <linearGradient id="corpusGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#d97706" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#d97706" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" vertical={false} />
-              <XAxis dataKey="age" tick={{ fontSize: 10, fill: "#b45309" }} axisLine={false} tickLine={false} label={{ value: "Age", position: "insideBottom", offset: -2, fontSize: 10, fill: "#b45309" }} />
-              <YAxis tickFormatter={(v) => v >= 10000000 ? `${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `${(v/100000).toFixed(0)}L` : `${v}`}
-                tick={{ fontSize: 9, fill: "#b45309" }} width={50} axisLine={false} tickLine={false} />
-              <Tooltip
-                formatter={(value, name) => [fmtCrore(Number(value)), name === "corpus" ? "Your corpus" : "Target corpus"]}
-                labelFormatter={(l) => `Age ${l}`}
-                contentStyle={{ background: "#fefce8", border: "1px solid #fde68a", borderRadius: 8, fontSize: 11, color: "#713f12" }}
-              />
-              <Area type="monotone" dataKey="target" stroke="#fcd34d" strokeDasharray="4 4" fill="none" strokeWidth={1.5} name="target" />
-              <Area type="monotone" dataKey="corpus" stroke="#d97706" fill="url(#corpusGrad)" strokeWidth={2} name="corpus" />
-              <ReferenceLine x={retireAge} stroke="#713f12" strokeDasharray="3 3" label={{ value: `Retire ${retireAge}`, fontSize: 9, fill: "#713f12" }} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <RetirementChart data={chartData} retireAge={retireAge} />
         </div>
       </div>
 
@@ -236,11 +224,11 @@ export default function RetirementPage() {
           ))}
         </div>
 
-        {!onTrack && (
+        {!onTrack && requiredSip > safeSip && (
           <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
             <span className="font-semibold">Gap plan: </span>
-            Increase your SIP by {formatCurrency(Math.round(requiredSip - monthlySip))}/month.
-            Skip {Math.ceil((requiredSip - monthlySip) / 400)} unnecessary food orders/month to cover it.
+            Increase your SIP by {formatCurrency(Math.round(requiredSip - safeSip))}/month.
+            Skip {Math.max(1, Math.ceil((requiredSip - safeSip) / 400))} unnecessary food orders/month to cover it.
             Start a NIFTY 50 index fund SIP today — even ₹500 extra compounds significantly over {yearsLeft} years.
           </div>
         )}

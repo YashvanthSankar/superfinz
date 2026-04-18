@@ -17,8 +17,7 @@ export default async function DashboardPage() {
 
   const now        = new Date();
   const year       = now.getFullYear();
-  const monthDay   = now.getDate();
-  const monthIdx   = now.getMonth(); 
+  const monthIdx   = now.getMonth();
 
   // Keep strictly to calendar boundaries. Only shift day 1 if user actually joined THIS EXACT month and year.
   // This satisfies "12-18, 19-25, 26-31 for the 1st partial month, then normal form (1-7, etc) for all subsequent months".
@@ -47,10 +46,9 @@ export default async function DashboardPage() {
     { name: "Tata Motors",          ticker: "TATAMOTORS.NS", shares: 10, invested: 9200 },
   ];
 
-  const newsUrl = new URL("/api/news", process.env.NEXTAUTH_URL ?? "http://localhost:3000");
   const quoteUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${holdings.map((h) => h.ticker).join(",")}`;
 
-  const [monthTx, goalsAll, heatTx, weekTx, newsPayload, quotePayload, categoryBudgets] = await Promise.all([
+  const [monthTx, goalsAll, heatTx, weekTx, quotePayload, categoryBudgets] = await Promise.all([
     prisma.transaction.findMany({
       where: { userId: session.userId, date: { gte: financialMonthStart } },
       orderBy: { date: "asc" },
@@ -65,7 +63,6 @@ export default async function DashboardPage() {
       where: { userId: session.userId, date: { gte: weekStart } },
       orderBy: { date: "asc" },
     }),
-    fetch(newsUrl.toString(), { cache: "no-store" }).then((r) => r.json()).catch(() => ({ articles: [] })),
     fetch(quoteUrl, { next: { revalidate: 900 } }).then((r) => r.json()).catch(() => null),
     prisma.budget.findMany({
       where: { userId: session.userId, month: now.getMonth() + 1, year: now.getFullYear() },
@@ -193,34 +190,11 @@ export default async function DashboardPage() {
   }
   const heatData = Object.entries(heatMap).map(([date, v]) => ({ date, ...v }));
 
-  const milestoneMap = new Map<string, string>();
-  for (const g of goalsAll) {
-    if (g.deadline) {
-      const key = g.deadline.toISOString().slice(0, 10);
-      milestoneMap.set(key, g.title);
-    }
-  }
-  const calendarData = heatData.map((d) => ({ ...d, milestone: milestoneMap.get(d.date) ?? null }));
-
-  // Add to "saved" only once the week gets over. 
-  // Cumulative completed weeks savings for the month:
   const autoSaveMonth   = budget > 0 ? Math.max(0, accruedBudgetThisMonth - completedWeeksSpend) : 0;
-  
-  // Weekly auto-save strictly shows the savings of the LAST completed week
-  // If no week has been completed yet this month, it stays 0.
   const autoSaveWeek    = lastCompletedWeekBudget > 0 ? Math.max(0, lastCompletedWeekBudget - lastCompletedWeekSpend) : 0;
-  
   const shortfallMonth  = budget > 0 ? Math.max(0, monthlySpend - budget) : 0;
   const shortfallWeek   = weeklyBudget > 0 ? Math.max(0, weeklySpend - weeklyBudget) : 0;
   const totalSaved      = goalsAll.reduce((s, g) => s + g.savedAmount, 0);
-
-  const newsItems = (newsPayload?.articles ?? []).map((a: { title: string; url?: string; link?: string; source?: { name?: string }; publishedAt?: string; category?: string }) => ({
-    title: a.title,
-    url: a.url ?? a.link ?? "#",
-    source: a.source?.name ?? "News",
-    publishedAt: a.publishedAt ?? new Date().toISOString(),
-    category: a.category ?? "Markets",
-  }));
 
   // Budget alerts: categories at or over 90% of their limit
   const budgetAlerts = categoryBudgets
@@ -401,10 +375,6 @@ export default async function DashboardPage() {
           totalSaved,
           goalTarget: goalAmt,
         }}
-        plans={activeGoals}
-        calendar={calendarData}
-        investments={investments}
-        news={newsItems}
       />
 
       {/* ── Stat cards — uniform amber ───────────────────────────── */}

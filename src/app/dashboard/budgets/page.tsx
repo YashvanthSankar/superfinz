@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+import { apiFetch, FetchError } from "@/lib/fetcher";
+import { SPENDING_CATEGORIES, categoryEmoji } from "@/lib/categories";
 import {
   Wallet, TrendingUp, TrendingDown, AlertTriangle,
   CheckCircle2, Edit3, Save, X, PieChart,
@@ -14,12 +15,6 @@ type Budget = {
   spent: number;
   month: number;
   year: number;
-};
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  Food: "🍜", Transport: "🚌", Entertainment: "🎮", Shopping: "🛍️",
-  Health: "💊", Education: "📚", Utilities: "⚡", Rent: "🏠",
-  Subscriptions: "📱", Other: "💸",
 };
 
 function pct(spent: number, limit: number) {
@@ -49,12 +44,19 @@ export default function BudgetsPage() {
   const [editVal, setEditVal] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const fetchBudgets = async () => {
     setLoading(true);
-    const r = await fetch(`/api/budgets?month=${month}&year=${year}`);
-    const d = await r.json();
-    setBudgets(d.budgets ?? []);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const d = await apiFetch<{ budgets: Budget[] }>(`/api/budgets?month=${month}&year=${year}`);
+      setBudgets(d.budgets ?? []);
+    } catch (err) {
+      setLoadError(err instanceof FetchError ? err.message : "Failed to load budgets");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchBudgets(); }, [month, year]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -66,17 +68,23 @@ export default function BudgetsPage() {
 
   const handleSave = async (category: string) => {
     const limit = parseFloat(editVal);
-    if (isNaN(limit) || limit <= 0) return;
+    if (!Number.isFinite(limit) || limit <= 0) return;
     setSaving(true);
-    await fetch("/api/budgets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category, limit, month, year }),
-    });
-    setSaving(false);
-    setEditing(null);
-    setEditVal("");
-    fetchBudgets();
+    setLoadError(null);
+    try {
+      await apiFetch("/api/budgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category, limit, month, year }),
+      });
+      setEditing(null);
+      setEditVal("");
+      fetchBudgets();
+    } catch (err) {
+      setLoadError(err instanceof FetchError ? err.message : "Failed to save budget");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const monthName = new Date(year, month - 1).toLocaleString("en-IN", { month: "long", year: "numeric" });
@@ -141,6 +149,13 @@ export default function BudgetsPage() {
               {nearBudget.map((b) => `${b.category} (${pct(b.spent, b.limit)}%)`).join(" · ")}
             </p>
           </div>
+        </div>
+      )}
+
+      {loadError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-red-600">{loadError}</span>
+          <button onClick={fetchBudgets} className="text-xs font-semibold text-red-700 hover:underline">Retry</button>
         </div>
       )}
 
@@ -221,7 +236,7 @@ export default function BudgetsPage() {
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-xl shrink-0">{CATEGORY_EMOJI[category]}</span>
+                    <span className="text-xl shrink-0">{categoryEmoji(category)}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold text-text">{category}</span>

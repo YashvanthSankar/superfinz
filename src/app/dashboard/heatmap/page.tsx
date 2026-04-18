@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
+import { apiFetch, FetchError } from "@/lib/fetcher";
 
 type HeatDay = { date: string; total: number; count: number };
 
@@ -44,16 +45,23 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export default function HeatmapPage() {
   const [data, setData] = useState<HeatDay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<HeatDay | null>(null);
 
-  useEffect(() => {
-    fetch("/api/heatmap")
-      .then((r) => r.json())
-      .then((d) => { setData(d.heatmap ?? []); setLoading(false); });
-  }, []);
+  const load = () => {
+    setLoading(true);
+    setError(null);
+    apiFetch<{ heatmap: HeatDay[] }>("/api/heatmap")
+      .then((d) => setData(d.heatmap ?? []))
+      .catch((err) => setError(err instanceof FetchError ? err.message : "Failed to load heatmap"))
+      .finally(() => setLoading(false));
+  };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { load(); }, []);
 
   const cells = buildCalendar(data);
-  const max = Math.max(...data.map((d: HeatDay) => d.total), 1);
+  const max = data.reduce((m, d) => Math.max(m, d.total), 1);
   const totalSpend = data.reduce((s: number, d: HeatDay) => s + d.total, 0);
   const activeDays = data.filter((d: HeatDay) => d.total > 0).length;
   const avgPerActiveDay = activeDays > 0 ? totalSpend / activeDays : 0;
@@ -77,6 +85,13 @@ export default function HeatmapPage() {
           </div>
         ))}
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-red-600">{error}</span>
+          <button onClick={load} className="text-xs font-semibold text-red-700 hover:underline">Retry</button>
+        </div>
+      )}
 
       <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
         <h2 className="text-sm font-semibold text-text mb-5">Activity</h2>

@@ -5,15 +5,15 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const createSchema = z.object({
-  title: z.string().min(1),
-  targetAmount: z.number().positive(),
+  title: z.string().min(1).max(100),
+  targetAmount: z.number().positive().max(100_000_000),
   deadline: z.string().optional(),
   isEssential: z.boolean().optional().default(false),
 });
 
 const updateSchema = z.object({
-  id: z.string(),
-  savedAmount: z.number().min(0).optional(),
+  id: z.string().min(1),
+  savedAmount: z.number().min(0).max(100_000_000).optional(),
   achieved: z.boolean().optional(),
 });
 
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
   const goal = await prisma.goal.create({
@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json();
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
   const { id, ...updates } = parsed.data;

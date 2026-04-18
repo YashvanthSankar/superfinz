@@ -21,10 +21,6 @@ export type SavingsProps = {
 export type DashboardGridProps = {
   spend: SpendProps;
   savings: SavingsProps;
-  plans?: any;
-  calendar?: any;
-  investments?: any;
-  news?: any;
 };
 
 // Shared card shell — same light cream as the rest of the page
@@ -73,11 +69,11 @@ export function DashboardGrids({ spend, savings }: DashboardGridProps) {
   const savingsPct = savings.goalTarget > 0
     ? Math.min((savedAmt / savings.goalTarget) * 100, 100) : 0;
 
-  // Refresh live data every 30 min
   useEffect(() => {
     const id = setInterval(() => router.refresh(), 30 * 60 * 1000);
     return () => clearInterval(id);
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

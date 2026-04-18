@@ -2,8 +2,33 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { apiFetch } from "@/lib/fetcher";
 import { Logo } from "@/components/ui/logo";
+
+type BudgetCheck = { at: number; over: boolean };
+const BUDGET_TTL_MS = 60_000;
+const budgetCache: { current: BudgetCheck | null } = { current: null };
+
+async function fetchBudgetAlert(): Promise<boolean> {
+  const now = Date.now();
+  if (budgetCache.current && now - budgetCache.current.at < BUDGET_TTL_MS) {
+    return budgetCache.current.over;
+  }
+  try {
+    const d = new Date();
+    const data = await apiFetch<{ budgets: Array<{ limit: number; spent: number }> }>(
+      `/api/budgets?month=${d.getMonth() + 1}&year=${d.getFullYear()}`,
+      { timeoutMs: 5_000 }
+    );
+    const over = (data.budgets ?? []).some((b) => b.limit > 0 && b.spent > b.limit);
+    budgetCache.current = { at: now, over };
+    return over;
+  } catch {
+    return budgetCache.current?.over ?? false;
+  }
+}
 import {
   LayoutDashboard, ArrowLeftRight, Calculator,
   Newspaper, Target, LogOut, TrendingUp, BookOpen,
@@ -28,29 +53,30 @@ const BOTTOM_NAV_MORE    = NAV.slice(4);
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+
+  // Lazy initializer reads localStorage once at mount — avoids set-in-effect.
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("sidebar-collapsed") === "true";
+  });
+
+  // Track last pathname so we can synchronously reset drawer when path changes
+  // (avoids the setState-in-effect React warning).
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [lastPath, setLastPath] = useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    if (drawerOpen) setDrawerOpen(false);
+  }
+
   const [budgetAlert, setBudgetAlert] = useState(false);
-
   useEffect(() => {
-    const saved = localStorage.getItem("sidebar-collapsed");
-    if (saved === "true") setCollapsed(true);
-  }, []);
-
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const now = new Date();
-        const r = await fetch(`/api/budgets?month=${now.getMonth() + 1}&year=${now.getFullYear()}`);
-        const d = await r.json();
-        const over = (d.budgets ?? []).some((b: { limit: number; spent: number }) => b.limit > 0 && b.spent > b.limit);
-        setBudgetAlert(over);
-      } catch { /* ignore */ }
-    };
-    check();
+    let cancelled = false;
+    fetchBudgetAlert().then((over) => {
+      if (!cancelled) setBudgetAlert(over);
+    });
+    return () => { cancelled = true; };
   }, [pathname]);
-
-  useEffect(() => { setDrawerOpen(false); }, [pathname]);
 
   const isActive = (href: string) =>
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
@@ -85,7 +111,7 @@ export function Sidebar() {
             const active = isActive(href);
             const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
             return (
-              <a
+              <Link
                 key={href}
                 href={href}
                 title={collapsed ? label : undefined}
@@ -105,14 +131,14 @@ export function Sidebar() {
                     collapsed ? "absolute top-1.5 right-1.5" : ""
                   )} />
                 )}
-              </a>
+              </Link>
             );
           })}
         </nav>
 
         <div className="p-2 border-t border-border space-y-0.5">
           {session?.user && (
-            <a
+            <Link
               href="/dashboard/profile"
               title={collapsed ? session.user.name ?? "Profile" : undefined}
               className={cn(
@@ -135,7 +161,7 @@ export function Sidebar() {
                   <p className="text-[10px] text-accent truncate">{session.user.email}</p>
                 </div>
               )}
-            </a>
+            </Link>
           )}
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
@@ -159,16 +185,16 @@ export function Sidebar() {
         <Logo size="md" />
         <div className="flex items-center gap-2">
           {budgetAlert && (
-            <a
+            <Link
               href="/dashboard/budgets"
               className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg"
               style={{ color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca" }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
               Over budget
-            </a>
+            </Link>
           )}
-          <a href="/dashboard/profile">
+          <Link href="/dashboard/profile">
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" style={{ outline: "1px solid #fde68a" }} />
@@ -177,7 +203,7 @@ export function Sidebar() {
                 {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
               </div>
             )}
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -202,7 +228,7 @@ export function Sidebar() {
               {BOTTOM_NAV_MORE.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href);
                 return (
-                  <a
+                  <Link
                     key={href}
                     href={href}
                     onClick={() => setDrawerOpen(false)}
@@ -214,7 +240,7 @@ export function Sidebar() {
                   >
                     <Icon size={15} style={{ color: "#b45309" }} />
                     <span className="flex-1">{label}</span>
-                  </a>
+                  </Link>
                 );
               })}
             </nav>
@@ -222,7 +248,7 @@ export function Sidebar() {
             {/* Profile + sign out */}
             <div className="px-3 pt-1 space-y-0.5" style={{ borderTop: "1px solid #fde68a", paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}>
               {session?.user && (
-                <a
+                <Link
                   href="/dashboard/profile"
                   onClick={() => setDrawerOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
@@ -240,7 +266,7 @@ export function Sidebar() {
                     <p className="text-xs font-semibold truncate" style={{ color: "#713f12" }}>{session.user.name}</p>
                     <p className="text-[10px] truncate" style={{ color: "#b45309" }}>{session.user.email}</p>
                   </div>
-                </a>
+                </Link>
               )}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
@@ -269,7 +295,7 @@ export function Sidebar() {
           const active = isActive(href);
           const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
           return (
-            <a
+            <Link
               key={href}
               href={href}
               className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all"
@@ -285,7 +311,7 @@ export function Sidebar() {
                 )}
               </div>
               <span style={{ fontWeight: active ? 700 : 500 }}>{label}</span>
-            </a>
+            </Link>
           );
         })}
         <button

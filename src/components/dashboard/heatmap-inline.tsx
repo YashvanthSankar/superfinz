@@ -102,8 +102,12 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
                     }`}
                     onMouseEnter={(e) => {
                       if (!cell.empty && cell.date) {
-                        const rect = (e.target as HTMLElement).getBoundingClientRect();
-                        setTip({ ...cell, x: rect.left, y: rect.top });
+                        setTip({ ...cell, x: e.clientX, y: e.clientY });
+                      }
+                    }}
+                    onMouseMove={(e) => {
+                      if (!cell.empty && cell.date) {
+                        setTip((prev) => (prev ? { ...prev, x: e.clientX, y: e.clientY } : prev));
                       }
                     }}
                     onMouseLeave={() => setTip(null)}
@@ -119,7 +123,7 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
       {tip && tip.date && (
         <div
           className="fixed z-50 pointer-events-none bg-background border border-amber-400 rounded-xl px-3 py-2 text-xs shadow-lg"
-          style={{ left: tip.x + 20, top: tip.y - 10 }}
+          style={{ left: tip.x + 14, top: tip.y + 14 }}
         >
           <p className="font-semibold text-text">
             {new Date(tip.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}

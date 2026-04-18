@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
+import { apiFetch, FetchError } from "@/lib/fetcher";
 import { financePlanError, summarizeFinancePlan } from "@/lib/finance";
 
 type Profile = {
@@ -50,9 +51,10 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then((r) => r.json())
+    let cancelled = false;
+    apiFetch<{ user: UserData }>("/api/profile")
       .then(({ user: u }) => {
+        if (cancelled) return;
         setUser(u);
         if (u?.profile) {
           setForm({
@@ -65,22 +67,28 @@ export default function ProfilePage() {
             industry:         u.profile.industry ?? "",
           });
         }
-        setLoading(false);
-      });
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof FetchError ? err.message : "Failed to load profile");
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
+
+  const isStudent = user?.userType === "SCHOOL_STUDENT" || user?.userType === "COLLEGE_STUDENT";
+  const monthlyIncome = isStudent
+    ? (parseFloat(form.monthlyAllowance) || 0)
+    : (parseFloat(form.monthlySalary) || 0);
+  const monthlyBudget = parseFloat(form.monthlyBudget) || 0;
+  const savingsGoal = parseFloat(form.savingsGoal) || 0;
+  const plan = summarizeFinancePlan({ monthlyIncome, monthlyBudget, savingsGoal });
+  const planError = financePlanError({ monthlyIncome, monthlyBudget, savingsGoal });
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setSaved(false);
     setError("");
-
-    const monthlyIncome = isStudent
-      ? (parseFloat(form.monthlyAllowance) || 0)
-      : (parseFloat(form.monthlySalary) || 0);
-    const monthlyBudget = parseFloat(form.monthlyBudget) || 0;
-    const savingsGoal = parseFloat(form.savingsGoal) || 0;
-    const planError = financePlanError({ monthlyIncome, monthlyBudget, savingsGoal });
 
     if (planError) {
       setError(planError);
@@ -97,32 +105,20 @@ export default function ProfilePage() {
     if (form.company)          body.company          = form.company;
     if (form.industry)         body.industry         = form.industry;
 
-    const res = await fetch("/api/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      setError(typeof err?.error === "string" ? err.error : "Failed to save profile");
+    try {
+      await apiFetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      setError(err instanceof FetchError ? err.message : "Failed to save profile");
+    } finally {
       setSaving(false);
-      return;
     }
-
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   };
-
-  const isStudent = user?.userType === "SCHOOL_STUDENT" || user?.userType === "COLLEGE_STUDENT";
-  const monthlyIncome = isStudent
-    ? (parseFloat(form.monthlyAllowance) || 0)
-    : (parseFloat(form.monthlySalary) || 0);
-  const monthlyBudget = parseFloat(form.monthlyBudget) || 0;
-  const savingsGoal = parseFloat(form.savingsGoal) || 0;
-  const plan = summarizeFinancePlan({ monthlyIncome, monthlyBudget, savingsGoal });
-  const planError = financePlanError({ monthlyIncome, monthlyBudget, savingsGoal });
 
   if (loading) {
     return (

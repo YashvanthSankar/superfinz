@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { apiFetch, FetchError } from "@/lib/fetcher";
 
 type Article = {
   title: string;
@@ -24,16 +25,22 @@ export default function NewsPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState<"live" | "mock">("mock");
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch("/api/news")
-      .then((r) => r.json())
+  const load = () => {
+    setLoading(true);
+    setError(null);
+    apiFetch<{ articles: Article[]; source: "live" | "mock" }>("/api/news")
       .then((d) => {
         setArticles(d.articles ?? []);
         setSource(d.source);
-        setLoading(false);
-      });
-  }, []);
+      })
+      .catch((err) => setError(err instanceof FetchError ? err.message : "Failed to load news"))
+      .finally(() => setLoading(false));
+  };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { load(); }, []);
 
   return (
     <div className="space-y-6">
@@ -49,6 +56,13 @@ export default function NewsPage() {
         )}
       </div>
 
+      {error && !loading && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-red-600">{error}</span>
+          <button onClick={load} className="text-xs font-semibold text-red-700 hover:underline">Retry</button>
+        </div>
+      )}
+
       {loading ? (
         <div className="grid md:grid-cols-2 gap-4">
           {[...Array(6)].map((_, i) => (
@@ -62,14 +76,9 @@ export default function NewsPage() {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
-          {articles.map((article, i) => (
-            <a
-              key={i}
-              href={article.url !== "#" ? article.url : undefined}
-              target={article.url !== "#" ? "_blank" : undefined}
-              rel="noopener noreferrer"
-              className="block group"
-            >
+          {articles.map((article, i) => {
+            const hasLink = article.url && article.url !== "#";
+            const CardInner = (
               <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm h-full hover:border-amber-200 hover:shadow-md transition-all">
                 {article.category && (
                   <span
@@ -97,8 +106,22 @@ export default function NewsPage() {
                   </span>
                 </div>
               </div>
-            </a>
-          ))}
+            );
+
+            return hasLink ? (
+              <a
+                key={i}
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block group"
+              >
+                {CardInner}
+              </a>
+            ) : (
+              <div key={i} className="block group">{CardInner}</div>
+            );
+          })}
         </div>
       )}
     </div>

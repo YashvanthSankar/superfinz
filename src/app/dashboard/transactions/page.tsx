@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatCurrency, SPENDING_CATEGORIES } from "@/lib/utils";
+import { apiFetch, FetchError } from "@/lib/fetcher";
 import type { Transaction } from "@/generated/prisma/client";
 import { TrendingUp, ArrowLeftRight, Download } from "lucide-react";
 
@@ -35,17 +36,24 @@ function exportCSV(transactions: Transaction[]) {
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [aiNote, setAiNote] = useState<{ note: string; ok: boolean } | null>(null);
   const [form, setForm] = useState({ amount: "", category: "Food", description: "", date: new Date().toISOString().slice(0, 10) });
 
   const fetchTx = async () => {
     setLoading(true);
-    const r = await fetch("/api/transactions");
-    const d = await r.json();
-    setTransactions(d.transactions ?? []);
-    setLoading(false);
+    setFetchError(null);
+    try {
+      const d = await apiFetch<{ transactions: Transaction[] }>("/api/transactions");
+      setTransactions(d.transactions ?? []);
+    } catch (err) {
+      setFetchError(err instanceof FetchError ? err.message : "Failed to load transactions");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchTx(); }, []);
@@ -53,32 +61,59 @@ export default function TransactionsPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitError(null);
     setAiNote(null);
-    const r = await fetch("/api/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: parseFloat(form.amount), category: form.category, description: form.description, date: form.date }),
-    });
-    if (!r.ok) { setSubmitting(false); return; }
-    const { transaction } = await r.json();
 
-    const ar = await fetch("/api/ai-check", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transactionId: transaction.id, amount: transaction.amount, category: transaction.category, description: transaction.description }),
-    });
-    if (ar.ok) {
-      const { aiNote: note, isNecessary } = await ar.json();
-      setAiNote({ note, ok: isNecessary });
+    try {
+      const isoDate = form.date ? new Date(form.date).toISOString() : new Date().toISOString();
+      const { transaction } = await apiFetch<{ transaction: Transaction }>("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: parseFloat(form.amount),
+          category: form.category,
+          description: form.description,
+          date: isoDate,
+        }),
+      });
+
+      try {
+        const { aiNote: note, isNecessary } = await apiFetch<{ aiNote: string; isNecessary: boolean }>(
+          "/api/ai-check",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactionId: transaction.id,
+              amount: transaction.amount,
+              category: transaction.category,
+              description: transaction.description,
+            }),
+          }
+        );
+        setAiNote({ note, ok: isNecessary });
+      } catch {
+        // ai-check is non-critical; transaction already saved
+      }
+
+      setForm({ amount: "", category: "Food", description: "", date: new Date().toISOString().slice(0, 10) });
+      fetchTx();
+    } catch (err) {
+      setSubmitError(err instanceof FetchError ? err.message : "Could not add transaction");
+    } finally {
+      setSubmitting(false);
     }
-    setForm({ amount: "", category: "Food", description: "", date: new Date().toISOString().slice(0, 10) });
-    setSubmitting(false);
-    fetchTx();
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/transactions/${id}`, { method: "DELETE" });
+    const snapshot = transactions;
     setTransactions((p) => p.filter((t) => t.id !== id));
+    try {
+      await apiFetch(`/api/transactions/${id}`, { method: "DELETE" });
+    } catch {
+      setTransactions(snapshot);
+      setFetchError("Failed to delete transaction");
+    }
   };
 
   return (
@@ -136,6 +171,9 @@ export default function TransactionsPage() {
 
             <Input label="Description" placeholder="Biryani at Murugan's" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} required />
             <Input label="Date" type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} />
+            {submitError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">{submitError}</p>
+            )}
             <Button type="submit" loading={submitting} className="w-full">Log spend</Button>
           </form>
 
@@ -153,8 +191,13 @@ export default function TransactionsPage() {
       )}
 
       <div className="bg-background rounded-2xl border border-surface shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-surface">
+        <div className="px-5 py-4 border-b border-surface flex items-center justify-between">
           <h2 className="text-sm font-semibold text-text">All transactions</h2>
+          {fetchError && (
+            <button onClick={fetchTx} className="text-xs text-red-600 hover:underline">
+              {fetchError} — retry
+            </button>
+          )}
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-16">

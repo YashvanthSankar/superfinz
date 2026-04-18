@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { financePlanError } from "@/lib/finance";
 import { z } from "zod";
@@ -20,15 +20,15 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const session = await getSession();
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
   const data = parsed.data;
@@ -38,11 +38,11 @@ export async function POST(req: NextRequest) {
     : (data.monthlyAllowance ?? 0);
 
   if (data.userType === "PROFESSIONAL" && !data.monthlySalary) {
-    return NextResponse.json({ error: "Monthly salary is required for professionals." }, { status: 400 });
+    return NextResponse.json({ error: "Monthly salary is required." }, { status: 400 });
   }
 
   if ((data.userType === "SCHOOL_STUDENT" || data.userType === "COLLEGE_STUDENT") && !data.monthlyAllowance) {
-    return NextResponse.json({ error: "Monthly allowance is required for students." }, { status: 400 });
+    return NextResponse.json({ error: "Monthly allowance is required." }, { status: 400 });
   }
 
   const planError = financePlanError({
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: session.userId },
     data: {
       age: data.age,
       userType: data.userType,
@@ -92,19 +92,18 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Ensure every user has a default Emergency Fund / Safety Goal
   const existingGoals = await prisma.goal.count({
-    where: { userId: session.user.id }
+    where: { userId: session.userId },
   });
 
   if (existingGoals === 0 && data.savingsGoal > 0) {
     await prisma.goal.create({
       data: {
-        userId: session.user.id,
+        userId: session.userId,
         title: "Emergency Fund",
-        targetAmount: data.savingsGoal * 6, // 6 months of savings target
+        targetAmount: data.savingsGoal * 6,
         savedAmount: 0,
-      }
+      },
     });
   }
 

@@ -2,15 +2,16 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Send, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiFetch, FetchError } from "@/lib/fetcher";
 
-// Dashboard theme exact values from globals.css
+// Theme values read from CSS custom properties (see src/app/globals.css)
 const T = {
-  bg:      "#fefce8", // --color-background
-  surface: "#fef9c3", // --color-surface
-  border:  "#fde68a", // --color-border
-  text:    "#713f12", // --color-text
-  accent:  "#b45309", // --color-accent
-  muted:   "#78350f", // --color-muted
+  bg:      "var(--color-background)",
+  surface: "var(--color-surface)",
+  border:  "var(--color-border)",
+  text:    "var(--color-text)",
+  accent:  "var(--color-accent)",
+  muted:   "var(--color-muted)",
 };
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -69,15 +70,19 @@ export function Chat() {
 
     try {
       const history = next.slice(1).slice(-10).map(({ role, content }) => ({ role, content }));
-      const res  = await fetch("/api/chat", {
+      const data = await apiFetch<{ reply: string }>("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg, history }),
+        timeoutMs: 35_000,
       });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-    } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Something went wrong. Try again?" }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply ?? "Something went wrong. Try again?" }]);
+    } catch (err) {
+      const message =
+        err instanceof FetchError && err.status === 429
+          ? "Whoa — slow down a sec. Try again in a minute."
+          : "Something went wrong. Try again?";
+      setMessages((prev) => [...prev, { role: "assistant", content: message }]);
     } finally {
       setLoading(false);
     }
