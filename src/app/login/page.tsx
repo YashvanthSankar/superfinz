@@ -1,6 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 
 export default function LoginPage() {
@@ -12,24 +13,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-paper flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-10">
           <Logo size="lg" />
-          <p className="text-muted text-sm mt-2 font-light">your money, your rules</p>
+          <p className="brut-label mt-3">Your money. Your rules.</p>
         </div>
 
-        <div className="bg-background rounded-2xl border border-amber-400 shadow-sm p-8 space-y-6">
+        <div className="brut-card p-8 space-y-6">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-text">Welcome back</h1>
-            <p className="text-muted text-sm mt-1 font-light">Sign in to continue to your dashboard</p>
+            <h1 className="brut-display text-3xl text-ink">Welcome back.</h1>
+            <p className="text-ink-soft text-sm mt-2 font-semibold">Sign in to continue.</p>
           </div>
 
           <button
             onClick={go}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-text text-background font-semibold text-sm hover:bg-text2 transition-all disabled:opacity-60 shadow-sm"
+            className="w-full brut-btn bg-ink text-paper h-12 text-sm"
           >
             {loading ? (
               <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -48,17 +49,17 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-            <p className="text-xs text-accent">
+            <p className="text-[11px] text-ink-soft font-semibold">
               Only your name and email are accessed. No passwords stored.
             </p>
           </div>
         </div>
 
-        <p className="text-center text-accent text-xs mt-6">
+        <p className="text-center text-ink-soft text-xs mt-6 font-semibold">
           New here?{" "}
-          <a href="/onboarding" className="text-amber-600 hover:underline font-medium">
-            Get started free
-          </a>
+          <Link href="/onboarding" className="text-accent hover:underline font-black uppercase tracking-wider">
+            Get started free →
+          </Link>
         </p>
       </div>
     </div>

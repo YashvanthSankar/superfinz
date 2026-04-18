@@ -40,7 +40,7 @@ const gatwick = localFont({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#b45309",
+  themeColor: "#FF5A1F",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

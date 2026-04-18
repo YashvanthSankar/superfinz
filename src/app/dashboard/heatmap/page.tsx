@@ -11,11 +11,11 @@ function getIntensity(amount: number, max: number): number {
 }
 
 const INTENSITY_CLASSES = [
-  "bg-surface",
-  "bg-amber-100",
-  "bg-amber-200",
-  "bg-amber-400",
-  "bg-amber-600",
+  "bg-paper-2",
+  "bg-accent-soft",
+  "bg-accent-mid",
+  "bg-accent",
+  "bg-ink",
 ];
 
 function buildCalendar(days: HeatDay[]) {
@@ -69,42 +69,43 @@ export default function HeatmapPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text">Spending Heatmap</h1>
-        <p className="text-accent text-sm mt-0.5 font-light">Your last 3 months at a glance</p>
+        <p className="brut-label mb-1">Last 3 months</p>
+        <h1 className="brut-display text-4xl sm:text-5xl text-ink">Heatmap.</h1>
+        <p className="text-ink-soft text-sm font-semibold mt-1">Your spending at a glance.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: "Total spent (3mo)", value: formatCurrency(totalSpend) },
-          { label: "Active spend days", value: activeDays.toString() },
-          { label: "Avg per spend day", value: formatCurrency(avgPerActiveDay) },
+          { label: "Total (3mo)", value: formatCurrency(totalSpend) },
+          { label: "Active days", value: activeDays.toString() },
+          { label: "Avg / active day", value: formatCurrency(avgPerActiveDay) },
         ].map((s) => (
-          <div key={s.label} className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-            <p className="text-[10px] text-accent font-semibold uppercase tracking-wider mb-2">{s.label}</p>
-            <p className="text-xl font-bold text-text">{s.value}</p>
+          <div key={s.label} className="brut-card p-5">
+            <p className="brut-label">{s.label}</p>
+            <p className="brut-display text-3xl text-ink mt-2 tabular">{s.value}</p>
           </div>
         ))}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-red-600">{error}</span>
-          <button onClick={load} className="text-xs font-semibold text-red-700 hover:underline">Retry</button>
+        <div className="border-2 border-ink bg-bad-soft px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-bad font-bold">{error}</span>
+          <button onClick={load} className="brut-btn bg-bad text-paper text-[11px] h-8 px-3">Retry</button>
         </div>
       )}
 
-      <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-        <h2 className="text-sm font-semibold text-text mb-5">Activity</h2>
+      <div className="brut-card p-6">
+        <p className="brut-label mb-5 pb-3 border-b-2 border-ink">Activity</p>
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-ink border-t-transparent animate-spin" />
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-7 gap-1 mb-1.5">
+            <div className="grid grid-cols-7 gap-1 mb-2">
               {DAYS.map((d) => (
-                <div key={d} className="text-center text-[10px] text-accent font-medium">{d}</div>
+                <div key={d} className="text-center brut-label text-[10px]">{d}</div>
               ))}
             </div>
 
@@ -115,7 +116,7 @@ export default function HeatmapPage() {
                 return (
                   <div
                     key={cell.date}
-                    className={`aspect-square rounded-sm cursor-pointer border border-amber-300/80 transition-all hover:ring-2 hover:ring-amber-400 hover:ring-offset-1 ${INTENSITY_CLASSES[intensity]}`}
+                    className={`aspect-square border-2 border-ink cursor-pointer transition-transform hover:scale-110 ${INTENSITY_CLASSES[intensity]}`}
                     onMouseEnter={() => setTooltip(cell)}
                     onMouseLeave={() => setTooltip(null)}
                   />
@@ -124,31 +125,31 @@ export default function HeatmapPage() {
             </div>
 
             <div className="flex items-center gap-1.5 mt-4 justify-end">
-              <span className="text-[10px] text-accent">Less</span>
+              <span className="brut-label text-[10px]">Less</span>
               {INTENSITY_CLASSES.map((c, i) => (
-                <div key={i} className={`w-3 h-3 rounded-sm ${c} border border-amber-300/80`} />
+                <div key={i} className={`w-4 h-4 border-2 border-ink ${c}`} />
               ))}
-              <span className="text-[10px] text-accent">More</span>
+              <span className="brut-label text-[10px]">More</span>
             </div>
 
             {tooltip && tooltip.total > 0 && (
-              <div className="mt-4 bg-background border border-amber-400 rounded-xl p-4 text-sm">
-                <p className="font-semibold text-text">
+              <div className="mt-4 border-2 border-ink bg-accent-soft p-4">
+                <p className="brut-display text-lg text-ink">
                   {new Date(tooltip.date).toLocaleDateString("en-IN", {
                     weekday: "long", day: "numeric", month: "long",
                   })}
                 </p>
-                <p className="text-muted mt-0.5 font-light">
-                  Spent <span className="text-amber-600 font-semibold">{formatCurrency(tooltip.total)}</span>{" "}
-                  across {tooltip.count} transaction{tooltip.count !== 1 ? "s" : ""}
+                <p className="text-ink-soft mt-1 text-sm font-semibold tabular">
+                  Spent <span className="text-accent font-black">{formatCurrency(tooltip.total)}</span>{" "}
+                  across <span className="font-black">{tooltip.count}</span> transaction{tooltip.count !== 1 ? "s" : ""}
                 </p>
               </div>
             )}
 
             {data.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-muted text-sm">No transaction data yet</p>
-                <p className="text-accent text-xs mt-1 font-light">Log some spends to see your heatmap</p>
+                <p className="brut-display text-2xl text-ink">No data yet.</p>
+                <p className="text-ink-soft text-sm mt-1 font-semibold">Log some spends to see your heatmap.</p>
               </div>
             )}
           </>

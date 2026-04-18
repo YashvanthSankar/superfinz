@@ -53,17 +53,15 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
   })();
 
   return (
-    <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-7 h-7 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
-          <Flame size={14} className="text-amber-600" />
+    <div className="brut-card p-5">
+      <div className="flex items-center gap-2 mb-1 pb-3 border-b-2 border-ink">
+        <div className="w-8 h-8 bg-accent border-2 border-ink flex items-center justify-center shrink-0">
+          <Flame size={14} className="text-paper" strokeWidth={2.5} />
         </div>
-        <div>
-          <h2 className="font-semibold text-sm text-text">Freedom Number</h2>
-        </div>
-        <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-accent bg-surface border border-border px-2 py-0.5 rounded-full">FIRE</span>
+        <p className="brut-label">Freedom Number</p>
+        <span className="ml-auto brut-stamp bg-ink text-paper border-ink">FIRE</span>
       </div>
-      <p className="text-xs text-accent font-light mb-4 mt-1">How much corpus do you need to never work again?</p>
+      <p className="text-xs text-ink-soft font-semibold mb-4 mt-3">How much corpus do you need to never work again?</p>
 
       <div className="grid grid-cols-3 gap-3 mb-4">
         {[
@@ -72,41 +70,41 @@ function FIRECard({ onAddFund }: { onAddFund: (title: string, amount: number) =>
           { label: "Current age", placeholder: "21", value: age, set: setAge },
         ].map(({ label, placeholder, value, set }) => (
           <div key={label}>
-            <label className="text-[10px] text-muted font-medium uppercase tracking-wide block mb-1.5">{label}</label>
+            <label className="brut-label block mb-1.5">{label}</label>
             <input
               type="number"
               placeholder={placeholder}
               value={value}
               onChange={(e) => set(e.target.value)}
-              className="w-full bg-surface border border-border rounded-xl px-3 py-2 text-sm text-text placeholder-accent/40 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-full bg-paper border-2 border-ink px-3 h-10 text-sm text-ink font-bold tabular placeholder:text-mute placeholder:font-normal focus:outline-none focus:bg-accent-soft [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         ))}
       </div>
 
       {result && (
-        <div className="mt-4 bg-surface rounded-xl p-4 border border-border grid grid-cols-2 gap-4">
+        <div className="mt-4 border-2 border-ink bg-paper-2 p-4 grid grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] text-muted font-semibold uppercase tracking-wide mb-1">Corpus needed</p>
-            <p className="text-xl font-black text-text">{fmtCr(result.corpus)}</p>
-            <p className="text-[11px] text-accent font-light mt-0.5">at 4% annual drawdown</p>
+            <p className="brut-label mb-1">Corpus needed</p>
+            <p className="brut-display text-2xl text-ink tabular">{fmtCr(result.corpus)}</p>
+            <p className="text-[11px] text-ink-soft font-semibold mt-0.5">at 4% drawdown</p>
           </div>
           <div>
-            <p className="text-[10px] text-muted font-semibold uppercase tracking-wide mb-1">Retire at age</p>
-            <p className={`text-xl font-black ${
-              result.retireAt && result.retireAt <= 45 ? "text-emerald-600"
-              : result.retireAt && result.retireAt <= 55 ? "text-amber-700"
-              : "text-red-600"
+            <p className="brut-label mb-1">Retire at age</p>
+            <p className={`brut-display text-2xl tabular ${
+              result.retireAt && result.retireAt <= 45 ? "text-good"
+              : result.retireAt && result.retireAt <= 55 ? "text-accent"
+              : "text-bad"
             }`}>
               {result.retireAt ? `${result.retireAt} yrs` : "50+ yrs"}
             </p>
             {result.retireAt && result.retireAt > 50 && (
-              <p className="text-[10px] text-accent font-light mt-0.5">increase savings to retire earlier</p>
+              <p className="text-[11px] text-ink-soft font-semibold mt-0.5">save more to retire earlier</p>
             )}
           </div>
           <button
             onClick={() => onAddFund("Freedom Fund", result.corpus)}
-            className="col-span-2 py-2 rounded-lg border border-border text-xs text-accent hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-all font-medium"
+            className="col-span-2 brut-btn bg-ink text-paper text-xs h-10"
           >
             + Add as savings goal
           </button>
@@ -203,13 +201,14 @@ export default function GoalsPage() {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-text">Goals</h1>
-          <p className="text-accent text-sm mt-0.5 font-light">Stack your savings towards what matters</p>
+          <p className="brut-label mb-1">Savings</p>
+          <h1 className="brut-display text-4xl sm:text-5xl text-ink">Goals.</h1>
+          <p className="text-ink-soft text-sm font-semibold mt-1">Stack money toward what matters.</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <Button variant="accent" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "+ New goal"}
         </Button>
       </div>
@@ -217,8 +216,8 @@ export default function GoalsPage() {
       <FIRECard onAddFund={prefillFire} />
 
       {showForm && (
-        <div id="goals-form" className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-text mb-5">Create a goal</h2>
+        <div id="goals-form" className="brut-card p-6">
+          <p className="brut-label mb-5">Create a goal</p>
           <form onSubmit={handleAdd} className="space-y-4">
             <Input label="Goal name" placeholder="New laptop, Trip to Goa..." value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
             <Input label="Target amount (₹)" type="number" placeholder="20000" value={form.targetAmount} onChange={(e) => setForm((f) => ({ ...f, targetAmount: e.target.value }))} required />
@@ -243,24 +242,21 @@ export default function GoalsPage() {
           <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : active.length === 0 && !showForm ? (
-        <div className="bg-background rounded-2xl border border-surface shadow-sm">
+        <div className="brut-card overflow-hidden p-0">
           <div className="flex flex-col items-center justify-center py-14 px-6 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-surface border border-border flex items-center justify-center mb-4">
-              <Target size={22} className="text-accent" />
+            <div className="w-16 h-16 border-2 border-ink bg-accent-soft flex items-center justify-center mb-4">
+              <Target size={24} className="text-ink" strokeWidth={2.5} />
             </div>
-            <p className="font-semibold text-text">No goals yet</p>
-            <p className="text-accent text-sm mt-1 font-light max-w-xs">
-              Set a target — MacBook, trip, emergency fund — and track every rupee toward it
+            <p className="brut-display text-2xl text-ink">No goals yet.</p>
+            <p className="text-ink-soft text-sm font-semibold mt-1 max-w-xs">
+              Set a target. Track every rupee toward it.
             </p>
-            <button
-              onClick={() => setShowForm(true)}
-              className="mt-5 flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-surface bg-amber-50 text-amber-700 text-sm font-semibold hover:bg-amber-100 transition-all"
-            >
-              <Plus size={14} /> Set your first goal
-            </button>
+            <Button variant="accent" className="mt-5" onClick={() => setShowForm(true)}>
+              <Plus size={14} strokeWidth={2.5} /> Set your first goal
+            </Button>
           </div>
-          <div className="border-t border-surface px-5 py-4">
-            <p className="text-xs text-accent font-medium mb-3">Popular goals to get started</p>
+          <div className="border-t-2 border-ink px-5 py-4 bg-paper-2">
+            <p className="brut-label mb-3">Popular starters</p>
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "Emergency Fund", amount: "50000" },
@@ -271,7 +267,7 @@ export default function GoalsPage() {
                 <button
                   key={label}
                   onClick={() => { setForm({ title: label, targetAmount: amount, deadline: "" }); setShowForm(true); }}
-                  className="text-xs px-3 py-1.5 rounded-lg border border-border text-accent hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-all font-medium"
+                  className="brut-btn bg-paper text-ink text-[11px] h-8 px-3"
                 >
                   {label}
                 </button>
@@ -285,35 +281,35 @@ export default function GoalsPage() {
             const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
             const remaining = goal.targetAmount - goal.savedAmount;
             return (
-              <div key={goal.id} className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
+              <div key={goal.id} className="brut-card p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-text">{goal.title}</h3>
+                    <p className="brut-display text-xl text-ink">{goal.title}</p>
                     {goal.deadline && (
-                      <p className="text-xs text-accent mt-0.5 font-light">
+                      <p className="text-[11px] text-ink-soft mt-0.5 font-bold tabular">
                         by {new Date(goal.deadline).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     )}
                   </div>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
-                    pct >= 100 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                    pct >= 50  ? "bg-amber-50 text-amber-700 border-amber-200" :
-                                 "bg-surface text-muted border-border"
+                  <span className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 border-2 border-ink tabular ${
+                    pct >= 100 ? "bg-good text-paper" :
+                    pct >= 50 ? "bg-accent text-paper" :
+                    "bg-paper-2 text-ink"
                   }`}>{pct.toFixed(0)}%</span>
                 </div>
 
                 <div className="space-y-1.5 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-accent font-light">{formatCurrency(goal.savedAmount)} saved</span>
-                    <span className="text-text font-semibold">{formatCurrency(goal.targetAmount)}</span>
+                    <span className="text-ink-soft font-bold tabular">{formatCurrency(goal.savedAmount)} saved</span>
+                    <span className="text-ink font-black tabular">{formatCurrency(goal.targetAmount)}</span>
                   </div>
-                  <div className="h-1.5 bg-surface rounded-full overflow-hidden">
+                  <div className="h-3 bg-paper-2 border-2 border-ink overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${pct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`}
+                      className={`h-full transition-all duration-500 ${pct >= 100 ? "bg-good" : "bg-accent"}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <p className="text-xs text-accent font-light">{formatCurrency(remaining)} remaining</p>
+                  <p className="text-[11px] text-ink-soft font-bold tabular">{formatCurrency(remaining)} remaining</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -321,14 +317,14 @@ export default function GoalsPage() {
                     <button
                       key={amt}
                       onClick={() => addSavings(goal.id, goal.savedAmount, amt)}
-                      className="flex-1 text-xs py-2 rounded-lg border border-border text-muted hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 transition-all font-medium"
+                      className="flex-1 brut-btn bg-paper text-ink text-xs h-9"
                     >
                       +{amt >= 1000 ? `${amt / 1000}k` : amt}
                     </button>
                   ))}
                   <button
                     onClick={() => markDone(goal.id)}
-                    className="px-3 py-2 rounded-lg border border-border text-xs text-accent hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                    className="brut-btn bg-good text-paper text-xs h-9 px-3"
                     title="Mark as achieved"
                   >
                     Done
@@ -342,14 +338,14 @@ export default function GoalsPage() {
 
       {achieved.length > 0 && (
         <div>
-          <h2 className="text-xs font-semibold text-accent uppercase tracking-wide mb-3">Achieved</h2>
+          <p className="brut-label mb-3">Achieved</p>
           <div className="grid md:grid-cols-2 gap-3">
             {achieved.map((goal) => (
-              <div key={goal.id} className="bg-background rounded-2xl border border-emerald-200 p-4 opacity-70">
+              <div key={goal.id} className="border-2 border-ink bg-good-soft p-4">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                  <p className="text-text font-medium text-sm">{goal.title}</p>
-                  <span className="ml-auto text-emerald-600 text-sm font-semibold">{formatCurrency(goal.targetAmount)}</span>
+                  <CheckCircle2 size={16} className="text-good shrink-0" strokeWidth={2.5} />
+                  <p className="text-ink font-black text-sm flex-1 truncate">{goal.title}</p>
+                  <span className="text-good font-black text-sm tabular">{formatCurrency(goal.targetAmount)}</span>
                 </div>
               </div>
             ))}

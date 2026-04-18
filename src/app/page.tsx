@@ -1,123 +1,57 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { Logo } from "@/components/ui/logo";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  AnimatePresence,
-} from "motion/react";
 import {
   Brain,
   BarChart3,
   Flame,
   Calculator,
   Target,
-  ArrowRight,
   Sparkles,
   TrendingUp,
+  ArrowRight,
+  ArrowDown,
 } from "lucide-react";
 
-// ─── Aceternity-style dot grid ───────────────────────────────────────────────
-function DotGrid({ opacity = 0.18 }: { opacity?: number }) {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0"
-      style={{
-        backgroundImage: `radial-gradient(circle, rgba(180,83,9,${opacity}) 1.2px, transparent 1.2px)`,
-        backgroundSize: "26px 26px",
-        maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
-        WebkitMaskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)",
-      }}
-    />
-  );
-}
+// ─── Static mock data ────────────────────────────────────────────
+const MOCK_TX = [
+  { name: "Biryani at Murugan's", cat: "FOOD", amt: "₹180", ok: false },
+  { name: "Rapido to college", cat: "TRN", amt: "₹45", ok: true },
+  { name: "Spotify Premium", cat: "SUB", amt: "₹119", ok: true },
+  { name: "Amazon impulse buy", cat: "SHOP", amt: "₹899", ok: false },
+];
 
-// ─── Magic UI animated gradient orbs ─────────────────────────────────────────
-function FloatingOrbs() {
-  return (
-    <>
-      <motion.div
-        className="pointer-events-none absolute rounded-full"
-        style={{
-          width: 600, height: 600,
-          top: "-10%", left: "10%",
-          background: "radial-gradient(circle, rgba(194,65,12,0.10) 0%, transparent 70%)",
-          filter: "blur(50px)",
-        }}
-        animate={{ x: [0, 40, -30, 0], y: [0, -50, 30, 0] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="pointer-events-none absolute rounded-full"
-        style={{
-          width: 500, height: 500,
-          top: "20%", right: "-5%",
-          background: "radial-gradient(circle, rgba(251,191,36,0.10) 0%, transparent 70%)",
-          filter: "blur(60px)",
-        }}
-        animate={{ x: [0, -35, 20, 0], y: [0, 40, -25, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-      />
-      <motion.div
-        className="pointer-events-none absolute rounded-full"
-        style={{
-          width: 400, height: 400,
-          bottom: "5%", left: "30%",
-          background: "radial-gradient(circle, rgba(180,83,9,0.08) 0%, transparent 70%)",
-          filter: "blur(55px)",
-        }}
-        animate={{ x: [0, 25, -20, 0], y: [0, -30, 20, 0] }}
-        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut", delay: 6 }}
-      />
-    </>
-  );
-}
+const FEATURES = [
+  { n: "01", icon: Brain, title: "Smart onboarding", body: "Built for students and professionals. Tailored budget plan from day one." },
+  { n: "02", icon: Sparkles, title: "AI spend analysis", body: "Every rupee gets an instant verdict. Necessary or not, with a Gen Z roast." },
+  { n: "03", icon: BarChart3, title: "Spending heatmap", body: "90 days of spending in one grid. Spot impulse streaks before they calcify." },
+  { n: "04", icon: Calculator, title: "Calculators", body: "SIP, FD, EMI with live charts. Confusing math into one clear number." },
+  { n: "05", icon: Target, title: "Goals & budgets", body: "Per-category limits. Track savings. Smart-split leftover cash." },
+  { n: "06", icon: Flame, title: "Retirement planner", body: "See your FIRE score, corpus gap, and how many biryani skips to freedom." },
+];
 
-// ─── Grid beam lines (Aceternity) ────────────────────────────────────────────
-function GridBeam() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      style={{
-        backgroundImage: `
-          linear-gradient(rgba(180,83,9,0.06) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(180,83,9,0.06) 1px, transparent 1px)
-        `,
-        backgroundSize: "64px 64px",
-        maskImage: "radial-gradient(ellipse 100% 100% at 50% 0%, black 30%, transparent 80%)",
-        WebkitMaskImage: "radial-gradient(ellipse 100% 100% at 50% 0%, black 30%, transparent 80%)",
-      }}
-    />
-  );
-}
+const MARQUEE_ITEMS = [
+  "Track every rupee",
+  "Beat retirement blindness",
+  "AI roasts of bad spends",
+  "FIRE calculator built-in",
+  "Spending heatmap",
+  "SIP · FD · EMI",
+  "India-first finance news",
+  "Google sign-in · no password",
+  "Retirement readiness score",
+  "12 finance articles free",
+];
 
-// ─── Shimmer border card wrapper ──────────────────────────────────────────────
-function ShimmerCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`relative group ${className ?? ""}`}>
-      <div
-        className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: "linear-gradient(135deg, rgba(194,65,12,0.4), rgba(251,191,36,0.3), rgba(194,65,12,0.1))",
-          filter: "blur(1px)",
-        }}
-      />
-      {children}
-    </div>
-  );
-}
-
-// ─── Seeded noise for heatmap ────────────────────────────────────────────────
+// ─── Heatmap seed (deterministic) ─────────────────────────────────
 function seed(i: number) {
   const x = Math.sin(i * 9301 + 49297) * 233280;
   return x - Math.floor(x);
 }
 
-const HEATMAP = Array.from({ length: 70 }, (_, i) => {
+const HEATMAP = Array.from({ length: 49 }, (_, i) => {
   const v = seed(i);
   if (v < 0.42) return 0;
   if (v < 0.62) return 1;
@@ -126,317 +60,45 @@ const HEATMAP = Array.from({ length: 70 }, (_, i) => {
   return 4;
 });
 
-// ─── Hooks ───────────────────────────────────────────────────────────────────
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true); },
-      { threshold }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, inView };
-}
-
-function useCountUp(target: number, ms = 1800, go = false) {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    if (!go) return;
-    let t: number | null = null;
-    const step = (ts: number) => {
-      if (!t) t = ts;
-      const p = Math.min((ts - t) / ms, 1);
-      setV(Math.floor((1 - Math.pow(1 - p, 4)) * target));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [go, target, ms]);
-  return v;
-}
-
-function useScrolled(px = 60) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > px);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, [px]);
-  return scrolled;
-}
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const MOCK_TX = [
-  { name: "Biryani at Murugan's", cat: "Food",          amt: "₹180", ok: false },
-  { name: "Rapido to college",    cat: "Transport",     amt: "₹45",  ok: true  },
-  { name: "Spotify Premium",      cat: "Subscriptions", amt: "₹119", ok: true  },
-  { name: "Amazon impulse buy",   cat: "Shopping",      amt: "₹899", ok: false },
-];
-
-const FEATURES = [
-  { n: "01", icon: Brain,       title: "Smart onboarding",       body: "Tailored for students and professionals. Set your profile once and get a budget plan built for your actual life." },
-  { n: "02", icon: Sparkles,    title: "AI spend analysis",      body: "Every rupee you log gets an instant AI verdict — necessary or not — plus a Gen Z-flavoured roast to keep you honest." },
-  { n: "03", icon: BarChart3,   title: "Spending heatmap",       body: "90 days of spending in one GitHub-style grid. Spot impulse streaks and daily patterns before they calcify." },
-  { n: "04", icon: Calculator,  title: "Investment calculators", body: "SIP, FD, and EMI calculators with live Recharts. Turn confusing money math into one clear number." },
-  { n: "05", icon: Target,      title: "Goals & budgets",        body: "Set per-category monthly budgets, track savings goals, and get a smart-split when you have leftover cash." },
-  { n: "06", icon: Flame,       title: "Retirement planner",     body: "See your FIRE score, corpus gap, and exactly how many biryani skips away your target retirement is." },
-];
-
-const AI_CHAT = [
-  { user: "Logged: Biryani ₹180 · Food",    ai: "bro you ate out 4× this week — ₹180 saved = ₹2,160/yr. invest it.",       roast: true  },
-  { user: "Logged: Rapido ₹45 · Transport", ai: "looks necessary — ₹45 for transport, tracked ✓",                          roast: false },
-  { user: "Logged: Amazon ₹899 · Shopping", ai: "impulse at 11pm? sleep on it — that's 3 days of your food budget gone.",   roast: true  },
-];
-
-// Fix #4: level-0 = true neutral grey so "no spend" reads differently from "low spend"
 const HEATMAP_COLORS = [
-  "bg-[#D9D4CC]",      // 0 — no spend
-  "bg-orange-100",     // 1 — low
-  "bg-orange-300",     // 2
-  "bg-orange-500",     // 3
-  "bg-[#C2410C]",      // 4 — high
+  "bg-paper-2",
+  "bg-accent-soft",
+  "bg-accent-mid",
+  "bg-accent",
+  "bg-ink",
 ];
 
-// ─── Tilt Card ────────────────────────────────────────────────────────────────
-function TiltCard({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotX = useSpring(useTransform(y, [-0.5, 0.5], [6, -6]), { stiffness: 400, damping: 30 });
-  const rotY = useSpring(useTransform(x, [-0.5, 0.5], [-6, 6]), { stiffness: 400, damping: 30 });
-
-  const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  }, [x, y]);
-
-  const onMouseLeave = useCallback(() => { x.set(0); y.set(0); }, [x, y]);
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={{ rotateX: rotX, rotateY: rotY, transformStyle: "preserve-3d", transformPerspective: 1000, ...style }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// ─── Magnetic Button ──────────────────────────────────────────────────────────
-function MagButton({ children, onClick, disabled, className, style }: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 350, damping: 25 });
-  const sy = useSpring(y, { stiffness: 350, damping: 25 });
-
-  const onMove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    x.set((e.clientX - cx) * 0.35);
-    y.set((e.clientY - cy) * 0.35);
-  }, [x, y]);
-
-  const onLeave = useCallback(() => { x.set(0); y.set(0); }, [x, y]);
-
-  return (
-    <motion.button
-      ref={ref}
-      style={{ x: sx, y: sy, ...style }}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      onClick={onClick}
-      disabled={disabled}
-      className={className}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-// ─── Heatmap Bloom ────────────────────────────────────────────────────────────
-function HeatmapBloom({ inView }: { inView: boolean }) {
-  return (
-    <div className="grid grid-cols-7 gap-[3px]">
-      {HEATMAP.map((v, i) => (
-        <motion.div
-          key={i}
-          className={`aspect-square rounded-[2px] ${HEATMAP_COLORS[v]}`}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={inView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ delay: i * 0.012, duration: 0.25, type: "spring", stiffness: 300 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─── AI Chat Bubbles ──────────────────────────────────────────────────────────
-type ChatBubble =
-  | { key: string; kind: "user"; text: string }
-  | { key: string; kind: "ai";   text: string; roast: boolean }
-  | { key: string; kind: "typing"; roast: boolean };
-
-function AIChatBubbles({ inView }: { inView: boolean }) {
-  const [step, setStep] = useState(0);
-  const total = AI_CHAT.length * 2; // one step per user bubble, one per AI bubble
-
-  useEffect(() => {
-    if (!inView || step >= total) return;
-    const tid = setTimeout(() => setStep((s) => s + 1), step === 0 ? 350 : 580);
-    return () => clearTimeout(tid);
-  }, [inView, step, total]);
-
-  // Build flat ordered list of visible bubbles from current step
-  const bubbles: ChatBubble[] = [];
-  for (let i = 0; i < AI_CHAT.length; i++) {
-    const userStep = i * 2 + 1;
-    const aiStep   = i * 2 + 2;
-    if (step >= userStep) {
-      bubbles.push({ key: `u${i}`, kind: "user", text: AI_CHAT[i].user });
-      if (step >= aiStep) {
-        bubbles.push({ key: `a${i}`, kind: "ai",     text: AI_CHAT[i].ai, roast: AI_CHAT[i].roast });
-      } else {
-        bubbles.push({ key: `t${i}`, kind: "typing", roast: AI_CHAT[i].roast });
-      }
-    }
-  }
-
-  return (
-    <motion.div layout className="flex flex-col gap-3">
-      <AnimatePresence mode="popLayout" initial={false}>
-        {bubbles.map((b) => {
-          const isAI = b.kind === "ai" || b.kind === "typing";
-          return (
-            <motion.div
-              layout
-              key={b.key}
-              initial={{ opacity: 0, y: 10, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0,  scale: 1    }}
-              exit={{    opacity: 0, y: -6,  scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className={`flex items-start gap-2.5 ${isAI ? "flex-row-reverse" : ""}`}
-            >
-              {/* Avatar */}
-              <div
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] shrink-0 mt-0.5 font-bold ${
-                  isAI
-                    ? "bg-[#C2410C] text-white"
-                    : "bg-[#e8ddd4] border border-[#c9b89e] text-[#4A2C19]"
-                }`}
-                style={{ fontFamily: "var(--font-inter)" }}
-              >
-                {isAI ? "AI" : "you"}
-              </div>
-
-              {/* Bubble */}
-              {b.kind === "typing" ? (
-                <div className="bg-[#FDF1EB] border border-[#E4B99E] rounded-2xl rounded-tr-sm px-4 py-3 flex items-center gap-1.5">
-                  {[0, 1, 2].map((d) => (
-                    <motion.span
-                      key={d}
-                      className="w-1.5 h-1.5 rounded-full bg-[#C2410C] block"
-                      animate={{ y: [0, -4, 0] }}
-                      transition={{ repeat: Infinity, duration: 0.6, delay: d * 0.14 }}
-                    />
-                  ))}
-                </div>
-              ) : b.kind === "ai" ? (
-                <div
-                  className={`rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm max-w-[280px] shadow-sm ${
-                    b.roast
-                      ? "bg-[#FDF1EB] border border-[#E4B99E] text-[#5A2A12]"
-                      : "bg-emerald-50 border border-emerald-200 text-emerald-900"
-                  }`}
-                  style={{
-                    fontFamily: "var(--font-inter)",
-                    boxShadow: b.roast
-                      ? "0 0 16px 0 rgba(194,65,12,0.12)"
-                      : "0 0 16px 0 rgba(16,185,129,0.10)",
-                  }}
-                >
-                  {b.text}
-                </div>
-              ) : (
-                <div
-                  className="bg-white border border-[#e0d4c3] rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm text-[#4A2C19] shadow-sm max-w-[260px]"
-                  style={{ fontFamily: "var(--font-inter)" }}
-                >
-                  {b.text}
-                </div>
-              )}
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
-// ─── Marquee ──────────────────────────────────────────────────────────────────
-const MARQUEE_ITEMS = [
-  "Track every rupee",
-  "Beat retirement blindness early",
-  "AI-powered roast of bad spends",
-  "FIRE calculator built-in",
-  "Spending heatmap",
-  "SIP · FD · EMI calculators",
-  "India-first finance news",
-  "Google Sign-in · No password",
-  "Retirement readiness score",
-  "12 finance articles for free",
-];
-
+// ─── Marquee ───────────────────────────────────────────────────────
 function Marquee() {
   const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
   return (
-    <div className="overflow-hidden border-y border-[#ddd0be] bg-[#F5EFE4] py-4 select-none">
-      <motion.div
-        className="flex gap-12 whitespace-nowrap"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{ ease: "linear", duration: 28, repeat: Infinity }}
-      >
+    <div className="overflow-hidden border-y-2 border-ink bg-ink text-paper py-4 select-none">
+      <div className="flex gap-12 whitespace-nowrap animate-marquee">
         {items.map((item, i) => (
-          <span key={i} className="flex items-center gap-3 text-sm font-medium text-[#78350f] shrink-0" style={{ fontFamily: "var(--font-inter)" }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C2410C] shrink-0" />
+          <span key={i} className="flex items-center gap-3 text-sm font-black uppercase tracking-wider shrink-0">
+            <span className="w-2 h-2 bg-accent shrink-0" />
             {item}
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Landing ───────────────────────────────────────────────────────
 export default function Landing() {
   const [signing, setSigning] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
-    // Register service worker
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
-    // Capture PWA install prompt
-    const handler = (e: Event) => { e.preventDefault(); setInstallPrompt(e); };
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", () => setInstalled(true));
     return () => window.removeEventListener("beforeinstallprompt", handler);
@@ -448,15 +110,6 @@ export default function Landing() {
     await (installPrompt as any).prompt();
     setInstallPrompt(null);
   };
-  const scrolled = useScrolled(60);
-  const { ref: statsRef, inView: statsIn } = useInView(0.3);
-  const { ref: featRef,  inView: featIn  } = useInView(0.1);
-  const { ref: demoRef,  inView: demoIn  } = useInView(0.2);
-  const { ref: heatRef,  inView: heatIn  } = useInView(0.3);
-
-  const users  = useCountUp(2400,  1800, statsIn);
-  const crores = useCountUp(8,     2000, statsIn);
-  const txns   = useCountUp(21000, 1600, statsIn);
 
   const go = async () => {
     setSigning(true);
@@ -464,261 +117,142 @@ export default function Landing() {
   };
 
   return (
-    <div
-      className="min-h-screen overflow-x-hidden selection:bg-orange-100"
-      style={{
-        background: "#FDFCF6",
-        color: "#4A2C19",
-        fontFamily: "var(--font-inter)",
-      }}
-    >
-      {/* Grain texture overlay */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.025]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize: "180px 180px",
-        }}
-      />
-
-      {/* Animated floating orbs */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <FloatingOrbs />
-      </div>
-
-      {/* ── Sticky Glass Nav ────────────────────────────────────────────── */}
-      <nav
-        className="sticky top-0 z-50 transition-all duration-300"
-        style={{
-          background: scrolled ? "rgba(253,252,246,0.85)" : "transparent",
-          backdropFilter: scrolled ? "blur(16px)" : "none",
-          borderBottom: scrolled ? "1px solid rgba(74,44,25,0.08)" : "1px solid transparent",
-        }}
-      >
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+    <div className="min-h-screen bg-paper text-ink">
+      {/* ─── Nav ─────────────────────────────────────────────────── */}
+      <nav className="sticky top-0 z-50 bg-paper border-b-2 border-ink">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
           <Logo size="xl" />
-          <div className="flex items-center gap-6">
-            <span className="hidden sm:block text-sm text-[#b45309] pr-2 border-r border-[#DDD0BE]" style={{ fontFamily: "var(--font-inter)" }}>
-              Free forever for students
-            </span>
-            <MagButton
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-block brut-label">Free for students</span>
+            <button
               onClick={go}
               disabled={signing}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-60 shadow-sm"
-              style={{
-                background: "#4A2C19",
-                color: "#FDFCF6",
-                boxShadow: "0 4px 16px rgba(74,44,25,0.25)",
-                fontFamily: "var(--font-inter)",
-              } as React.CSSProperties}
+              className="brut-btn bg-ink text-paper h-10 text-xs"
             >
-              <GoogleIcon size={15} />
+              <GoogleIcon size={14} />
               Sign in
-            </MagButton>
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-12 sm:pb-16 text-center z-10">
-        <DotGrid opacity={0.14} />
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-medium mb-10"
-          style={{
-            background: "rgba(194,65,12,0.07)",
-            borderColor: "rgba(194,65,12,0.2)",
-            color: "#C2410C",
-            fontFamily: "var(--font-inter)",
-          }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C2410C] animate-pulse" />
-          Now in public beta · Free forever for students
-        </motion.div>
-
-        {/* Headline */}
-        <div className="overflow-hidden mb-2 pb-2">
-          <motion.div
-            initial={{ y: "110%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <h1
-              className="mx-auto max-w-[14ch] text-[clamp(1.75rem,8vw,4.75rem)] font-black leading-[1.08] tracking-tight"
-              suppressHydrationWarning
-              style={{ fontFamily: "var(--font-gatwick)", color: "#4A2C19" }}
-            >
-              Retirement planning
-            </h1>
-          </motion.div>
+      {/* ─── Hero ────────────────────────────────────────────────── */}
+      <section className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16 lg:py-20">
+        <div className="inline-flex items-center gap-2 border-2 border-ink bg-accent-soft px-3 h-8 mb-8">
+          <span className="w-2 h-2 bg-accent animate-pulse" />
+          <span className="brut-label text-[10px]">Public beta · Free for students</span>
         </div>
 
-        <div className="overflow-hidden mb-2 pb-2">
-          <motion.div
-            initial={{ y: "110%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          >
-            <div
-              className="mx-auto max-w-[14ch] text-[clamp(1.75rem,8vw,4.75rem)] font-black leading-[1.08] tracking-tight"
-              suppressHydrationWarning
-              style={{ fontFamily: "var(--font-gatwick)", color: "#C2410C" }}
-            >
-              for Gen Z who are
-            </div>
-          </motion.div>
-        </div>
+        <h1 className="brut-display text-[clamp(2rem,7vw,4.5rem)] leading-[0.95] text-ink max-w-[16ch]">
+          Retirement
+          <br />
+          <span className="text-accent">planning for Gen Z</span>
+          <br />
+          who are done
+          <br />
+          being blind.
+        </h1>
 
-        <div className="overflow-hidden mb-10 pb-2">
-          <motion.div
-            initial={{ y: "110%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-          >
-            <h1
-              className="mx-auto max-w-[14ch] text-[clamp(1.75rem,8vw,4.75rem)] font-black leading-[1.08] tracking-tight"
-              suppressHydrationWarning
-              style={{ fontFamily: "var(--font-gatwick)", color: "#4A2C19" }}
-            >
-              done being blind.
-            </h1>
-          </motion.div>
-        </div>
+        <p className="mt-6 sm:mt-8 text-base sm:text-lg max-w-xl text-ink-soft font-semibold leading-relaxed">
+          SuperFinz turns daily spending into clear future impact. Track expenses, get AI nudges, build retirement clarity — in one dashboard.
+        </p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-          className="text-lg max-w-lg mx-auto mb-10 leading-relaxed font-light"
-          style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
-        >
-          SuperFinz turns daily spending into clear future impact.
-          Track expenses, get AI nudges, and build retirement clarity in one dashboard.
-        </motion.p>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.55 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4"
-        >
-          <MagButton
+        <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+          <button
             onClick={go}
             disabled={signing}
-            className="flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-sm transition-all disabled:opacity-60 shadow-xl"
-            style={{
-              background: "#4A2C19",
-              color: "#FDFCF6",
-              boxShadow: "0 8px 32px rgba(74,44,25,0.28)",
-              fontFamily: "var(--font-inter)",
-            } as React.CSSProperties}
+            className="brut-btn bg-accent text-paper h-12 sm:h-14 text-xs sm:text-sm px-5 sm:px-6"
           >
-            {signing
-              ? <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
-              : <GoogleIcon size={18} />
-            }
-            Continue with Google — it&apos;s free
-          </MagButton>
-        </motion.div>
+            {signing ? (
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <GoogleIcon size={18} />
+            )}
+            Continue with Google
+            <ArrowRight size={16} strokeWidth={2.5} />
+          </button>
+          <div className="flex items-center gap-2 text-ink-soft">
+            <span className="brut-label">No password</span>
+            <span>·</span>
+            <span className="brut-label">2 min setup</span>
+          </div>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="text-xs"
-          style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}
-        >
-          No password. No long forms. 2 minutes to start.
-        </motion.p>
-
-        {/* Dashboard preview with tilt */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-20 relative"
-        >
-          {/* Fade-out gradient */}
-          <div className="absolute bottom-0 left-0 right-0 h-36 pointer-events-none rounded-b-3xl z-10"
-            style={{ background: "linear-gradient(to top, #FDFCF6 0%, transparent 100%)" }} />
-
-          <TiltCard className="rounded-3xl overflow-hidden border shadow-2xl"
-            style={{ borderColor: "#e8ddd0", boxShadow: "0 30px 80px rgba(74,44,25,0.10)" } as React.CSSProperties}
-          >
-            {/* Chrome bar */}
-            <div className="flex items-center gap-1.5 px-4 py-3 border-b" style={{ background: "#fefce8", borderColor: "#e8ddd0" }}>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#f87171]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#fbbf24]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#4ade80]" />
-              <div className="mx-auto flex items-center gap-2 rounded-lg px-4 py-1.5" style={{ background: "#FDFCF6" }}>
-                <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                <span className="text-[#78350f] text-xs" style={{ fontFamily: "var(--font-inter)" }}>superfinz.app/dashboard</span>
+        {/* Dashboard preview */}
+        <div className="mt-12 sm:mt-20 relative">
+          <div className="brut-card-lg border-2 border-ink overflow-hidden">
+            {/* Chrome */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b-2 border-ink bg-paper-2">
+              <div className="w-3 h-3 border-2 border-ink bg-bad" />
+              <div className="w-3 h-3 border-2 border-ink bg-warn" />
+              <div className="w-3 h-3 border-2 border-ink bg-good" />
+              <div className="mx-auto flex items-center gap-2 border-2 border-ink bg-paper px-3 py-1">
+                <div className="w-1.5 h-1.5 bg-good" />
+                <span className="brut-label text-[10px]">superfinz.app/dashboard</span>
               </div>
             </div>
 
-            <div className="flex" style={{ background: "#FDFCF6" }}>
-              {/* Sidebar — hidden on small screens */}
-              <div className="hidden sm:block w-36 md:w-44 border-r p-3 space-y-0.5 shrink-0" style={{ background: "#fefce8", borderColor: "#e8ddd0" }}>
-                <div className="px-3 py-1.5 mb-2"><Logo size="sm" /></div>
-                {["Overview","Transactions","Heatmap","Calculators","News","Goals"].map((label, i) => (
-                  <div key={label}
-                    className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs"
-                    style={{
-                      background: i === 0 ? "rgba(194,65,12,0.08)" : "transparent",
-                      color: i === 0 ? "#C2410C" : "#78350f",
-                      fontWeight: i === 0 ? 600 : 400,
-                      fontFamily: "var(--font-inter)",
-                    }}
+            <div className="flex bg-paper">
+              {/* Mock sidebar */}
+              <div className="hidden sm:flex flex-col w-36 md:w-44 border-r-2 border-ink p-3 gap-1 shrink-0 bg-paper-2">
+                <div className="px-3 py-1.5 mb-2">
+                  <Logo size="sm" />
+                </div>
+                {["Overview", "Transactions", "Heatmap", "Calculators", "News", "Goals"].map((label, i) => (
+                  <div
+                    key={label}
+                    className={`flex items-center gap-2 px-2.5 h-9 border-2 text-[10px] font-black uppercase tracking-wider ${
+                      i === 0 ? "bg-ink text-paper border-ink" : "border-transparent text-ink"
+                    }`}
                   >
-                    {i === 0 && <span className="w-1 h-1 rounded-full bg-[#C2410C] shrink-0" />}
                     {label}
                   </div>
                 ))}
               </div>
 
               {/* Main */}
-              <div className="flex-1 p-5 space-y-4 min-w-0">
+              <div className="flex-1 p-4 sm:p-5 space-y-3 sm:space-y-4 min-w-0">
                 <div>
-                  <p className="text-sm font-bold" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>Good morning, Yashvanth</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>Saturday, 28 March 2026</p>
+                  <p className="brut-label mb-1">Saturday, 28 March 2026</p>
+                  <p className="brut-display text-2xl sm:text-3xl text-ink">
+                    Good morning, <span className="text-accent">Yashvanth.</span>
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   {[
-                    { l: "Spent",        v: "₹3,240", s: "of ₹5,000",    c: "#4A2C19"   },
-                    { l: "Remaining",    v: "₹1,760", s: "left to spend", c: "#059669"   },
-                    { l: "Savings rate", v: "28%",    s: "vs last month", c: "#059669"   },
-                    { l: "Budget used",  v: "65%",    s: "on track",      c: "#C2410C"   },
+                    { l: "Spent", v: "₹3,240", s: "of ₹5,000", c: "text-ink" },
+                    { l: "Remaining", v: "₹1,760", s: "left to spend", c: "text-good" },
+                    { l: "Savings rate", v: "28%", s: "vs last month", c: "text-good" },
+                    { l: "Budget used", v: "65%", s: "on track", c: "text-accent" },
                   ].map((s) => (
-                    <div key={s.l} className="rounded-xl p-3 shadow-sm border" style={{ background: "#fefce8", borderColor: "#fde68a" }}>
-                      <p className="text-[9px] uppercase tracking-wide mb-1" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>{s.l}</p>
-                      <p className="text-sm font-bold" style={{ color: s.c, fontFamily: "var(--font-inter)" }}>{s.v}</p>
-                      <p className="text-[8px] mt-1" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>{s.s}</p>
+                    <div key={s.l} className="border-2 border-ink p-3">
+                      <p className="brut-label text-[9px]">{s.l}</p>
+                      <p className={`brut-display text-xl mt-1 tabular ${s.c}`}>{s.v}</p>
+                      <p className="text-[9px] text-ink-soft mt-1 font-semibold">{s.s}</p>
                     </div>
                   ))}
                 </div>
-                <div className="rounded-xl p-4 shadow-sm border" style={{ background: "#fefce8", borderColor: "#fde68a" }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>Recent spends</p>
-                    <p className="text-[9px]" style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}>View all</p>
+                <div className="border-2 border-ink p-4">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-ink">
+                    <p className="brut-label">Recent spends</p>
+                    <p className="brut-label text-accent">View all →</p>
                   </div>
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {MOCK_TX.map((tx, i) => (
                       <div key={i} className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-md border flex items-center justify-center shrink-0" style={{ background: "#fef9c3", borderColor: "#fde68a" }}>
-                          <span className="text-[8px] font-bold uppercase" style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}>{tx.cat.slice(0,2)}</span>
+                        <div className="w-8 h-8 bg-ink text-paper flex items-center justify-center shrink-0">
+                          <span className="text-[9px] font-black tracking-wider">{tx.cat}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] truncate font-medium" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>{tx.name}</p>
-                          <p className="text-[9px]" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>{tx.cat}</p>
+                          <p className="text-[12px] truncate font-black text-ink">{tx.name}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-[11px] font-semibold" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>{tx.amt}</p>
-                          <p className="text-[9px]" style={{ color: tx.ok ? "#059669" : "#C2410C", fontFamily: "var(--font-inter)" }}>
-                            {tx.ok ? "necessary" : "unnecessary"}
+                          <p className="text-[12px] font-black text-ink tabular">{tx.amt}</p>
+                          <p className={`text-[9px] font-black uppercase ${tx.ok ? "text-good" : "text-bad"}`}>
+                            {tx.ok ? "necessary" : "skip"}
                           </p>
                         </div>
                       </div>
@@ -727,353 +261,230 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Right panel with blooming heatmap */}
-              <div ref={heatRef} className="w-44 border-l p-4 shrink-0 hidden lg:block" style={{ background: "#fefce8", borderColor: "#e8ddd0" }}>
-                <p className="text-[10px] font-semibold mb-2.5" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>Spend heatmap</p>
-                <HeatmapBloom inView={heatIn} />
-                <div className="flex justify-between mt-1.5">
-                  <span className="text-[8px]" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>less</span>
-                  <span className="text-[8px]" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>more</span>
+              {/* Right panel */}
+              <div className="hidden lg:flex flex-col w-44 border-l-2 border-ink p-4 shrink-0 bg-paper-2">
+                <p className="brut-label mb-3">Heatmap</p>
+                <div className="grid grid-cols-7 gap-0.5">
+                  {HEATMAP.map((v, i) => (
+                    <div key={i} className={`aspect-square border border-ink ${HEATMAP_COLORS[v]}`} />
+                  ))}
                 </div>
-                <div className="mt-4 space-y-2.5">
-                  <p className="text-[10px] font-semibold" style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}>Goals</p>
-                  {[{ name: "New MacBook", pct: 62 }, { name: "Goa trip", pct: 34 }].map((g) => (
+                <div className="flex justify-between mt-2">
+                  <span className="brut-label text-[9px]">Less</span>
+                  <span className="brut-label text-[9px]">More</span>
+                </div>
+                <div className="mt-5 space-y-2.5">
+                  <p className="brut-label">Goals</p>
+                  {[
+                    { name: "MacBook", pct: 62 },
+                    { name: "Goa trip", pct: 34 },
+                  ].map((g) => (
                     <div key={g.name}>
-                      <div className="flex justify-between text-[9px] mb-1">
-                        <span style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}>{g.name}</span>
-                        <span className="font-medium" style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}>{g.pct}%</span>
+                      <div className="flex justify-between text-[10px] mb-1 font-black">
+                        <span className="text-ink uppercase">{g.name}</span>
+                        <span className="text-accent tabular">{g.pct}%</span>
                       </div>
-                      <div className="h-1 rounded-full overflow-hidden" style={{ background: "#E8DDD0" }}>
-                        <div className="h-full rounded-full" style={{ width: `${g.pct}%`, background: "#C2410C" }} />
+                      <div className="h-2 border-2 border-ink overflow-hidden">
+                        <div className="h-full bg-accent" style={{ width: `${g.pct}%` }} />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </TiltCard>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
-      {/* ── Marquee ─────────────────────────────────────────────────────── */}
+      {/* ─── Marquee ─────────────────────────────────────────────── */}
       <Marquee />
 
-      {/* ── Stats ───────────────────────────────────────────────────────── */}
-      <section ref={statsRef} className="py-20 sm:py-24 px-4 sm:px-6 relative z-10" style={{ background: "#FDFCF6" }}>
-        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+      {/* ─── Stats ───────────────────────────────────────────────── */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-paper border-b-2 border-ink">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-0 border-2 border-ink shadow-[4px_4px_0_var(--ink)] sm:shadow-[6px_6px_0_var(--ink)]">
           {[
-            { val: users.toLocaleString("en-IN") + "+", label: "Active users",        icon: TrendingUp },
-            { val: "₹" + crores + "L+",                  label: "Money tracked",       icon: BarChart3  },
-            { val: txns.toLocaleString("en-IN") + "+",   label: "Transactions logged", icon: Target     },
-          ].map(({ val, label, icon: Icon }) => (
-            <motion.div
+            { val: "2,400+", label: "Active users", icon: TrendingUp },
+            { val: "₹8L+", label: "Money tracked", icon: BarChart3 },
+            { val: "21,000+", label: "Transactions logged", icon: Target },
+          ].map(({ val, label, icon: Icon }, i) => (
+            <div
               key={label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={statsIn ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
+              className={`p-6 sm:p-8 text-center bg-paper ${i > 0 ? "border-t-2 sm:border-t-0 sm:border-l-2 border-ink" : ""}`}
             >
-              <Icon size={18} className="mx-auto mb-3 opacity-40" style={{ color: "#C2410C" }} />
-              <p
-                className="text-3xl md:text-4xl font-black tabular-nums"
-                style={{ color: "#4A2C19", fontFamily: "var(--font-playfair)" }}
-              >
-                {val}
-              </p>
-              <p className="text-sm mt-2 font-light" style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}>{label}</p>
-            </motion.div>
+              <Icon size={18} strokeWidth={2.5} className="mx-auto mb-2 text-accent" />
+              <p className="brut-display text-3xl sm:text-4xl lg:text-5xl text-ink tabular">{val}</p>
+              <p className="brut-label mt-2">{label}</p>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── Features Bento Grid ─────────────────────────────────────────── */}
-      <section ref={featRef} className="max-w-5xl mx-auto py-20 sm:py-28 px-4 sm:px-6 relative z-10">
-        <GridBeam />
-        <div className="mb-16">
-          <p
-            className="text-xs font-semibold tracking-widest uppercase mb-3"
-            style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}
-          >
-            What&apos;s inside
-          </p>
-          <h2
-            className="text-[clamp(1.9rem,5vw,3.3rem)] font-black tracking-tight leading-tight"
-            style={{ fontFamily: "var(--font-gatwick)", color: "#4A2C19" }}
-          >
+      {/* ─── Features ────────────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto py-14 sm:py-20 lg:py-24 px-4 sm:px-6">
+        <div className="mb-8 sm:mb-12">
+          <p className="brut-label mb-2">What&apos;s inside</p>
+          <h2 className="brut-display text-[clamp(1.75rem,5vw,3rem)] text-ink leading-[0.95]">
             Everything you need.
             <br />
-            <span style={{ color: "#b45309" }}>To fix retirement blindness early.</span>
+            <span className="text-accent">To fix retirement blindness early.</span>
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FEATURES.map((f, i) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <ShimmerCard key={f.title}>
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={featIn ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-                  whileHover={{ y: -4, boxShadow: "0 24px 56px rgba(74,44,25,0.12)" }}
-                  className="relative rounded-2xl p-7 border overflow-hidden group cursor-default transition-shadow"
-                  style={{ background: "#FDFCF6", borderColor: "#DDD0BE" }}
-                >
-                  {/* Hover sweep light */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-                    style={{
-                      background: "linear-gradient(105deg, transparent 40%, rgba(251,191,36,0.07) 50%, transparent 60%)",
-                    }}
-                  />
-                  {/* Big number background */}
-                  <span
-                    className="absolute -top-4 -right-2 text-[5.5rem] font-black leading-none pointer-events-none select-none"
-                    style={{ color: "rgba(74,44,25,0.055)", fontFamily: "var(--font-playfair)" }}
-                  >
-                    {f.n}
-                  </span>
-
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-5 transition-colors group-hover:scale-110 duration-300"
-                    style={{ background: "rgba(194,65,12,0.1)" }}
-                  >
-                    <Icon size={17} style={{ color: "#C2410C" }} />
-                  </div>
-
-                  <h3
-                    className="font-semibold mb-2 text-sm"
-                    style={{ color: "#4A2C19", fontFamily: "var(--font-inter)" }}
-                  >
-                    {f.title}
-                  </h3>
-                  <p
-                    className="text-sm leading-relaxed font-light"
-                    style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
-                  >
-                    {f.body}
-                  </p>
-                </motion.div>
-              </ShimmerCard>
+              <div
+                key={f.title}
+                className="brut-card p-5 sm:p-6 relative overflow-hidden hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_var(--ink)] transition-[transform,box-shadow] duration-75"
+              >
+                <span className="absolute -top-2 -right-1 brut-display text-7xl text-ink/5 select-none pointer-events-none">
+                  {f.n}
+                </span>
+                <div className="w-10 h-10 border-2 border-ink bg-accent text-paper flex items-center justify-center mb-4 relative">
+                  <Icon size={16} strokeWidth={2.5} />
+                </div>
+                <h3 className="brut-display text-lg sm:text-xl text-ink mb-2 relative">{f.title}</h3>
+                <p className="text-sm text-ink-soft font-semibold leading-relaxed relative">{f.body}</p>
+              </div>
             );
           })}
         </div>
       </section>
 
-      {/* ── AI Demo ─────────────────────────────────────────────────────── */}
-      <section
-        ref={demoRef}
-        className="border-y py-20 sm:py-28 px-4 sm:px-6 relative z-10"
-        style={{ background: "#F9F5EE", borderColor: "#DDD0BE" }}
-      >
-        {/* Radial glow */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 80% 50%, rgba(194,65,12,0.08) 0%, transparent 70%)" }}
-        />
-
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-16 items-center relative">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={demoIn ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <p
-              className="text-xs font-semibold tracking-widest uppercase mb-3"
-              style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}
-            >
-              AI Spend Check
-            </p>
-            <h2
-              className="text-[clamp(1.6rem,4.5vw,2.5rem)] font-black tracking-tight leading-tight mb-5"
-              style={{ fontFamily: "var(--font-playfair)", color: "#4A2C19" }}
-            >
-              Your AI advisor<br />
-              <span style={{ color: "#b45309" }}>shows the true cost.</span>
+      {/* ─── AI Demo ─────────────────────────────────────────────── */}
+      <section className="border-y-2 border-ink bg-paper-2 py-14 sm:py-20 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div>
+            <p className="brut-label mb-2 text-accent">AI Spend Check</p>
+            <h2 className="brut-display text-[clamp(1.5rem,4vw,2.5rem)] text-ink leading-[0.95] mb-5">
+              Your AI advisor
+              <br />
+              <span className="text-accent">shows the true cost.</span>
             </h2>
-            <p
-              className="leading-relaxed font-light mb-6"
-              style={{ color: "#78350f", fontFamily: "var(--font-inter)" }}
-            >
-              Log a spend and instantly see how that choice affects your savings path.
-              Real context. Real numbers. Real consequences.
+            <p className="text-ink-soft font-semibold leading-relaxed mb-6">
+              Log a spend. Instantly see how that choice affects your savings path. Real context. Real math. Real consequences.
             </p>
-            <div className="flex items-center gap-2 text-sm font-medium" style={{ color: "#C2410C", fontFamily: "var(--font-inter)" }}>
-              <Flame size={15} />
-              <span>Powered by Google AI</span>
+            <div className="flex items-center gap-2">
+              <Flame size={16} className="text-accent" strokeWidth={2.5} />
+              <span className="brut-label">Powered by Groq + Llama 3</span>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={demoIn ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-          >
-            <AIChatBubbles inView={demoIn} />
-          </motion.div>
+          <div className="space-y-3">
+            {[
+              { user: "Logged: Biryani ₹180 · Food", ai: "bro you ate out 4× this week — ₹180/day = ₹2,160/yr. invest it.", roast: true },
+              { user: "Logged: Rapido ₹45 · Transport", ai: "looks necessary — ₹45 for transport, tracked ✓", roast: false },
+              { user: "Logged: Amazon ₹899 · Shopping", ai: "impulse at 11pm? sleep on it — 3 days of your food budget gone.", roast: true },
+            ].map((m, i) => (
+              <div key={i} className="space-y-1.5">
+                <div className="flex items-end gap-2 justify-end">
+                  <div className="brut-card-sm bg-ink text-paper px-3.5 py-2 text-sm font-semibold max-w-[80%]">
+                    {m.user}
+                  </div>
+                  <div className="w-7 h-7 border-2 border-ink bg-paper-2 flex items-center justify-center text-[10px] font-black">
+                    you
+                  </div>
+                </div>
+                <div className="flex items-end gap-2">
+                  <div className="w-7 h-7 border-2 border-ink bg-accent flex items-center justify-center text-[10px] font-black text-paper">
+                    AI
+                  </div>
+                  <div
+                    className={`brut-card-sm px-3.5 py-2 text-sm font-medium max-w-[80%] ${
+                      m.roast ? "bg-accent-soft text-ink" : "bg-good-soft text-good"
+                    }`}
+                  >
+                    {m.ai}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Final CTA ───────────────────────────────────────────────────── */}
-      <section
-        className="relative py-24 sm:py-40 px-4 sm:px-6 text-center overflow-hidden"
-        style={{ background: "#2C1810" }}
-      >
-        {/* Background glow */}
+      {/* ─── Final CTA ───────────────────────────────────────────── */}
+      <section className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 bg-ink text-paper overflow-hidden">
         <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(194,65,12,0.15) 0%, transparent 70%)" }}
-        />
-        {/* Dot grid dark */}
-        <div
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 opacity-10"
           style={{
-            backgroundImage: `radial-gradient(circle, rgba(251,191,36,0.08) 1px, transparent 1px)`,
-            backgroundSize: "28px 28px",
+            backgroundImage:
+              "linear-gradient(var(--paper) 2px, transparent 2px), linear-gradient(90deg, var(--paper) 2px, transparent 2px)",
+            backgroundSize: "48px 48px",
           }}
         />
-        {/* Animated beam sweep */}
-        <motion.div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: "linear-gradient(105deg, transparent 20%, rgba(194,65,12,0.12) 50%, transparent 80%)",
-          }}
-          animate={{ x: ["-100%", "100%"] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", repeatDelay: 4 }}
-        />
-
-        <div className="relative max-w-2xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-xs uppercase tracking-widest font-semibold mb-6"
-            style={{ color: "rgba(194,65,12,0.7)", fontFamily: "var(--font-inter)" }}
-          >
-            Start now
-          </motion.p>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[clamp(2rem,9vw,5.2rem)] font-black tracking-tight leading-[1.08] mb-8"
-            style={{ fontFamily: "var(--font-gatwick)", color: "#FDFCF6" }}
-          >
+        <div className="relative max-w-3xl mx-auto text-center">
+          <p className="brut-label text-accent mb-4 sm:mb-6">Start now</p>
+          <h2 className="brut-display text-[clamp(2.25rem,8vw,4.5rem)] leading-[0.95] mb-6 sm:mb-8">
             See your
             <br />
-            <span style={{ color: "#C2410C" }}>future.</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mb-10 font-light"
-            style={{ color: "rgba(253,252,246,0.55)", fontFamily: "var(--font-inter)" }}
+            <span className="text-accent">future.</span>
+          </h2>
+          <p className="text-paper/70 font-semibold mb-8 sm:mb-10 text-sm sm:text-base">
+            Free forever · Google sign-in · Built to beat retirement blindness.
+          </p>
+          <button
+            onClick={go}
+            disabled={signing}
+            className="inline-flex items-center gap-3 h-12 sm:h-14 px-6 sm:px-8 border-2 border-paper bg-accent text-paper font-black uppercase tracking-wider text-xs sm:text-sm shadow-[4px_4px_0_var(--paper)] sm:shadow-[6px_6px_0_var(--paper)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[8px_8px_0_var(--paper)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-[transform,box-shadow] duration-75 disabled:opacity-60"
           >
-            Free forever · Google sign-in · Built to beat retirement blindness
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-          >
-            <MagButton
-              onClick={go}
-              disabled={signing}
-              className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl font-bold text-base text-white transition-all disabled:opacity-60"
-              style={{
-                background: "#4A2C19",
-                boxShadow: "0 0 60px rgba(74,44,25,0.40)",
-                fontFamily: "var(--font-inter)",
-              } as React.CSSProperties}
-            >
-              {signing
-                ? <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
-                : <GoogleIcon size={20} />
-              }
-              Continue with Google
-              <ArrowRight size={16} />
-            </MagButton>
-          </motion.div>
+            {signing ? (
+              <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <GoogleIcon size={18} />
+            )}
+            Continue with Google
+            <ArrowRight size={16} strokeWidth={2.5} />
+          </button>
         </div>
       </section>
 
-      {/* ── PWA Install section ─────────────────────────────────────────── */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 relative z-10" style={{ background: "#F9F5EE" }}>
+      {/* ─── PWA install ─────────────────────────────────────────── */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-paper border-t-2 border-ink">
         <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-3xl border p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-8"
-            style={{ background: "#1A0E08", borderColor: "rgba(255,255,255,0.08)" }}
-          >
-            {/* App icon */}
-            <div className="shrink-0">
+          <div className="brut-card-lg p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+            <div className="shrink-0 border-2 border-ink">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/icon-192.png"
-                alt="SuperFinz"
-                className="w-24 h-24 rounded-3xl shadow-2xl"
-                style={{ boxShadow: "0 0 40px rgba(180,83,9,0.4)" }}
-              />
+              <img src="/icon-192.png" alt="SuperFinz" className="w-20 h-20 sm:w-24 sm:h-24" />
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "#b45309", fontFamily: "var(--font-inter)" }}>
-                Installable · No app store needed
+              <p className="brut-label text-accent mb-2">Installable · No app store</p>
+              <h3 className="brut-display text-2xl sm:text-3xl text-ink mb-3">Add to home screen.</h3>
+              <p className="text-sm text-ink-soft font-semibold mb-6">
+                Install SuperFinz for an app-like experience. Instant launch. Native feel. No Play Store.
               </p>
-              <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-2" style={{ color: "#FDFCF6", fontFamily: "var(--font-gatwick)" }}>
-                Add to home screen
-              </h2>
-              <p className="text-sm font-light mb-6" style={{ color: "rgba(253,252,246,0.55)", fontFamily: "var(--font-inter)" }}>
-                Install SuperFinz on your phone or desktop for an app-like experience — instant launch, native feel, no Play Store or App Store required.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 {installed ? (
-                  <div className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold" style={{ background: "rgba(5,150,105,0.15)", color: "#34d399", border: "1px solid rgba(52,211,153,0.3)" }}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                    Installed!
-                  </div>
+                  <div className="brut-stamp bg-good text-paper">Installed ✓</div>
                 ) : installPrompt ? (
-                  <button
-                    onClick={handleInstall}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all"
-                    style={{ background: "#b45309", color: "#FDFCF6", fontFamily: "var(--font-inter)" }}
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                    Install App
+                  <button onClick={handleInstall} className="brut-btn bg-accent text-paper h-11 text-xs">
+                    <ArrowDown size={14} strokeWidth={2.5} />
+                    Install app
                   </button>
                 ) : (
-                  <div className="text-sm" style={{ color: "rgba(253,252,246,0.4)", fontFamily: "var(--font-inter)" }}>
-                    On Chrome/Edge: tap the install icon in the address bar · On Safari: Share → Add to Home Screen
-                  </div>
+                  <p className="text-[11px] text-ink-soft font-semibold">
+                    Chrome/Edge: install from the address bar · Safari: Share → Add to Home Screen
+                  </p>
                 )}
-                <button
-                  onClick={go}
-                  disabled={signing}
-                  className="text-sm font-semibold px-6 py-3 rounded-xl transition-all disabled:opacity-60"
-                  style={{ background: "rgba(255,255,255,0.08)", color: "#FDFCF6", border: "1px solid rgba(255,255,255,0.12)", fontFamily: "var(--font-inter)" }}
-                >
+                <button onClick={go} disabled={signing} className="brut-btn bg-paper text-ink h-11 text-xs">
                   Or open in browser →
                 </button>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="px-8 py-6 border-t" style={{ background: "#1A0E08", borderColor: "rgba(255,255,255,0.06)" }}>
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-2 justify-between">
+      {/* ─── Footer ──────────────────────────────────────────────── */}
+      <footer className="px-6 py-6 bg-ink text-paper border-t-2 border-ink">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center gap-3 justify-between">
           <Logo size="sm" />
-          <p className="text-xs" style={{ color: "rgba(253,252,246,0.35)", fontFamily: "var(--font-inter)" }}>
-            Built for Gen Z to finally get their money right · SuperFinz © 2026
+          <p className="text-xs opacity-60 font-semibold">
+            Built for Gen Z to finally get money right · SuperFinz © 2026
           </p>
         </div>
       </footer>
@@ -1081,7 +492,6 @@ export default function Landing() {
   );
 }
 
-// ─── Google Icon ──────────────────────────────────────────────────────────────
 function GoogleIcon({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24">

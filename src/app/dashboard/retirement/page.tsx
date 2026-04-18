@@ -98,31 +98,32 @@ export default function RetirementPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text">Retirement Planner</h1>
-        <p className="text-accent text-sm mt-0.5 font-light">
-          Calculate your <FinTip term="FIRE" /> number — the <FinTip term="corpus" /> you need to retire on your terms
+        <p className="brut-label mb-1">FIRE Planner</p>
+        <h1 className="brut-display text-4xl sm:text-5xl text-ink">Retirement.</h1>
+        <p className="text-ink-soft text-sm font-semibold mt-1">
+          Your <FinTip term="FIRE" /> number — the <FinTip term="corpus" /> you need to quit working on your terms.
         </p>
       </div>
 
       {/* ── Summary banner ── */}
-      <div className={`rounded-2xl p-5 border-2 ${onTrack ? "bg-emerald-50 border-emerald-200" : "bg-text border-amber-600"}`}>
+      <div className={`border-2 border-ink p-5 shadow-[4px_4px_0_var(--ink)] ${onTrack ? "bg-good-soft" : "bg-ink"}`}>
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
-            <p className={`text-[10px] font-semibold uppercase tracking-wider ${onTrack ? "text-emerald-600" : "text-amber-300"}`}>
-              {onTrack ? "You're on track" : "Gap to close"}
+            <p className={`brut-label ${onTrack ? "text-good" : "text-accent"}`}>
+              {onTrack ? "On track" : "Gap to close"}
             </p>
-            <p className={`text-2xl font-black mt-1 ${onTrack ? "text-emerald-700" : "text-background"}`}>
+            <p className={`brut-display text-3xl sm:text-4xl mt-2 tabular ${onTrack ? "text-ink" : "text-paper"}`}>
               {onTrack ? `${fmtCrore(projCorpus)} projected` : `${fmtCrore(corpusGap)} short`}
             </p>
-            <p className={`text-xs mt-1 font-light ${onTrack ? "text-emerald-600" : "text-amber-300/80"}`}>
-              Freedom corpus needed by age {retireAge}: {fmtCrore(fireCorpus)}
+            <p className={`text-xs mt-2 font-semibold tabular ${onTrack ? "text-ink-soft" : "text-paper/70"}`}>
+              Freedom corpus by {retireAge}: {fmtCrore(fireCorpus)}
             </p>
           </div>
           {!onTrack && (
-            <div className="shrink-0 bg-text2/40 rounded-xl px-4 py-3 text-center">
-              <p className="text-[10px] text-amber-300 uppercase tracking-wide font-semibold"><FinTip term="SIP">SIP</FinTip> needed</p>
-              <p className="text-xl font-black text-amber-300 mt-0.5">{formatCurrency(Math.round(requiredSip))}</p>
-              <p className="text-[10px] text-amber-400/70">per month to hit target</p>
+            <div className="shrink-0 border-2 border-accent bg-accent-soft px-4 py-3 text-center">
+              <p className="brut-label text-accent"><FinTip term="SIP">SIP</FinTip> needed</p>
+              <p className="brut-display text-2xl text-ink mt-1 tabular">{formatCurrency(Math.round(requiredSip))}</p>
+              <p className="text-[10px] text-ink-soft font-semibold">per month</p>
             </div>
           )}
         </div>
@@ -130,8 +131,8 @@ export default function RetirementPage() {
 
       <div className="grid lg:grid-cols-3 gap-4">
         {/* ── Inputs ── */}
-        <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm space-y-4">
-          <h2 className="text-sm font-semibold text-text">Your numbers</h2>
+        <div className="brut-card p-5 space-y-4">
+          <p className="brut-label">Your numbers</p>
 
           {[
             { label: "Current age", value: currentAge, set: setCurrentAge, min: 15, max: 50 },
@@ -139,45 +140,41 @@ export default function RetirementPage() {
           ].map(({ label, value, set, min, max }) => (
             <div key={label}>
               <div className="flex justify-between mb-1">
-                <label className="text-xs text-text font-medium">{label}</label>
-                <span className="text-xs font-bold text-amber-700">{value} yrs</span>
+                <label className="text-xs text-ink font-black uppercase tracking-wider">{label}</label>
+                <span className="text-xs font-black text-accent tabular">{value} yrs</span>
               </div>
               <input type="range" min={min} max={max} value={value}
                 onChange={e => set(Number(e.target.value))}
-                className="w-full accent-amber-600 cursor-pointer"
+                className="w-full accent-accent cursor-pointer"
               />
             </div>
           ))}
 
-          <div>
-            <label className="text-xs text-text font-medium block mb-1">Monthly SIP (₹)</label>
-            <input type="number" value={monthlySip} onChange={e => setMonthlySip(Number(e.target.value))}
-              className="w-full bg-surface border border-amber-400 rounded-xl px-3 py-2 text-sm text-text focus:outline-none focus:border-amber-500" />
-          </div>
-          <div>
-            <label className="text-xs text-text font-medium block mb-1">Monthly expenses (₹)</label>
-            <input type="number" value={monthlyExpenses} onChange={e => setMonthlyExpenses(Number(e.target.value))}
-              className="w-full bg-surface border border-amber-400 rounded-xl px-3 py-2 text-sm text-text focus:outline-none focus:border-amber-500" />
-          </div>
-          <div>
-            <label className="text-xs text-text font-medium block mb-1">Existing savings (₹)</label>
-            <input type="number" value={currentSaved} onChange={e => setCurrentSaved(Number(e.target.value))}
-              className="w-full bg-surface border border-amber-400 rounded-xl px-3 py-2 text-sm text-text focus:outline-none focus:border-amber-500" />
-          </div>
+          {[
+            { label: "Monthly SIP (₹)", value: monthlySip, set: setMonthlySip },
+            { label: "Monthly expenses (₹)", value: monthlyExpenses, set: setMonthlyExpenses },
+            { label: "Existing savings (₹)", value: currentSaved, set: setCurrentSaved },
+          ].map(({ label, value, set }) => (
+            <div key={label}>
+              <label className="brut-label block mb-1.5">{label}</label>
+              <input type="number" value={value} onChange={e => set(Number(e.target.value))}
+                className="w-full bg-paper border-2 border-ink px-3 h-10 text-sm text-ink font-bold tabular focus:outline-none focus:bg-accent-soft" />
+            </div>
+          ))}
 
-          <div className="border-t border-amber-200 pt-3 space-y-3">
-            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold">Assumptions</p>
+          <div className="border-t-2 border-ink pt-3 space-y-3">
+            <p className="brut-label">Assumptions</p>
             {[
               { label: `Expected return: ${returns}% CAGR`, value: returns, set: setReturns, min: 6, max: 18 },
               { label: `Inflation: ${inflation}%`, value: inflation, set: setInflation, min: 3, max: 10 },
             ].map(({ label, value, set, min, max }) => (
               <div key={label}>
                 <div className="flex justify-between mb-1">
-                  <label className="text-xs text-accent font-light">{label}</label>
+                  <label className="text-[11px] text-ink-soft font-bold tabular">{label}</label>
                 </div>
                 <input type="range" min={min} max={max} value={value}
                   onChange={e => set(Number(e.target.value))}
-                  className="w-full accent-amber-600 cursor-pointer"
+                  className="w-full accent-accent cursor-pointer"
                 />
               </div>
             ))}
@@ -185,16 +182,16 @@ export default function RetirementPage() {
         </div>
 
         {/* ── Chart ── */}
-        <div className="lg:col-span-2 bg-background rounded-2xl border border-surface p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-text mb-1">Corpus growth trajectory</h2>
-          <p className="text-xs text-accent font-light mb-4">Your projected wealth vs freedom corpus target</p>
+        <div className="lg:col-span-2 brut-card p-5">
+          <p className="brut-label">Corpus growth trajectory</p>
+          <p className="text-xs text-ink-soft font-semibold mb-4 mt-1">Your projected wealth vs target corpus</p>
           <RetirementChart data={chartData} retireAge={retireAge} />
         </div>
       </div>
 
       {/* ── Key milestones ── */}
-      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-text mb-4">What this means for you</h2>
+      <div className="brut-card p-5">
+        <p className="brut-label mb-4">What this means for you</p>
         <div className="grid sm:grid-cols-3 gap-3">
           {[
             {
@@ -216,19 +213,19 @@ export default function RetirementPage() {
               highlight: false,
             },
           ].map(({ label, value, sub, highlight }) => (
-            <div key={label} className={`rounded-xl p-4 border ${highlight ? "bg-text border-amber-600 text-background" : "bg-surface border-amber-400 text-text"}`}>
-              <p className={`text-[10px] font-semibold uppercase tracking-wide ${highlight ? "text-amber-300" : "text-accent"}`}>{label}</p>
-              <p className={`text-xl font-black mt-1 ${highlight ? "text-amber-300" : "text-text"}`}>{value}</p>
-              <p className={`text-[11px] mt-0.5 font-light ${highlight ? "text-amber-400/80" : "text-accent"}`}>{sub}</p>
+            <div key={label} className={`border-2 border-ink p-4 ${highlight ? "bg-accent text-paper" : "bg-paper-2"}`}>
+              <p className={`brut-label ${highlight ? "text-paper" : ""}`}>{label}</p>
+              <p className={`brut-display text-2xl mt-1 tabular ${highlight ? "text-paper" : "text-ink"}`}>{value}</p>
+              <p className={`text-[11px] mt-1 font-semibold ${highlight ? "text-paper/80" : "text-ink-soft"}`}>{sub}</p>
             </div>
           ))}
         </div>
 
         {!onTrack && requiredSip > safeSip && (
-          <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
-            <span className="font-semibold">Gap plan: </span>
-            Increase your SIP by {formatCurrency(Math.round(requiredSip - safeSip))}/month.
-            Skip {Math.max(1, Math.ceil((requiredSip - safeSip) / 400))} unnecessary food orders/month to cover it.
+          <div className="mt-4 border-2 border-ink bg-accent-soft px-4 py-3 text-sm text-ink font-semibold">
+            <span className="brut-label mr-1">Gap plan:</span>
+            Increase your SIP by <span className="tabular font-black">{formatCurrency(Math.round(requiredSip - safeSip))}</span>/month.
+            Skip <span className="font-black">{Math.max(1, Math.ceil((requiredSip - safeSip) / 400))}</span> unnecessary food orders/month to cover it.
             Start a NIFTY 50 index fund SIP today — even ₹500 extra compounds significantly over {yearsLeft} years.
           </div>
         )}

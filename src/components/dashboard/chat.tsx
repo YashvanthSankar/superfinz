@@ -4,16 +4,6 @@ import { X, Send, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiFetch, FetchError } from "@/lib/fetcher";
 
-// Theme values read from CSS custom properties (see src/app/globals.css)
-const T = {
-  bg:      "var(--color-background)",
-  surface: "var(--color-surface)",
-  border:  "var(--color-border)",
-  text:    "var(--color-text)",
-  accent:  "var(--color-accent)",
-  muted:   "var(--color-muted)",
-};
-
 type Message = { role: "user" | "assistant"; content: string };
 
 const STARTERS = [
@@ -29,8 +19,8 @@ function TypingDots() {
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="w-1.5 h-1.5 rounded-full animate-bounce"
-          style={{ background: T.accent, opacity: 0.5, animationDelay: `${i * 0.18}s` }}
+          className="w-1.5 h-1.5 bg-ink animate-bounce"
+          style={{ animationDelay: `${i * 0.18}s` }}
         />
       ))}
     </div>
@@ -38,17 +28,17 @@ function TypingDots() {
 }
 
 export function Chat() {
-  const [open, setOpen]         = useState(false);
-  const [input, setInput]       = useState("");
-  const [loading, setLoading]   = useState(false);
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hey! I'm Finz. I know your spending history — ask me anything about your money.",
+      content: "Hey. I'm Finz. I know your spending — ask me anything.",
     },
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef  = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 120);
@@ -90,75 +80,66 @@ export function Chat() {
 
   return (
     <>
-      {/* ── Floating button ─────────────────────────── */}
+      {/* Floating button */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="fixed z-50 flex items-center justify-center rounded-2xl shadow-lg transition-all duration-200 active:scale-95 right-4 bottom-[4.8rem] lg:bottom-6 lg:right-6 w-13 h-13 lg:w-14 lg:h-14"
-        style={{
-          background: open ? T.bg : T.text,
-          border: `1px solid ${open ? T.border : T.text}`,
-          color: open ? T.text : T.bg,
-        }}
+        className={cn(
+          "fixed z-50 w-14 h-14 lg:w-14 lg:h-14 flex items-center justify-center border-2 border-ink transition-[transform,box-shadow] duration-75",
+          "right-4 bottom-[4.8rem] lg:bottom-6 lg:right-6",
+          "shadow-[4px_4px_0_var(--ink)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[6px_6px_0_var(--ink)]",
+          "active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--ink)]",
+          open ? "bg-paper text-ink" : "bg-accent text-paper"
+        )}
         aria-label="Open Finz AI"
       >
-        {open ? <ChevronDown size={20} /> : <Sparkles size={20} />}
+        {open ? <ChevronDown size={20} strokeWidth={2.5} /> : <Sparkles size={20} strokeWidth={2.5} />}
         {!open && (
-          <span
-            className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 animate-pulse"
-            style={{ background: T.accent, borderColor: T.bg }}
-          />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-ink border-2 border-paper animate-pulse" />
         )}
       </button>
 
-      {/* ── Chat panel ──────────────────────────────── */}
+      {/* Chat panel */}
       {open && (
         <div
           className={cn(
-            "fixed z-50 flex flex-col overflow-hidden rounded-2xl shadow-xl",
+            "fixed z-50 flex flex-col overflow-hidden border-2 border-ink bg-paper shadow-[6px_6px_0_var(--ink)]",
             "right-3 left-3 bottom-[4.5rem] max-h-[72vh]",
             "lg:left-auto lg:right-6 lg:bottom-24 lg:w-[28rem] lg:max-h-[42rem]"
           )}
-          style={{ background: T.bg, border: `1px solid ${T.border}` }}
         >
           {/* Header */}
-          <div
-            className="flex items-center gap-3 px-4 py-3.5 border-b shrink-0"
-            style={{ background: T.surface, borderColor: T.border }}
-          >
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: T.text }}>
-              <Sparkles size={15} style={{ color: T.bg }} />
+          <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-ink bg-ink text-paper shrink-0">
+            <div className="w-8 h-8 border-2 border-paper bg-accent flex items-center justify-center shrink-0">
+              <Sparkles size={15} className="text-paper" strokeWidth={2.5} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm leading-tight" style={{ color: T.text }}>Finz AI</p>
-              <p className="text-[11px] font-light" style={{ color: T.accent }}>Your personal finance buddy</p>
+              <p className="font-black text-sm uppercase tracking-wider leading-tight">Finz AI</p>
+              <p className="text-[11px] font-semibold opacity-80">Your finance buddy</p>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="w-7 h-7 rounded-lg flex items-center justify-center transition-all"
-              style={{ color: T.accent }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = T.border; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+              className="w-8 h-8 border-2 border-paper bg-transparent hover:bg-bad flex items-center justify-center transition-colors"
             >
-              <X size={15} />
+              <X size={14} strokeWidth={2.5} />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0" style={{ background: T.bg }}>
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0 bg-paper">
             {messages.map((m, i) => (
               <div key={i} className={cn("flex items-end gap-2", m.role === "user" ? "justify-end" : "justify-start")}>
                 {m.role === "assistant" && (
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mb-0.5" style={{ background: T.text }}>
-                    <Sparkles size={11} style={{ color: T.bg }} />
+                  <div className="w-7 h-7 border-2 border-ink bg-accent flex items-center justify-center shrink-0 mb-0.5">
+                    <Sparkles size={12} className="text-paper" strokeWidth={2.5} />
                   </div>
                 )}
                 <div
-                  className="max-w-[82%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed"
-                  style={
+                  className={cn(
+                    "max-w-[82%] px-3.5 py-2.5 text-sm leading-relaxed border-2 border-ink",
                     m.role === "user"
-                      ? { background: T.text, color: T.bg, borderBottomRightRadius: "4px", fontWeight: 500 }
-                      : { background: T.surface, color: T.text, border: `1px solid ${T.border}`, borderBottomLeftRadius: "4px" }
-                  }
+                      ? "bg-ink text-paper font-semibold"
+                      : "bg-paper text-ink font-medium"
+                  )}
                 >
                   {m.content}
                 </div>
@@ -167,10 +148,10 @@ export function Chat() {
 
             {loading && (
               <div className="flex items-end gap-2 justify-start">
-                <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mb-0.5" style={{ background: T.text }}>
-                  <Sparkles size={11} style={{ color: T.bg }} />
+                <div className="w-7 h-7 border-2 border-ink bg-accent flex items-center justify-center shrink-0 mb-0.5">
+                  <Sparkles size={12} className="text-paper" strokeWidth={2.5} />
                 </div>
-                <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: "16px", borderBottomLeftRadius: "4px" }}>
+                <div className="border-2 border-ink bg-paper">
                   <TypingDots />
                 </div>
               </div>
@@ -180,21 +161,12 @@ export function Chat() {
 
           {/* Quick starters */}
           {messages.length === 1 && (
-            <div className="px-4 pb-3 pt-1 flex flex-wrap gap-1.5 shrink-0" style={{ background: T.bg }}>
+            <div className="px-4 pb-3 pt-1 flex flex-wrap gap-1.5 shrink-0 bg-paper">
               {STARTERS.map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="text-[11px] px-2.5 py-1.5 rounded-lg transition-all font-medium"
-                  style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.muted }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = T.accent;
-                    e.currentTarget.style.color = T.accent;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = T.border;
-                    e.currentTarget.style.color = T.muted;
-                  }}
+                  className="text-[11px] px-2.5 h-8 border-2 border-ink bg-paper-2 text-ink font-bold hover:bg-accent hover:text-paper transition-colors"
                 >
                   {s}
                 </button>
@@ -203,28 +175,26 @@ export function Chat() {
           )}
 
           {/* Input row */}
-          <div
-            className="flex items-center gap-2 px-3.5 py-3 border-t shrink-0"
-            style={{ background: T.surface, borderColor: T.border }}
-          >
+          <div className="flex items-center gap-2 px-3.5 py-3 border-t-2 border-ink bg-paper-2 shrink-0">
             <input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
               placeholder="Ask about your money..."
-              className="flex-1 rounded-xl px-3.5 py-2 text-sm focus:outline-none transition-all"
-              style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = T.accent; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = T.border; }}
+              className="flex-1 border-2 border-ink bg-paper px-3 h-10 text-sm text-ink font-semibold placeholder:text-mute placeholder:font-normal focus:outline-none focus:bg-accent-soft"
             />
             <button
               onClick={() => send()}
               disabled={!input.trim() || loading}
-              className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all shrink-0"
-              style={{ background: T.text, color: T.bg, opacity: !input.trim() || loading ? 0.3 : 1 }}
+              className="w-10 h-10 border-2 border-ink bg-accent text-paper flex items-center justify-center shrink-0 hover:bg-ink disabled:opacity-30 transition-colors"
             >
-              <Send size={14} />
+              <Send size={14} strokeWidth={2.5} />
             </button>
           </div>
         </div>

@@ -34,26 +34,24 @@ export function FinTip({ term, children }: FinTipProps) {
         onFocus={() => setShow(true)}
         onBlur={() => setShow(false)}
         onClick={() => setShow((s) => !s)}
-        className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-amber-200 text-amber-800 text-[8px] font-black leading-none hover:bg-amber-400 transition-colors cursor-help ml-0.5 shrink-0"
+        className="inline-flex items-center justify-center w-4 h-4 border-2 border-ink bg-accent text-paper text-[8px] font-black leading-none ml-1 shrink-0"
         aria-label={`What is ${term}?`}
       >
         ?
       </button>
       {show && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-52 bg-text text-background rounded-xl px-3 py-2.5 shadow-xl text-left pointer-events-auto">
-          <span className="block text-[10px] font-bold text-amber-300 mb-0.5">{term}</span>
-          <span className="block text-[11px] font-light leading-relaxed">{tip.short}</span>
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-56 bg-ink text-paper border-2 border-ink shadow-[4px_4px_0_var(--ink)] px-3 py-2.5 text-left pointer-events-auto">
+          <span className="block text-[10px] font-black text-accent mb-1 uppercase tracking-wider">{term}</span>
+          <span className="block text-[11px] font-medium leading-relaxed">{tip.short}</span>
           {tip.learnId && (
             <Link
-              href={`/dashboard/learn#${tip.learnId}`}
+              href={`/dashboard/learn/${tip.learnId}`}
               onClick={() => setShow(false)}
-              className="block text-[10px] text-amber-400 hover:text-amber-300 mt-1.5 font-medium"
+              className="block text-[10px] text-accent hover:underline mt-2 font-bold uppercase tracking-wider"
             >
               Read full article →
             </Link>
           )}
-          {/* Arrow */}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-text" />
         </span>
       )}
     </span>

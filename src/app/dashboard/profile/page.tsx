@@ -123,45 +123,46 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-ink border-t-transparent animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-5">
+    <div className="max-w-xl mx-auto space-y-6">
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-text">Profile</h1>
-        <p className="text-accent text-sm mt-0.5 font-light">Manage your details and financial limits</p>
+        <p className="brut-label mb-1">Account</p>
+        <h1 className="brut-display text-4xl sm:text-5xl text-ink">Profile.</h1>
+        <p className="text-ink-soft text-sm font-semibold mt-1">Manage your details and limits.</p>
       </div>
 
       {/* Identity card */}
-      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
+      <div className="brut-card p-5">
         <div className="flex items-center gap-4">
           {session?.user?.image ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={session.user.image} alt="" className="w-14 h-14 rounded-2xl ring-2 ring-border shrink-0" />
+            <img src={session.user.image} alt="" className="w-16 h-16 border-2 border-ink shrink-0" />
           ) : (
-            <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 text-xl font-black flex items-center justify-center shrink-0">
+            <div className="w-16 h-16 border-2 border-ink bg-accent text-paper brut-display text-2xl flex items-center justify-center shrink-0">
               {user?.name?.[0]?.toUpperCase()}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-text text-lg truncate">{user?.name}</p>
-            <p className="text-accent text-sm truncate">{user?.email}</p>
-            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold border border-amber-200">
+            <p className="brut-display text-xl text-ink truncate">{user?.name}</p>
+            <p className="text-ink-soft text-sm truncate font-semibold">{user?.email}</p>
+            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+              <span className="brut-stamp bg-ink text-paper">
                 {USER_TYPE_LABELS[user?.userType ?? ""] ?? user?.userType}
               </span>
               {user?.age && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface text-muted font-medium border border-amber-400">
+                <span className="brut-stamp bg-paper-2">
                   {user.age} yrs
                 </span>
               )}
               {user?.createdAt && (
-                <span className="text-[10px] text-accent font-light">
+                <span className="text-[10px] text-ink-soft font-semibold">
                   Since {new Date(user.createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
                 </span>
               )}
@@ -171,28 +172,28 @@ export default function ProfilePage() {
 
         {/* Quick stats */}
         {user?.profile && (
-          <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-surface">
+          <div className="grid grid-cols-3 gap-0 mt-5 pt-4 border-t-2 border-ink">
             <div className="text-center">
-              <p className="text-xs font-bold text-text">{formatCurrency(user.profile.monthlyBudget)}</p>
-              <p className="text-[10px] text-accent font-light">Monthly budget</p>
+              <p className="brut-display text-xl text-ink tabular">{formatCurrency(user.profile.monthlyBudget)}</p>
+              <p className="brut-label mt-1">Budget</p>
             </div>
-            <div className="text-center border-x border-surface">
-              <p className="text-xs font-bold text-text">{formatCurrency(user.profile.savingsGoal)}</p>
-              <p className="text-[10px] text-accent font-light">Savings goal</p>
+            <div className="text-center border-x-2 border-ink">
+              <p className="brut-display text-xl text-ink tabular">{formatCurrency(user.profile.savingsGoal)}</p>
+              <p className="brut-label mt-1">Savings goal</p>
             </div>
             <div className="text-center">
-              <p className="text-xs font-bold text-text">
+              <p className="brut-display text-xl text-ink tabular">
                 {formatCurrency(user.profile.monthlySalary ?? user.profile.monthlyAllowance ?? 0)}
               </p>
-              <p className="text-[10px] text-accent font-light">{isStudent ? "Allowance" : "Salary"}</p>
+              <p className="brut-label mt-1">{isStudent ? "Allowance" : "Salary"}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Edit form */}
-      <form onSubmit={handleSave} className="bg-background rounded-2xl border border-surface p-5 shadow-sm space-y-4">
-        <h2 className="text-sm font-semibold text-text">Financial limits</h2>
+      <form onSubmit={handleSave} className="brut-card p-5 space-y-4">
+        <p className="brut-label">Financial limits</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -254,42 +255,40 @@ export default function ProfilePage() {
         )}
 
         {(monthlyIncome > 0 || monthlyBudget > 0 || savingsGoal > 0) && (
-          <div className={`rounded-xl p-4 border ${plan.overspent ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-100"}`}>
-            <p className={`text-sm font-semibold ${plan.overspent ? "text-red-700" : "text-emerald-700"}`}>Monthly Money Plan</p>
-            <div className={`mt-2 text-xs space-y-1 ${plan.overspent ? "text-red-600" : "text-emerald-700"}`}>
+          <div className={`border-2 border-ink p-4 ${plan.overspent ? "bg-bad-soft" : "bg-good-soft"}`}>
+            <p className="brut-label">Monthly Money Plan</p>
+            <div className="mt-2 text-xs space-y-1 text-ink font-bold tabular">
               <p>Total income: {formatCurrency(plan.monthlyIncome)}</p>
               <p>Spending budget: {formatCurrency(plan.monthlyBudget)}</p>
               <p>Savings goal: {formatCurrency(plan.savingsGoal)}</p>
-              <p>Left after plan: {formatCurrency(plan.remaining)}</p>
+              <p>Left: {formatCurrency(plan.remaining)}</p>
             </div>
             {plan.overspent && (
-              <p className="text-xs mt-2 text-red-700 font-medium">
-                You are planning to spend/save more than your income. Reduce budget or savings goal.
+              <p className="text-xs mt-3 text-bad font-black uppercase tracking-wider">
+                Spending + savings exceeds income. Reduce one.
               </p>
             )}
           </div>
         )}
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">{error}</p>
+          <p className="text-sm text-bad bg-bad-soft border-2 border-ink px-4 py-2.5 font-bold">{error}</p>
         )}
 
         <div className="flex items-center gap-3 pt-1">
-          <Button type="submit" loading={saving} disabled={!!planError} className="flex-1">
+          <Button type="submit" variant="accent" loading={saving} disabled={!!planError} className="flex-1">
             Save changes
           </Button>
           {saved && (
-            <span className="text-xs text-emerald-600 font-medium bg-emerald-50 border border-emerald-100 px-3 py-2 rounded-xl">
-              Saved
-            </span>
+            <span className="brut-stamp bg-good text-paper border-ink">Saved</span>
           )}
         </div>
       </form>
 
       {/* Danger zone */}
-      <div className="bg-background rounded-2xl border border-red-100 p-5 shadow-sm">
-        <h2 className="text-sm font-semibold text-text mb-1">Account</h2>
-        <p className="text-xs text-accent font-light mb-4">Sign out from all devices</p>
+      <div className="brut-card p-5 border-bad">
+        <p className="brut-label text-bad mb-1">Account</p>
+        <p className="text-xs text-ink-soft font-semibold mb-4">Sign out from all devices</p>
         <Button
           variant="danger"
           onClick={() => signOut({ callbackUrl: "/" })}

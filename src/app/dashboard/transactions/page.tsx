@@ -118,29 +118,30 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-text">Transactions</h1>
-          <p className="text-accent text-sm font-light mt-0.5">Track every rupee you spend</p>
+          <p className="brut-label mb-1">Expense log</p>
+          <h1 className="brut-display text-4xl sm:text-5xl text-ink">Transactions.</h1>
+          <p className="text-ink-soft text-sm font-semibold mt-1">Track every rupee.</p>
         </div>
         <div className="flex items-center gap-2">
           {transactions.length > 0 && (
             <button
               onClick={() => exportCSV(transactions)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-surface text-xs font-medium text-accent hover:text-amber-700 hover:bg-amber-50 transition-all"
+              className="brut-btn bg-paper text-ink text-xs h-10"
             >
-              <Download size={13} /> Export CSV
+              <Download size={13} strokeWidth={2.5} /> Export CSV
             </button>
           )}
-          <Button onClick={() => { setShowForm(!showForm); setAiNote(null); }}>
+          <Button variant="accent" onClick={() => { setShowForm(!showForm); setAiNote(null); }}>
             {showForm ? "Cancel" : "+ Add spend"}
           </Button>
         </div>
       </div>
 
       {showForm && (
-        <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-          <h2 className="text-sm font-semibold text-text mb-5">Log a spend</h2>
+        <div className="brut-card p-6">
+          <p className="brut-label mb-4">Log a spend</p>
           <form onSubmit={handleAdd} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Input label="Amount (₹)" type="number" placeholder="150" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} required />
@@ -157,13 +158,13 @@ export default function TransactionsPage() {
                 ? `₹${(n / 100000).toFixed(1)}L`
                 : `₹${n.toLocaleString("en-IN")}`;
               return (
-                <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                  <TrendingUp size={16} className="text-amber-600 shrink-0" />
-                  <p className="text-xs text-amber-800 leading-relaxed">
-                    <span className="font-bold">{fmt(amt)} today</span>
+                <div className="flex items-center gap-3 border-2 border-ink bg-accent-soft px-4 py-3">
+                  <TrendingUp size={16} className="text-ink shrink-0" strokeWidth={2.5} />
+                  <p className="text-xs text-ink leading-relaxed font-semibold tabular">
+                    <span className="font-black">{fmt(amt)} today</span>
                     {" → "}
-                    <span className="text-emerald-700 font-bold">{fmt(future)} in 25 yrs</span>
-                    <span className="text-amber-600"> if invested in NIFTY 50 (12% CAGR)</span>
+                    <span className="text-good font-black">{fmt(future)} in 25 yrs</span>
+                    <span className="text-ink-soft"> @ 12% CAGR (NIFTY 50)</span>
                   </p>
                 </div>
               );
@@ -178,68 +179,73 @@ export default function TransactionsPage() {
           </form>
 
           {aiNote && (
-            <div className={`mt-4 p-4 rounded-xl border text-sm ${
-              aiNote.ok
-                ? "bg-emerald-50 border-emerald-100 text-emerald-800"
-                : "bg-amber-50 border-amber-100 text-amber-800"
+            <div className={`mt-4 p-4 border-2 border-ink text-sm ${
+              aiNote.ok ? "bg-good-soft" : "bg-accent-soft"
             }`}>
-              <p className="font-semibold text-xs uppercase tracking-wide mb-1">{aiNote.ok ? "AI — Looks good" : "AI — Heads up"}</p>
-              <p className="font-light">{aiNote.note}</p>
+              <p className="brut-label mb-1">{aiNote.ok ? "AI — Looks good" : "AI — Heads up"}</p>
+              <p className="font-semibold text-ink">{aiNote.note}</p>
             </div>
           )}
         </div>
       )}
 
-      <div className="bg-background rounded-2xl border border-surface shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-surface flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text">All transactions</h2>
+      <div className="brut-card overflow-hidden p-0">
+        <div className="px-5 py-4 border-b-2 border-ink flex items-center justify-between bg-paper-2">
+          <p className="brut-label">All transactions</p>
           {fetchError && (
-            <button onClick={fetchTx} className="text-xs text-red-600 hover:underline">
+            <button onClick={fetchTx} className="text-xs font-black uppercase text-bad hover:underline">
               {fetchError} — retry
             </button>
           )}
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-ink border-t-transparent animate-spin" />
           </div>
         ) : transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-4">
-              <ArrowLeftRight size={22} className="text-amber-600" />
+            <div className="w-14 h-14 border-2 border-ink bg-accent-soft flex items-center justify-center mb-4">
+              <ArrowLeftRight size={22} className="text-ink" strokeWidth={2.5} />
             </div>
-            <p className="font-semibold text-text">No transactions yet</p>
-            <p className="text-accent text-sm mt-1 font-light max-w-xs">
-              Log your first spend and Finz will tell you if it was really worth it
+            <p className="brut-display text-2xl text-ink">No spends yet.</p>
+            <p className="text-ink-soft text-sm font-semibold mt-1 max-w-xs">
+              Log your first spend. Finz will tell you if it was worth it.
             </p>
-            <button
-              onClick={() => setShowForm(true)}
-              className="mt-5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-400 transition-all"
-            >
+            <Button variant="accent" className="mt-5" onClick={() => setShowForm(true)}>
               + Log your first spend
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="divide-y divide-background">
-            {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center gap-3 px-5 py-4 hover:bg-background transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-background border border-surface flex items-center justify-center shrink-0">
-                  <span className="text-[10px] font-bold text-muted uppercase">{tx.category.slice(0, 2)}</span>
+          <div>
+            {transactions.map((tx, i) => (
+              <div
+                key={tx.id}
+                className={`flex items-center gap-3 px-5 py-3.5 ${i > 0 ? "border-t-2 border-ink" : ""} hover:bg-paper-2 transition-colors`}
+              >
+                <div className="w-10 h-10 bg-ink text-paper flex items-center justify-center shrink-0">
+                  <span className="text-[10px] font-black tracking-wider uppercase">{tx.category.slice(0, 2)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-text truncate">{tx.description}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-accent font-light">{new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
-                    <span className="text-accent/40">·</span>
-                    <span className="text-xs text-accent font-light">{tx.category}</span>
-                    {tx.isNecessary === false && <span className="text-[10px] bg-orange-50 text-orange-600 border border-orange-100 px-1.5 py-0.5 rounded-md">skip</span>}
-                    {tx.isNecessary === true  && <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-1.5 py-0.5 rounded-md">ok</span>}
+                  <p className="text-sm font-black text-ink truncate">{tx.description}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                    <span className="text-[11px] text-ink-soft font-semibold tabular">
+                      {new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </span>
+                    <span className="text-ink-soft">·</span>
+                    <span className="text-[11px] text-ink-soft font-semibold">{tx.category}</span>
+                    {tx.isNecessary === false && <span className="text-[9px] font-black uppercase tracking-wider bg-bad-soft text-bad border-2 border-ink px-1.5 py-0.5">skip</span>}
+                    {tx.isNecessary === true && <span className="text-[9px] font-black uppercase tracking-wider bg-good-soft text-good border-2 border-ink px-1.5 py-0.5">ok</span>}
                   </div>
-                  {tx.aiNote && <p className="text-[11px] text-accent mt-0.5 truncate font-light">{stripEmoji(tx.aiNote)}</p>}
+                  {tx.aiNote && <p className="text-[11px] text-ink-soft mt-1 truncate font-medium italic">{stripEmoji(tx.aiNote)}</p>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-text">{formatCurrency(tx.amount)}</p>
-                  <button onClick={() => handleDelete(tx.id)} className="text-xs text-accent/40 hover:text-red-500 transition-colors mt-0.5">remove</button>
+                  <p className="text-sm font-black text-ink tabular">{formatCurrency(tx.amount)}</p>
+                  <button
+                    onClick={() => handleDelete(tx.id)}
+                    className="text-[10px] font-black uppercase tracking-wider text-mute hover:text-bad transition-colors mt-1"
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
             ))}

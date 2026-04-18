@@ -1,41 +1,214 @@
 @import "tailwindcss";
 
+/* ───────────────────────────────────────────────────────────────
+   BRUTALIST DESIGN SYSTEM
+   Tokens live in :root. Utilities are generated via @theme.
+   ─────────────────────────────────────────────────────────────── */
+
 :root {
-  --color-background: #fefce8;
-  --color-surface: #fef9c3;
-  --color-surface2: #fde68a;
-  --color-border: #fde68a;
-  --color-border2: #fcd34d;
-  --color-text: #713f12;
-  --color-text2: #92400e;
-  --color-muted: #78350f;
-  --color-faint: #b45309;
-  --color-accent: #b45309;
-  --color-accent-bg: #fef3c7;
-  --color-green: #059669;
-  --color-green-bg: #ecfdf5;
-  --color-red: #dc2626;
-  --color-red-bg: #fef2f2;
+  /* Core palette */
+  --paper:        #F5F0E4;
+  --paper-2:      #EDE6D3;
+  --paper-3:      #E3D9C0;
+  --ink:          #1A1612;
+  --ink-soft:     #3A322A;
+  --mute:         #8A7F6E;
+
+  --accent:       #FF5A1F;
+  --accent-ink:   #C4420F;
+  --accent-soft:  #FFE0CC;
+
+  --good:         #0A6B3B;
+  --good-soft:    #D6EADD;
+  --bad:          #C4281B;
+  --bad-soft:     #F4D6D1;
+  --warn:         #B8860B;
+  --warn-soft:    #F4E4BC;
+
+  /* Structural */
+  --border:       var(--ink);
+  --border-soft:  #C9BEA3;
+  --shadow-hard:    4px 4px 0 var(--ink);
+  --shadow-hard-sm: 2px 2px 0 var(--ink);
+  --shadow-hard-lg: 6px 6px 0 var(--ink);
 }
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Tailwind v4 token registry → generates `bg-paper`, `text-ink`, `border-accent`, etc. */
+@theme {
+  --color-paper:       #F5F0E4;
+  --color-paper-2:     #EDE6D3;
+  --color-paper-3:     #E3D9C0;
+  --color-ink:         #1A1612;
+  --color-ink-soft:    #3A322A;
+  --color-mute:        #8A7F6E;
+
+  --color-accent:      #FF5A1F;
+  --color-accent-ink:  #C4420F;
+  --color-accent-soft: #FFE0CC;
+
+  --color-good:        #0A6B3B;
+  --color-good-soft:   #D6EADD;
+  --color-bad:         #C4281B;
+  --color-bad-soft:    #F4D6D1;
+  --color-warn:        #B8860B;
+  --color-warn-soft:   #F4E4BC;
+
+  --font-sans:    var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-gatwick), Georgia, serif;
+
+  /* Semantic aliases kept for legacy class usage */
+  --color-background: #F5F0E4;
+  --color-surface:    #EDE6D3;
+  --color-text:       #1A1612;
+  --color-muted:      #8A7F6E;
+  --color-border:     #1A1612;
+}
+
+@layer base {
+  .bg-paper       { background-color: var(--paper); }
+  .bg-paper-2     { background-color: var(--paper-2); }
+  .bg-paper-3     { background-color: var(--paper-3); }
+  .bg-ink         { background-color: var(--ink); }
+  .bg-ink-soft    { background-color: var(--ink-soft); }
+  .bg-accent      { background-color: var(--accent); }
+  .bg-accent-soft { background-color: var(--accent-soft); }
+  .bg-good        { background-color: var(--good); }
+  .bg-good-soft   { background-color: var(--good-soft); }
+  .bg-bad         { background-color: var(--bad); }
+  .bg-bad-soft    { background-color: var(--bad-soft); }
+  .bg-warn        { background-color: var(--warn); }
+  .bg-warn-soft   { background-color: var(--warn-soft); }
+
+  .text-paper      { color: var(--paper); }
+  .text-paper-2    { color: var(--paper-2); }
+  .text-ink        { color: var(--ink); }
+  .text-ink-soft   { color: var(--ink-soft); }
+  .text-mute       { color: var(--mute); }
+  .text-accent     { color: var(--accent); }
+  .text-accent-ink { color: var(--accent-ink); }
+  .text-good       { color: var(--good); }
+  .text-bad        { color: var(--bad); }
+  .text-warn       { color: var(--warn); }
+
+  .border-paper    { border-color: var(--paper); }
+  .border-paper-2  { border-color: var(--paper-2); }
+  .border-ink      { border-color: var(--ink); }
+  .border-accent   { border-color: var(--accent); }
+  .border-good     { border-color: var(--good); }
+  .border-bad      { border-color: var(--bad); }
+  .border-warn     { border-color: var(--warn); }
+  .border-mute     { border-color: var(--mute); }
+
+  .accent-accent   { accent-color: var(--accent); }
+  .accent-ink      { accent-color: var(--ink); }
+
+  /* Heatmap intermediate step — accent at ~50% mix with paper */
+  .bg-accent-mid   { background-color: color-mix(in oklab, var(--accent) 55%, var(--paper)); }
+
+  .fill-accent     { fill: var(--accent); }
+  .fill-ink        { fill: var(--ink); }
+  .stroke-ink      { stroke: var(--ink); }
 }
 
 * { box-sizing: border-box; }
 
+html, body {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
 body {
-  background-color: var(--color-background);
-  color: var(--color-text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
 }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--color-surface); }
-::-webkit-scrollbar-thumb { background: var(--color-border2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-faint); }
+/* ─── Money / stat numerals always tabular ────────────────────── */
+.num, .tabular, [data-num] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ─── Brutalist primitive utility classes ─────────────────────── */
+.brut-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-hard);
+}
+.brut-card-sm  { box-shadow: var(--shadow-hard-sm); border: 2px solid var(--ink); background: var(--paper); }
+.brut-card-lg  { box-shadow: var(--shadow-hard-lg); border: 2px solid var(--ink); background: var(--paper); }
+
+.brut-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-hard-sm);
+  padding: 0.55rem 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+  cursor: pointer;
+  line-height: 1;
+}
+.brut-btn svg { flex-shrink: 0; }
+.brut-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-hard);
+}
+.brut-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--ink);
+}
+.brut-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.brut-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.brut-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.brut-display {
+  font-family: var(--font-gatwick), Georgia, serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+/* ─── Scrollbars ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--paper-2); }
+::-webkit-scrollbar-thumb { background: var(--ink); border: 2px solid var(--paper-2); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-soft); }
 
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+::selection { background: var(--ink); color: var(--paper); }
+
+/* ─── Keyframes ────────────────────────────────────────────────── */
+@keyframes brut-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: brut-marquee 40s linear infinite; }

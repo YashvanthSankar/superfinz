@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { apiFetch, FetchError } from "@/lib/fetcher";
 import { SPENDING_CATEGORIES, categoryEmoji } from "@/lib/categories";
@@ -23,15 +24,15 @@ function pct(spent: number, limit: number) {
 }
 
 function statusColor(p: number) {
-  if (p >= 100) return "bg-red-500";
-  if (p >= 80) return "bg-amber-500";
-  return "bg-emerald-500";
+  if (p >= 100) return "bg-bad";
+  if (p >= 80) return "bg-warn";
+  return "bg-good";
 }
 
 function statusBg(p: number) {
-  if (p >= 100) return "bg-red-50 border-red-200";
-  if (p >= 80) return "bg-amber-50 border-amber-200";
-  return "bg-background border-surface";
+  if (p >= 100) return "bg-bad-soft";
+  if (p >= 80) return "bg-warn-soft";
+  return "bg-paper";
 }
 
 export default function BudgetsPage() {
@@ -43,7 +44,6 @@ export default function BudgetsPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [editVal, setEditVal] = useState("");
   const [saving, setSaving] = useState(false);
-
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchBudgets = async () => {
@@ -65,6 +65,7 @@ export default function BudgetsPage() {
   const totalSpent = budgets.reduce((s, b) => s + b.spent, 0);
   const overBudget = budgets.filter((b) => b.spent > b.limit);
   const healthyCount = budgets.filter((b) => b.limit > 0 && pct(b.spent, b.limit) < 80).length;
+  const nearBudget = budgets.filter((b) => b.limit > 0 && pct(b.spent, b.limit) >= 80 && b.spent <= b.limit);
 
   const handleSave = async (category: string) => {
     const limit = parseFloat(editVal);
@@ -89,7 +90,6 @@ export default function BudgetsPage() {
 
   const monthName = new Date(year, month - 1).toLocaleString("en-IN", { month: "long", year: "numeric" });
 
-  // Build full list: all categories, merge with existing budgets
   const allCategories = SPENDING_CATEGORIES.map((cat) => {
     const existing = budgets.find((b) => b.category === cat);
     return existing ?? { id: "", category: cat, limit: 0, spent: 0, month, year };
@@ -104,48 +104,45 @@ export default function BudgetsPage() {
     else setMonth((m) => m + 1);
   };
 
-  const nearBudget = budgets.filter((b) => b.limit > 0 && pct(b.spent, b.limit) >= 80 && b.spent <= b.limit);
-
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-0 space-y-6">
 
-      {/* ── Overspend alert banner ── */}
+      {/* ── Overspend alert ── */}
       {overBudget.length > 0 && (
-        <div className="flex items-start gap-3 bg-red-50 border border-red-300 rounded-2xl px-5 py-4 shadow-sm">
-          <div className="w-9 h-9 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center shrink-0 mt-0.5">
-            <AlertTriangle size={17} className="text-red-600" />
+        <div className="flex items-start gap-3 border-2 border-ink bg-bad-soft px-5 py-4 shadow-[4px_4px_0_var(--ink)]">
+          <div className="w-10 h-10 border-2 border-ink bg-bad flex items-center justify-center shrink-0 mt-0.5">
+            <AlertTriangle size={18} className="text-paper" strokeWidth={2.5} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-red-700">
-              You&apos;ve exceeded your budget in {overBudget.length} {overBudget.length === 1 ? "category" : "categories"}
+            <p className="brut-label text-bad">
+              Exceeded {overBudget.length} {overBudget.length === 1 ? "category" : "categories"}
             </p>
-            <p className="text-xs text-red-600 mt-1 leading-relaxed">
+            <p className="text-xs text-ink mt-1 font-semibold">
               {overBudget.map((b) => (
                 <span key={b.category} className="inline-flex items-center gap-1 mr-2">
-                  <span className="font-semibold">{b.category}</span>
-                  <span className="opacity-70">— {formatCurrency(b.spent - b.limit)} over limit</span>
+                  <span className="font-black">{b.category}</span>
+                  <span className="text-ink-soft tabular">— {formatCurrency(b.spent - b.limit)} over</span>
                 </span>
               ))}
             </p>
           </div>
-          <a
-            href="/dashboard/transactions"
-            className="shrink-0 text-xs font-semibold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200 px-3 py-1.5 rounded-lg transition-all"
-          >
-            Review spends →
-          </a>
+          <Link href="/dashboard/transactions" className="brut-btn bg-bad text-paper text-[11px] h-9 px-3 shrink-0">
+            Review →
+          </Link>
         </div>
       )}
 
-      {/* ── Near-limit warning ── */}
+      {/* ── Near-limit ── */}
       {nearBudget.length > 0 && overBudget.length === 0 && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-300 rounded-2xl px-5 py-4 shadow-sm">
-          <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
-            <AlertTriangle size={17} className="text-amber-600" />
+        <div className="flex items-start gap-3 border-2 border-ink bg-warn-soft px-5 py-4 shadow-[4px_4px_0_var(--ink)]">
+          <div className="w-10 h-10 border-2 border-ink bg-warn flex items-center justify-center shrink-0 mt-0.5">
+            <AlertTriangle size={18} className="text-ink" strokeWidth={2.5} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-amber-800">Approaching limit in {nearBudget.length} {nearBudget.length === 1 ? "category" : "categories"}</p>
-            <p className="text-xs text-amber-700 mt-1">
+            <p className="brut-label">
+              Approaching limit · {nearBudget.length} {nearBudget.length === 1 ? "category" : "categories"}
+            </p>
+            <p className="text-xs text-ink mt-1 font-bold tabular">
               {nearBudget.map((b) => `${b.category} (${pct(b.spent, b.limit)}%)`).join(" · ")}
             </p>
           </div>
@@ -153,76 +150,76 @@ export default function BudgetsPage() {
       )}
 
       {loadError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-red-600">{loadError}</span>
-          <button onClick={fetchBudgets} className="text-xs font-semibold text-red-700 hover:underline">Retry</button>
+        <div className="border-2 border-ink bg-bad-soft px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-bad font-bold">{loadError}</span>
+          <button onClick={fetchBudgets} className="brut-btn bg-bad text-paper text-[11px] h-8 px-3">Retry</button>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-text">Budgets</h1>
-          <p className="text-sm text-muted mt-0.5">Set monthly limits per category and track your pace</p>
+          <p className="brut-label mb-1">Monthly limits</p>
+          <h1 className="brut-display text-4xl sm:text-5xl text-ink">Budgets.</h1>
+          <p className="text-ink-soft text-sm font-semibold mt-1">Cap each category. Track your pace.</p>
         </div>
-        {/* Month picker */}
-        <div className="flex items-center gap-2 bg-background border border-surface rounded-xl px-3 py-2 text-sm font-medium text-text shadow-sm">
-          <button onClick={prevMonth} className="hover:text-amber-600 transition-colors px-1">‹</button>
-          <span className="min-w-[130px] text-center">{monthName}</span>
+        <div className="flex items-center gap-1 border-2 border-ink bg-paper px-1 py-1 shadow-[2px_2px_0_var(--ink)]">
+          <button onClick={prevMonth} className="px-2 h-8 hover:bg-paper-2 font-black">‹</button>
+          <span className="min-w-[130px] text-center tabular uppercase text-xs font-black tracking-wider">{monthName}</span>
           <button
             onClick={nextMonth}
             disabled={month === now.getMonth() + 1 && year === now.getFullYear()}
-            className="hover:text-amber-600 transition-colors px-1 disabled:opacity-30"
+            className="px-2 h-8 hover:bg-paper-2 disabled:opacity-30 font-black"
           >›</button>
         </div>
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Budget", value: formatCurrency(totalLimit), icon: Wallet, color: "text-amber-600" },
-          { label: "Total Spent", value: formatCurrency(totalSpent), icon: TrendingDown, color: "text-red-500" },
-          { label: "Remaining", value: formatCurrency(Math.max(0, totalLimit - totalSpent)), icon: TrendingUp, color: "text-emerald-600" },
-          { label: "Over-budget", value: `${overBudget.length} categor${overBudget.length === 1 ? "y" : "ies"}`, icon: AlertTriangle, color: overBudget.length ? "text-red-500" : "text-emerald-600" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-background border border-surface rounded-2xl p-4 shadow-sm">
-            <Icon size={15} className={`${color} mb-2`} />
-            <p className="text-xs text-muted">{label}</p>
-            <p className="text-base font-bold text-text mt-0.5">{value}</p>
+          { label: "Total Budget", value: formatCurrency(totalLimit), icon: Wallet, tone: "text-ink" },
+          { label: "Total Spent", value: formatCurrency(totalSpent), icon: TrendingDown, tone: "text-bad" },
+          { label: "Remaining", value: formatCurrency(Math.max(0, totalLimit - totalSpent)), icon: TrendingUp, tone: "text-good" },
+          { label: "Over", value: `${overBudget.length}`, icon: AlertTriangle, tone: overBudget.length ? "text-bad" : "text-good" },
+        ].map(({ label, value, icon: Icon, tone }) => (
+          <div key={label} className="brut-card p-4">
+            <Icon size={16} className={`${tone} mb-2`} strokeWidth={2.5} />
+            <p className="brut-label">{label}</p>
+            <p className="brut-display text-2xl text-ink mt-1 tabular">{value}</p>
           </div>
         ))}
       </div>
 
       {/* Overall progress bar */}
       {totalLimit > 0 && (
-        <div className="bg-background border border-surface rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
+        <div className="brut-card p-5">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b-2 border-ink">
             <div className="flex items-center gap-2">
-              <PieChart size={15} className="text-amber-600" />
-              <span className="text-sm font-semibold text-text">Overall budget usage</span>
+              <PieChart size={16} className="text-ink" strokeWidth={2.5} />
+              <p className="brut-label">Overall usage</p>
             </div>
-            <span className="text-sm font-bold text-text">{pct(totalSpent, totalLimit)}%</span>
+            <span className="brut-display text-xl text-ink tabular">{pct(totalSpent, totalLimit)}%</span>
           </div>
-          <div className="h-2.5 bg-surface rounded-full overflow-hidden">
+          <div className="h-4 bg-paper-2 border-2 border-ink overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${statusColor(pct(totalSpent, totalLimit))}`}
+              className={`h-full transition-all duration-500 ${statusColor(pct(totalSpent, totalLimit))}`}
               style={{ width: `${pct(totalSpent, totalLimit)}%` }}
             />
           </div>
-          <p className="text-xs text-muted mt-2">
+          <p className="text-xs text-ink-soft mt-3 font-semibold">
             {healthyCount} of {allCategories.filter((c) => c.limit > 0).length} categories on track
-            {overBudget.length > 0 && ` · ${overBudget.map((b) => b.category).join(", ")} over limit`}
+            {overBudget.length > 0 && ` · ${overBudget.map((b) => b.category).join(", ")} over`}
           </p>
         </div>
       )}
 
       {/* Category cards */}
-      <div className="space-y-2">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wider px-1">Category limits</h2>
+      <div className="space-y-3">
+        <p className="brut-label px-1">Category limits</p>
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-20 bg-surface rounded-2xl animate-pulse" />
+              <div key={i} className="h-20 border-2 border-ink bg-paper-2 animate-pulse" />
             ))}
           </div>
         ) : (
@@ -232,79 +229,81 @@ export default function BudgetsPage() {
             return (
               <div
                 key={category}
-                className={`border rounded-2xl p-4 transition-all ${statusBg(limit > 0 ? p : 0)}`}
+                className={`border-2 border-ink p-4 transition-all shadow-[2px_2px_0_var(--ink)] ${statusBg(limit > 0 ? p : 0)}`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-xl shrink-0">{categoryEmoji(category)}</span>
+                    <span className="text-2xl shrink-0">{categoryEmoji(category)}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-text">{category}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-black text-ink">{category}</span>
                         {limit > 0 && p >= 100 && (
-                          <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">OVER</span>
+                          <span className="brut-stamp bg-bad text-paper">OVER</span>
                         )}
                         {limit > 0 && p >= 80 && p < 100 && (
-                          <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">80%</span>
+                          <span className="brut-stamp bg-warn text-ink">80%</span>
                         )}
                         {limit > 0 && p < 80 && (
-                          <CheckCircle2 size={12} className="text-emerald-500" />
+                          <CheckCircle2 size={14} className="text-good" strokeWidth={2.5} />
                         )}
                       </div>
-                      <p className="text-xs text-muted mt-0.5">
+                      <p className="text-xs text-ink-soft mt-0.5 font-semibold tabular">
                         {limit > 0
                           ? `${formatCurrency(spent)} of ${formatCurrency(limit)}`
-                          : "No limit set · tap Edit to add"}
+                          : "No limit set"}
                       </p>
                     </div>
                   </div>
 
                   {isEditing ? (
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-xs text-muted font-medium">₹</span>
+                      <span className="text-xs text-ink font-black">₹</span>
                       <input
                         type="number"
                         value={editVal}
                         onChange={(e) => setEditVal(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter") handleSave(category); if (e.key === "Escape") setEditing(null); }}
                         autoFocus
-                        className="w-24 text-sm border border-amber-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-background"
+                        className="w-24 text-sm font-bold tabular border-2 border-ink bg-paper px-2 h-9 focus:outline-none focus:bg-accent-soft"
                         placeholder="5000"
                       />
                       <button
                         onClick={() => handleSave(category)}
                         disabled={saving}
-                        className="p-1.5 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50"
+                        className="brut-btn bg-ink text-paper h-9 w-9 !p-0"
+                        title="Save"
                       >
-                        <Save size={13} />
+                        <Save size={14} strokeWidth={2.75} className="text-paper" />
                       </button>
                       <button
                         onClick={() => setEditing(null)}
-                        className="p-1.5 rounded-lg bg-surface text-accent hover:bg-amber-100 transition-colors"
+                        className="brut-btn bg-paper text-ink h-9 w-9 !p-0"
+                        title="Cancel"
                       >
-                        <X size={13} />
+                        <X size={14} strokeWidth={2.75} className="text-ink" />
                       </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => { setEditing(category); setEditVal(limit > 0 ? String(limit) : ""); }}
-                      className="shrink-0 flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-medium px-2 py-1.5 rounded-lg hover:bg-amber-50 transition-colors"
+                      className="brut-btn bg-paper text-ink text-[11px] h-9 px-3 shrink-0"
                     >
-                      <Edit3 size={12} /> Edit
+                      <Edit3 size={12} strokeWidth={2.5} /> Edit
                     </button>
                   )}
                 </div>
 
                 {limit > 0 && (
                   <div className="mt-3">
-                    <div className="h-1.5 bg-surface rounded-full overflow-hidden">
+                    <div className="h-2 bg-paper border-2 border-ink overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${statusColor(p)}`}
+                        className={`h-full transition-all duration-500 ${statusColor(p)}`}
                         style={{ width: `${p}%` }}
                       />
                     </div>
-                    <div className="flex justify-between mt-1">
-                      <span className="text-[10px] text-muted">{p}% used</span>
-                      <span className="text-[10px] text-muted">
+                    <div className="flex justify-between mt-1.5">
+                      <span className="text-[10px] text-ink-soft font-black uppercase tracking-wider tabular">{p}% used</span>
+                      <span className="text-[10px] text-ink-soft font-black uppercase tracking-wider tabular">
                         {p >= 100
                           ? `${formatCurrency(spent - limit)} over`
                           : `${formatCurrency(limit - spent)} left`}
@@ -319,11 +318,11 @@ export default function BudgetsPage() {
       </div>
 
       {/* Tip */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800">
-        <p className="font-semibold mb-1">💡 Budget tip</p>
-        <p className="text-xs leading-relaxed">
-          The 50/30/20 rule: spend 50% on needs (Rent, Food, Utilities), 30% on wants (Entertainment, Shopping), and save 20%.
-          Set limits for each category above to get real-time alerts when you&apos;re close to the edge.
+      <div className="border-2 border-ink bg-accent-soft p-4 shadow-[4px_4px_0_var(--ink)]">
+        <p className="brut-label mb-2">50/30/20 rule</p>
+        <p className="text-xs leading-relaxed text-ink font-semibold">
+          Spend 50% on needs (Rent, Food, Utilities), 30% on wants (Entertainment, Shopping), save 20%.
+          Set limits above to get real-time alerts.
         </p>
       </div>
     </div>

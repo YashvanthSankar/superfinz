@@ -85,19 +85,19 @@ export default function CalculatorsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text">Calculators</h1>
-        <p className="text-accent text-sm mt-0.5 font-light">Plan your money moves</p>
+        <p className="brut-label mb-1">Plan your money moves</p>
+        <h1 className="brut-display text-4xl sm:text-5xl text-ink">Calculators.</h1>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+            className={`brut-btn h-10 text-xs ${
               tab === t.id
-                ? "bg-amber-50 border-amber-400 text-amber-700"
-                : "border-border text-muted hover:border-amber-300 hover:text-text bg-background"
+                ? "bg-ink text-paper"
+                : "bg-paper text-ink"
             }`}
           >
             {t.label}
@@ -107,17 +107,17 @@ export default function CalculatorsPage() {
 
       {tab === "sip" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-text mb-5">SIP inputs</h2>
+          <div className="brut-card p-6">
+            <p className="brut-label mb-5">SIP inputs</p>
             <div className="space-y-5">
               <Input label="Monthly investment (₹)" type="number" value={sip.monthly} onChange={(e) => setSip((s) => ({ ...s, monthly: e.target.value }))} />
               <div>
-                <label className="text-xs font-medium text-muted uppercase tracking-wide">Expected return — {sip.rate}% p.a.</label>
-                <input type="range" min="1" max="30" value={sip.rate} onChange={(e) => setSip((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-amber-600" />
+                <label className="brut-label">Expected return — <span className="tabular">{sip.rate}%</span> p.a.</label>
+                <input type="range" min="1" max="30" value={sip.rate} onChange={(e) => setSip((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-accent" />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted uppercase tracking-wide">Duration — {sip.years} years</label>
-                <input type="range" min="1" max="40" value={sip.years} onChange={(e) => setSip((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-amber-600" />
+                <label className="brut-label">Duration — <span className="tabular">{sip.years}</span> years</label>
+                <input type="range" min="1" max="40" value={sip.years} onChange={(e) => setSip((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-accent" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
@@ -126,15 +126,15 @@ export default function CalculatorsPage() {
                 { label: "Gains",     value: sipResult.gains,     color: "text-emerald-600" },
                 { label: "Maturity",  value: sipResult.maturity,  color: "text-amber-600" },
               ].map((s) => (
-                <div key={s.label} className="bg-background rounded-xl p-3 text-center border border-surface">
-                  <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
-                  <p className={`text-sm font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
+                <div key={s.label} className="border-2 border-ink bg-paper-2 p-3 text-center">
+                  <p className="brut-label mb-1">{s.label}</p>
+                  <p className={`brut-display text-lg tabular ${s.color.replace("text-muted", "text-ink").replace("text-emerald-600", "text-good").replace("text-amber-600", "text-accent").replace("text-amber-700", "text-accent").replace("text-red-500", "text-bad").replace("text-text", "text-ink")}`}>{formatCurrency(s.value)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
+          <div className="brut-card p-6">
+            <p className="brut-label mb-5">Growth chart</p>
             <SipChart data={sipResult.data} />
           </div>
         </div>
@@ -142,17 +142,17 @@ export default function CalculatorsPage() {
 
       {tab === "fd" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-text mb-5">FD inputs</h2>
+          <div className="brut-card p-6">
+            <p className="brut-label mb-5">FD inputs</p>
             <div className="space-y-5">
               <Input label="Principal amount (₹)" type="number" value={fd.principal} onChange={(e) => setFd((s) => ({ ...s, principal: e.target.value }))} />
               <div>
-                <label className="text-xs font-medium text-muted uppercase tracking-wide">Interest rate — {fd.rate}% p.a.</label>
-                <input type="range" min="1" max="15" step="0.1" value={fd.rate} onChange={(e) => setFd((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-amber-500" />
+                <label className="brut-label">Interest rate — <span className="tabular">{fd.rate}%</span> p.a.</label>
+                <input type="range" min="1" max="15" step="0.1" value={fd.rate} onChange={(e) => setFd((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-accent" />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted uppercase tracking-wide">Tenure — {fd.years} years</label>
-                <input type="range" min="1" max="10" value={fd.years} onChange={(e) => setFd((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-amber-500" />
+                <label className="brut-label">Tenure — <span className="tabular">{fd.years}</span> years</label>
+                <input type="range" min="1" max="10" value={fd.years} onChange={(e) => setFd((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-accent" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
@@ -161,15 +161,15 @@ export default function CalculatorsPage() {
                 { label: "Interest",  value: fdResult.interest, color: "text-amber-600" },
                 { label: "Maturity",  value: fdResult.maturity, color: "text-amber-600" },
               ].map((s) => (
-                <div key={s.label} className="bg-background rounded-xl p-3 text-center border border-surface">
-                  <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
-                  <p className={`text-sm font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
+                <div key={s.label} className="border-2 border-ink bg-paper-2 p-3 text-center">
+                  <p className="brut-label mb-1">{s.label}</p>
+                  <p className={`brut-display text-lg tabular ${s.color.replace("text-muted", "text-ink").replace("text-emerald-600", "text-good").replace("text-amber-600", "text-accent").replace("text-amber-700", "text-accent").replace("text-red-500", "text-bad").replace("text-text", "text-ink")}`}>{formatCurrency(s.value)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-text mb-5">Growth chart</h2>
+          <div className="brut-card p-6">
+            <p className="brut-label mb-5">Growth chart</p>
             <FdChart data={fdResult.data} />
           </div>
         </div>
@@ -177,17 +177,17 @@ export default function CalculatorsPage() {
 
       {tab === "emi" && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-text mb-5">EMI inputs</h2>
+          <div className="brut-card p-6">
+            <p className="brut-label mb-5">EMI inputs</p>
             <div className="space-y-5">
               <Input label="Loan amount (₹)" type="number" value={emi.principal} onChange={(e) => setEmi((s) => ({ ...s, principal: e.target.value }))} />
               <div>
-                <label className="text-xs font-medium text-muted uppercase tracking-wide">Interest rate — {emi.rate}% p.a.</label>
-                <input type="range" min="1" max="25" step="0.5" value={emi.rate} onChange={(e) => setEmi((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-amber-600" />
+                <label className="brut-label">Interest rate — <span className="tabular">{emi.rate}%</span> p.a.</label>
+                <input type="range" min="1" max="25" step="0.5" value={emi.rate} onChange={(e) => setEmi((s) => ({ ...s, rate: e.target.value }))} className="w-full mt-2 accent-accent" />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted uppercase tracking-wide">Tenure — {emi.years} years</label>
-                <input type="range" min="1" max="30" value={emi.years} onChange={(e) => setEmi((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-amber-600" />
+                <label className="brut-label">Tenure — <span className="tabular">{emi.years}</span> years</label>
+                <input type="range" min="1" max="30" value={emi.years} onChange={(e) => setEmi((s) => ({ ...s, years: e.target.value }))} className="w-full mt-2 accent-accent" />
               </div>
             </div>
             <div className="mt-6 grid grid-cols-3 gap-3">
@@ -196,15 +196,15 @@ export default function CalculatorsPage() {
                 { label: "Total interest", value: emiResult.interest, color: "text-red-500" },
                 { label: "Total payment",  value: emiResult.total,    color: "text-text" },
               ].map((s) => (
-                <div key={s.label} className="bg-background rounded-xl p-3 text-center border border-surface">
-                  <p className="text-[10px] text-accent font-medium uppercase tracking-wide mb-1.5">{s.label}</p>
-                  <p className={`text-sm font-bold ${s.color}`}>{formatCurrency(s.value)}</p>
+                <div key={s.label} className="border-2 border-ink bg-paper-2 p-3 text-center">
+                  <p className="brut-label mb-1">{s.label}</p>
+                  <p className={`brut-display text-lg tabular ${s.color.replace("text-muted", "text-ink").replace("text-emerald-600", "text-good").replace("text-amber-600", "text-accent").replace("text-amber-700", "text-accent").replace("text-red-500", "text-bad").replace("text-text", "text-ink")}`}>{formatCurrency(s.value)}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-background rounded-2xl border border-surface p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-text mb-5">Balance over time</h2>
+          <div className="brut-card p-6">
+            <p className="brut-label mb-5">Balance over time</p>
             <EmiChart data={emiResult.data} />
           </div>
         </div>

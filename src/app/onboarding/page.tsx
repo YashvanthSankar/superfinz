@@ -108,7 +108,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-paper flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -117,10 +117,10 @@ export default function OnboardingPage() {
             <div className="flex items-center justify-center gap-2 mt-3">
               {session.user.image && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-2 ring-white shadow-sm" />
+                <img src={session.user.image} alt="" className="w-8 h-8 border-2 border-ink" />
               )}
-              <p className="text-muted text-sm">
-                Hi {session.user.name?.split(" ")[0]} — quick setup, then you&apos;re in.
+              <p className="text-ink-soft text-sm font-bold">
+                Hi {session.user.name?.split(" ")[0]} — quick setup.
               </p>
             </div>
           )}
@@ -130,29 +130,29 @@ export default function OnboardingPage() {
         <div className="flex items-center mb-8 gap-2">
           {STEPS.map((s, i) => (
             <div key={s} className="flex items-center gap-2 flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
-                i < step ? "bg-amber-600 text-text" :
-                i === step ? "bg-background border-2 border-amber-600 text-amber-600" :
-                "bg-background border border-amber-400 text-accent"
+              <div className={`w-8 h-8 border-2 border-ink flex items-center justify-center text-xs font-black shrink-0 transition-all tabular ${
+                i < step ? "bg-ink text-paper" :
+                i === step ? "bg-accent text-paper" :
+                "bg-paper text-ink-soft"
               }`}>
                 {i < step ? "✓" : i + 1}
               </div>
-              <span className={`text-xs truncate ${i === step ? "text-text font-medium" : "text-accent"}`}>{s}</span>
+              <span className={`text-[11px] truncate font-black uppercase tracking-wider ${i === step ? "text-ink" : "text-mute"}`}>{s}</span>
               {i < STEPS.length - 1 && (
-                <div className={`flex-1 h-px ${i < step ? "bg-amber-600" : "bg-border"}`} />
+                <div className={`flex-1 h-[2px] ${i < step ? "bg-ink" : "bg-paper-2"}`} />
               )}
             </div>
           ))}
         </div>
 
-        <div className="bg-background rounded-2xl border border-amber-400 shadow-sm p-7">
+        <div className="brut-card p-7">
 
           {/* Step 0 */}
           {step === 0 && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-lg font-bold text-text">Who are you?</h2>
-                <p className="text-muted text-sm mt-0.5 font-light">Helps us personalise everything</p>
+                <h2 className="brut-display text-2xl text-ink">Who are you?</h2>
+                <p className="text-ink-soft text-sm mt-1 font-semibold">Helps us personalise everything.</p>
               </div>
               <Input label="Your age" type="number" placeholder="20" value={form.age} onChange={(e) => set("age", e.target.value)} />
               <div className="space-y-2">
@@ -164,19 +164,19 @@ export default function OnboardingPage() {
                   <button
                     key={opt.value}
                     onClick={() => set("userType", opt.value)}
-                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
+                    className={`w-full flex items-center gap-3 p-3.5 border-2 border-ink text-left transition-[transform,box-shadow] duration-75 shadow-[2px_2px_0_var(--ink)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_var(--ink)] ${
                       form.userType === opt.value
-                        ? "border-amber-300 bg-amber-50"
-                        : "border-border hover:border-amber-300 bg-background"
+                        ? "bg-accent text-paper"
+                        : "bg-paper text-ink"
                     }`}
                   >
                     <div className="flex-1">
-                      <p className={`text-sm font-semibold ${form.userType === opt.value ? "text-amber-700" : "text-text"}`}>{opt.label}</p>
-                      <p className="text-xs text-accent font-light">{opt.sub}</p>
+                      <p className={`text-sm font-black ${form.userType === opt.value ? "text-paper" : "text-ink"}`}>{opt.label}</p>
+                      <p className={`text-xs font-semibold ${form.userType === opt.value ? "text-paper/80" : "text-ink-soft"}`}>{opt.sub}</p>
                     </div>
                     {form.userType === opt.value && (
-                      <div className="w-4 h-4 rounded-full bg-amber-600 flex items-center justify-center">
-                        <svg className="w-2.5 h-2.5 text-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <div className="w-5 h-5 border-2 border-paper bg-paper text-accent flex items-center justify-center">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -191,24 +191,24 @@ export default function OnboardingPage() {
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-bold text-text">{isStudent ? "Student details" : "Work details"}</h2>
-                <p className="text-muted text-sm mt-0.5 font-light">Tell us a bit more</p>
+                <h2 className="brut-display text-2xl text-ink">{isStudent ? "Student details" : "Work details"}</h2>
+                <p className="text-ink-soft text-sm mt-1 font-semibold">Tell us a bit more.</p>
               </div>
               {isStudent ? (
                 <>
                   <Input label="Institution" placeholder="e.g. IIT Delhi, St. Xavier's College" value={form.institution} onChange={(e) => set("institution", e.target.value)} />
                   <Input label="Monthly allowance (₹)" type="number" placeholder="5000" value={form.monthlyAllowance} onChange={(e) => set("monthlyAllowance", e.target.value)} />
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted">Income sources</p>
+                    <p className="brut-label">Income sources</p>
                     <div className="flex flex-wrap gap-1.5">
                       {INCOME_SOURCES.map((src) => (
                         <button
                           key={src.value}
                           onClick={() => toggleSrc(src.value)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                          className={`brut-btn h-9 text-[11px] ${
                             form.incomeSources.includes(src.value)
-                              ? "bg-amber-50 border-amber-200 text-amber-700"
-                              : "bg-background border-border text-muted hover:border-amber-300"
+                              ? "bg-ink text-paper"
+                              : "bg-paper text-ink"
                           }`}
                         >
                           {src.label}
@@ -236,11 +236,11 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-bold text-text">Your Spending Habits</h2>
-                <p className="text-muted text-sm mt-0.5 font-light">Tell us how you spend to generate the best AI budgets for your weeks.</p>
+                <h2 className="brut-display text-2xl text-ink">Your spending habits</h2>
+                <p className="text-ink-soft text-sm mt-1 font-semibold">How you spend drives your weekly budget split.</p>
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-muted">1. When do you spend the most during the month?</p>
+                <p className="brut-label">1. When do you spend the most?</p>
                 {([
                   { value: "FRONT_HEAVY", label: "Start of the month", sub: "Rent, heavy bills, going out early" },
                   { value: "BALANCED", label: "Spread evenly", sub: "Similar spending every week" },
@@ -249,15 +249,15 @@ export default function OnboardingPage() {
                   <button
                     key={opt.value}
                     onClick={() => set("spendingPattern", opt.value)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    className={`w-full flex items-center gap-3 p-3.5 border-2 border-ink text-left transition-[transform,box-shadow] duration-75 shadow-[2px_2px_0_var(--ink)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0_var(--ink)] ${
                       form.spendingPattern === opt.value
-                        ? "border-amber-400 bg-amber-50"
-                        : "border-border hover:border-amber-300 bg-background"
+                        ? "bg-accent text-paper"
+                        : "bg-paper text-ink"
                     }`}
                   >
                     <div className="flex-1">
-                      <p className={`text-sm font-semibold ${form.spendingPattern === opt.value ? "text-amber-700" : "text-text"}`}>{opt.label}</p>
-                      <p className="text-xs text-accent font-light">{opt.sub}</p>
+                      <p className={`text-sm font-black ${form.spendingPattern === opt.value ? "text-paper" : "text-ink"}`}>{opt.label}</p>
+                      <p className={`text-xs font-semibold ${form.spendingPattern === opt.value ? "text-paper/80" : "text-ink-soft"}`}>{opt.sub}</p>
                     </div>
                   </button>
                 ))}
@@ -269,8 +269,8 @@ export default function OnboardingPage() {
           {step === 3 && (
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-bold text-text">Set your limits</h2>
-                <p className="text-muted text-sm mt-0.5 font-light">We&apos;ll track against these every month</p>
+                <h2 className="brut-display text-2xl text-ink">Set your limits</h2>
+                <p className="text-ink-soft text-sm mt-1 font-semibold">We&apos;ll track against these every month.</p>
               </div>
               <Input label="Monthly savings goal (₹)" type="number" placeholder={isStudent ? "500" : "5000"} value={form.savingsGoal} onChange={(e) => {
                 const newGoal = parseFloat(e.target.value) || 0;
@@ -280,27 +280,25 @@ export default function OnboardingPage() {
               }} />
               <Input label="Monthly budget (₹)" type="number" placeholder={isStudent ? "5000" : "30000"} value={form.monthlyBudget} onChange={(e) => set("monthlyBudget", e.target.value)} />
               {(monthlyIncome > 0 || monthlyBudget > 0 || savingsGoal > 0) && (
-                <div className={`rounded-xl p-4 border ${plan.overspent ? "bg-red-50 border-red-200" : "bg-emerald-50 border-emerald-100"}`}>
-                  <p className={`text-sm font-semibold ${plan.overspent ? "text-red-700" : "text-emerald-700"}`}>
-                    Monthly Money Plan
-                  </p>
-                  <div className={`mt-2 text-xs space-y-1 ${plan.overspent ? "text-red-600" : "text-emerald-700"}`}>
+                <div className={`border-2 border-ink p-4 ${plan.overspent ? "bg-bad-soft" : "bg-good-soft"}`}>
+                  <p className="brut-label">Monthly money plan</p>
+                  <div className="mt-2 text-xs space-y-1 text-ink font-bold tabular">
                     <p>Total income: {formatCurrency(plan.monthlyIncome)}</p>
                     <p>Spending budget: {formatCurrency(plan.monthlyBudget)}</p>
                     <p>Savings goal: {formatCurrency(plan.savingsGoal)}</p>
-                    <p>Left after plan: {formatCurrency(plan.remaining)}</p>
+                    <p>Left: {formatCurrency(plan.remaining)}</p>
                   </div>
                   {plan.overspent && (
-                    <p className="text-xs mt-2 text-red-700 font-medium">
-                      You are planning to spend/save more than your income. Reduce budget or savings goal.
+                    <p className="text-xs mt-3 text-bad font-black uppercase tracking-wider">
+                      Spending + savings exceeds income. Reduce one.
                     </p>
                   )}
                 </div>
               )}
               {form.monthlyBudget && form.savingsGoal && !plan.overspent && (
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
-                  <p className="text-emerald-700 font-semibold text-sm">Looking good</p>
-                  <p className="text-emerald-600 text-xs mt-1 font-light">
+                <div className="border-2 border-ink bg-accent-soft p-4">
+                  <p className="brut-label">Looking good</p>
+                  <p className="text-ink text-sm mt-1 font-bold tabular">
                     ₹{form.savingsGoal}/mo → ₹{(parseFloat(form.savingsGoal) * 12).toLocaleString("en-IN")} in a year
                   </p>
                 </div>
@@ -309,11 +307,11 @@ export default function OnboardingPage() {
           )}
 
           {error && (
-            <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">{error}</p>
+            <p className="mt-4 text-sm text-bad bg-bad-soft border-2 border-ink px-4 py-2.5 font-bold">{error}</p>
           )}
 
           {!canNext() && step === 3 && (
-            <p className="mt-3 text-xs text-accent text-center">Fill in monthly budget to continue</p>
+            <p className="mt-3 brut-label text-center">Fill in monthly budget to continue</p>
           )}
 
           <div className="flex gap-2.5 mt-4">
@@ -321,8 +319,8 @@ export default function OnboardingPage() {
               <Button variant="secondary" onClick={() => setStep(step - 1)} className="flex-1">← Back</Button>
             )}
             {step < 3
-              ? <Button onClick={() => setStep(step + 1)} disabled={!canNext()} className="flex-1">Continue →</Button>
-              : <Button onClick={submit} loading={loading} disabled={!canNext()} className="flex-1">Start tracking</Button>
+              ? <Button variant="accent" onClick={() => setStep(step + 1)} disabled={!canNext()} className="flex-1">Continue →</Button>
+              : <Button variant="accent" onClick={submit} loading={loading} disabled={!canNext()} className="flex-1">Start tracking</Button>
             }
           </div>
         </div>

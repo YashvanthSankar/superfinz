@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -6,6 +7,8 @@ import { SpendTrendChart, CategoryChart } from "@/components/dashboard/charts";
 import { HeatmapInline } from "@/components/dashboard/heatmap-inline";
 import { DashboardGrids } from "@/components/dashboard/grid-widgets";
 import { FinTip } from "@/components/ui/fin-tip";
+import { Badge } from "@/components/ui/badge";
+import { AlertTriangle } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -262,99 +265,92 @@ export default async function DashboardPage() {
   const fireDelayMonths  = monthlySip > 0 ? Math.round(unnecessarySpend / monthlySip) : 0;
   const fmtCrore = (n: number) => n >= 10000000 ? `₹${(n / 10000000).toFixed(1)}Cr` : `₹${(n / 100000).toFixed(0)}L`;
 
+  const scoreTone: "good" | "warn" | "bad" =
+    retirementScore >= 70 ? "good" : retirementScore >= 40 ? "warn" : "bad";
+  const scoreBgVar =
+    scoreTone === "good" ? "var(--good)" : scoreTone === "warn" ? "var(--warn)" : "var(--bad)";
+  void scoreColor;
+
   return (
-      <div className="space-y-5">
-      <div className="flex items-start justify-between">
+    <div className="space-y-6">
+      {/* ── Greeting ─────────────────────────────────────────── */}
+      <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-text">
-            {greeting}, {user.name.split(" ")[0]}
+          <p className="brut-label mb-1">{now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</p>
+          <h1 className="brut-display text-4xl sm:text-5xl text-ink">
+            {greeting},<br />
+            <span className="text-accent">{user.name.split(" ")[0]}.</span>
           </h1>
-          <p className="text-accent text-sm mt-0.5 font-light">
-            {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          </p>
         </div>
         {!noSpends && budget > 0 && (
-          <div className={`text-xs px-3 py-1.5 rounded-full font-semibold border ${
-            onPace
-              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-              : "bg-red-50 text-red-600 border-red-200"
-          }`}>
-            {onPace ? "On budget pace" : "Over pace"}
-          </div>
+          <Badge variant={onPace ? "good" : "bad"} className="text-xs px-3 py-1">
+            {onPace ? "On pace" : "Over pace"}
+          </Badge>
         )}
       </div>
 
       {/* ── Budget alert banner ──────────────────────────────────── */}
-      {budgetAlerts.length > 0 && (
-        <div className={`rounded-2xl border px-4 py-3 flex items-start gap-3 ${
-          budgetAlerts.some((a) => a.over)
-            ? "bg-red-50 border-red-200"
-            : "bg-amber-50 border-amber-300"
-        }`}>
-          <svg className={`w-4 h-4 mt-0.5 shrink-0 ${budgetAlerts.some((a) => a.over) ? "text-red-500" : "text-amber-600"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-          </svg>
-          <div className="flex-1 min-w-0">
-            <p className={`text-xs font-semibold ${budgetAlerts.some((a) => a.over) ? "text-red-700" : "text-amber-800"}`}>
-              {budgetAlerts.some((a) => a.over) ? "Budget exceeded" : "Approaching budget limit"}
-            </p>
-            <p className="text-xs text-muted mt-0.5">
-              {budgetAlerts.map((a) => `${a.category} ${a.pct}%${a.over ? " over" : ""}`).join(" · ")}
-            </p>
+      {budgetAlerts.length > 0 && (() => {
+        const over = budgetAlerts.some((a) => a.over);
+        return (
+          <div className={`brut-card p-4 flex items-start gap-3 ${over ? "bg-bad-soft" : "bg-warn-soft"}`}>
+            <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-ink" strokeWidth={2.5} />
+            <div className="flex-1 min-w-0">
+              <p className="brut-label text-ink">{over ? "Budget exceeded" : "Approaching limit"}</p>
+              <p className="text-xs text-ink-soft mt-0.5 font-medium">
+                {budgetAlerts.map((a) => `${a.category} ${a.pct}%${a.over ? " over" : ""}`).join(" · ")}
+              </p>
+            </div>
+            <Link href="/dashboard/budgets" className="brut-btn bg-ink text-paper text-[11px] h-8 px-3 shrink-0">
+              Review →
+            </Link>
           </div>
-          <a href="/dashboard/budgets" className="text-xs font-semibold text-amber-700 hover:underline shrink-0">Review →</a>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── Retirement Readiness Banner ──────────────────────────── */}
-      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
-        {/* Score ring */}
+      <div className="brut-card p-5 flex flex-col sm:flex-row sm:items-center gap-5">
         <div className="flex items-center gap-4 shrink-0">
-          <div className="relative w-16 h-16 shrink-0">
-            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#fde68a" strokeWidth="3" />
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke={scoreColor} strokeWidth="3"
-                strokeDasharray={`${retirementScore} 100`} strokeLinecap="round" />
-            </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-text">{retirementScore}</span>
+          <div
+            className="relative w-20 h-20 shrink-0 border-2 border-ink flex items-center justify-center"
+            style={{ background: scoreBgVar }}
+          >
+            <span className="brut-display text-3xl text-paper tabular">{retirementScore}</span>
           </div>
           <div>
-            <p className="text-[10px] text-accent font-semibold uppercase tracking-wider">Retirement Readiness</p>
-            <p className="text-lg font-black leading-tight" style={{ color: scoreColor }}>{scoreLabel}</p>
-            <p className="text-xs text-accent font-light">Target: retire at {targetRetire}</p>
+            <p className="brut-label">Retirement readiness</p>
+            <p className="text-2xl brut-display text-ink mt-1">{scoreLabel}</p>
+            <p className="text-xs text-ink-soft font-semibold mt-0.5">Target: retire at {targetRetire}</p>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="hidden sm:block w-px self-stretch bg-amber-200" />
+        <div className="hidden sm:block w-[2px] self-stretch bg-ink" />
 
-        {/* 3 drivers */}
-        <div className="grid grid-cols-3 gap-3 flex-1 text-center">
-          <div className="bg-surface rounded-xl px-3 py-2.5">
-            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold"><FinTip term="SIP">Invest %</FinTip></p>
-            <p className="text-base font-black text-text mt-0.5">{investPct.toFixed(0)}%</p>
-            <p className="text-[10px] text-accent/70">of income</p>
-          </div>
-          <div className="bg-surface rounded-xl px-3 py-2.5">
-            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold"><FinTip term="corpus">Corpus gap</FinTip></p>
-            <p className="text-base font-black text-text mt-0.5">{fmtCrore(Math.max(fireCorpus - projCorpus, 0))}</p>
-            <p className="text-[10px] text-accent/70">needed by {targetRetire}</p>
-          </div>
-          <div className="bg-surface rounded-xl px-3 py-2.5">
-            <p className="text-[10px] text-accent uppercase tracking-wide font-semibold"><FinTip term="FIRE">FIRE delay</FinTip></p>
-            <p className={`text-base font-black mt-0.5 ${fireDelayMonths > 0 ? "text-red-500" : "text-emerald-600"}`}>
-              {fireDelayMonths > 0 ? `+${fireDelayMonths}mo` : "None"}
-            </p>
-            <p className="text-[10px] text-accent/70">from unnecessary spends</p>
-          </div>
+        <div className="grid grid-cols-3 gap-2 flex-1">
+          {[
+            { label: <FinTip term="SIP">Invest %</FinTip>, value: `${investPct.toFixed(0)}%`, sub: "of income" },
+            { label: <FinTip term="corpus">Corpus gap</FinTip>, value: fmtCrore(Math.max(fireCorpus - projCorpus, 0)), sub: `by ${targetRetire}` },
+            {
+              label: <FinTip term="FIRE">FIRE delay</FinTip>,
+              value: fireDelayMonths > 0 ? `+${fireDelayMonths}mo` : "None",
+              sub: "wasted spends",
+              tone: fireDelayMonths > 0 ? "text-bad" : "text-good",
+            },
+          ].map((d, i) => (
+            <div key={i} className="border-2 border-ink bg-paper-2 p-3">
+              <p className="brut-label text-[9px]">{d.label}</p>
+              <p className={`brut-display text-xl mt-1 tabular ${d.tone ?? "text-ink"}`}>{d.value}</p>
+              <p className="text-[10px] text-mute font-semibold mt-0.5">{d.sub}</p>
+            </div>
+          ))}
         </div>
 
-        <a href="/dashboard/retirement" className="shrink-0 text-xs px-4 py-2 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition-all text-center">
+        <Link href="/dashboard/retirement" className="brut-btn bg-accent text-paper text-xs shrink-0 self-stretch sm:self-center uppercase">
           Full plan →
-        </a>
+        </Link>
       </div>
 
-      {/* New grid widgets */}
+      {/* ── Grid widgets ─────────────────────────────────────── */}
       <DashboardGrids
         spend={{
           weekTotal: weeklySpend,
@@ -377,55 +373,48 @@ export default async function DashboardPage() {
         }}
       />
 
-      {/* ── Stat cards — uniform amber ───────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {([
-          {
-            label: "Spent this month",
-            value: formatCurrency(monthlySpend),
-            valueColor: "text-text",
-            sub: budget > 0 ? `${budgetPct.toFixed(0)}% of ${formatCurrency(budget)}` : "no budget set",
-            showBar: budget > 0,
-            iconD: "M12 6v12m-4-6h8",
-          },
-          {
-            label: "Remaining",
-            value: formatCurrency(Math.abs(remaining)),
-            valueColor: remaining < 0 ? "text-red-500" : "text-text",
-            sub: remaining < 0 ? "over budget" : budget > 0 ? "left this month" : "no budget set",
-            showBar: false,
-            iconD: "M5 13l4 4L19 7",
-          },
-          {
-            label: "Savings rate",
-            value: `${savingsRate.toFixed(0)}%`,
-            valueColor: "text-text",
-            sub: goalAmt > 0 ? `target ${formatCurrency(goalAmt)}/mo` : "set a savings goal",
-            showBar: false,
-            iconD: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
-          },
-          {
-            label: "Transactions",
-            value: monthTx.length.toString(),
-            valueColor: "text-text",
-            sub: dailyAvg > 0 ? `${formatCurrency(dailyAvg)}/day avg` : "this month",
-            showBar: false,
-            iconD: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
-          },
-        ] as const).map((s) => (
-          <div key={s.label} className="bg-surface rounded-2xl border border-surface p-5 shadow-sm">
-            <div className="w-7 h-7 rounded-lg bg-background border border-amber-300 flex items-center justify-center mb-3">
-              <svg className="w-3.5 h-3.5 text-text2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d={s.iconD} />
-              </svg>
-            </div>
-            <p className="text-[10px] text-text2 font-semibold uppercase tracking-wider">{s.label}</p>
-            <p className={`text-xl font-bold mt-1 ${s.valueColor}`}>{s.value}</p>
-            <p className="text-xs text-accent mt-0.5 font-light">{s.sub}</p>
+      {/* ── Stat cards ─────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {(
+          [
+            {
+              label: "Spent",
+              value: formatCurrency(monthlySpend),
+              sub: budget > 0 ? `${budgetPct.toFixed(0)}% of ${formatCurrency(budget)}` : "no budget set",
+              showBar: budget > 0,
+              tone: "text-ink",
+            },
+            {
+              label: "Remaining",
+              value: formatCurrency(Math.abs(remaining)),
+              sub: remaining < 0 ? "over budget" : budget > 0 ? "left this month" : "no budget set",
+              showBar: false,
+              tone: remaining < 0 ? "text-bad" : "text-ink",
+            },
+            {
+              label: "Savings rate",
+              value: `${savingsRate.toFixed(0)}%`,
+              sub: goalAmt > 0 ? `target ${formatCurrency(goalAmt)}/mo` : "set a savings goal",
+              showBar: false,
+              tone: "text-ink",
+            },
+            {
+              label: "Transactions",
+              value: monthTx.length.toString(),
+              sub: dailyAvg > 0 ? `${formatCurrency(dailyAvg)}/day avg` : "this month",
+              showBar: false,
+              tone: "text-ink",
+            },
+          ] as Array<{ label: string; value: string; sub: string; showBar: boolean; tone: string }>
+        ).map((s) => (
+          <div key={s.label} className="brut-card p-4">
+            <p className="brut-label">{s.label}</p>
+            <p className={`brut-display text-3xl mt-2 tabular ${s.tone}`}>{s.value}</p>
+            <p className="text-[11px] text-mute font-semibold mt-1">{s.sub}</p>
             {s.showBar && (
-              <div className="mt-3 h-1.5 bg-background rounded-full overflow-hidden">
+              <div className="mt-3 h-2 bg-paper-2 border-2 border-ink overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all ${budgetPct > 90 ? "bg-red-400" : budgetPct > 70 ? "bg-amber-600" : "bg-amber-500"}`}
+                  className={`h-full transition-all ${budgetPct > 90 ? "bg-bad" : budgetPct > 70 ? "bg-warn" : "bg-good"}`}
                   style={{ width: `${Math.min(budgetPct, 100)}%` }}
                 />
               </div>
@@ -436,85 +425,77 @@ export default async function DashboardPage() {
 
       {/* ── Insight strip ────────────────────────────────────────── */}
       {!noSpends && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-background rounded-xl border border-surface px-4 py-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-              <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p className="text-[10px] text-accent font-semibold uppercase tracking-wide">Daily average</p>
-              <p className="text-sm font-bold text-text">{formatCurrency(dailyAvg)}</p>
-            </div>
-          </div>
-          <div className="bg-background rounded-xl border border-surface px-4 py-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-              <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-            </div>
-            <div>
-              <p className="text-[10px] text-accent font-semibold uppercase tracking-wide">Month projection</p>
-              <p className={`text-sm font-bold ${projectedSpend > budget && budget > 0 ? "text-red-500" : "text-text"}`}>
-                {formatCurrency(projectedSpend)}
-              </p>
-            </div>
-          </div>
-          {topCategory && (
-            <div className="bg-background rounded-xl border border-surface px-4 py-3 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-                <span className="text-[11px] font-bold text-amber-700 uppercase">{topCategory.name.slice(0, 2)}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { label: "Daily average", value: formatCurrency(dailyAvg) },
+            {
+              label: "Month projection",
+              value: formatCurrency(projectedSpend),
+              tone: projectedSpend > budget && budget > 0 ? "text-bad" : "text-ink",
+            },
+            topCategory
+              ? { label: "Top category", value: `${topCategory.name} · ${formatCurrency(topCategory.value)}` }
+              : null,
+          ]
+            .filter((x): x is { label: string; value: string; tone?: string } => x !== null)
+            .map((x) => (
+              <div key={x.label} className="brut-card brut-card-sm p-3 flex items-center gap-3">
+                <div className="w-8 h-8 bg-ink" />
+                <div className="min-w-0">
+                  <p className="brut-label text-[9px]">{x.label}</p>
+                  <p className={`text-sm font-bold tabular truncate ${x.tone ?? "text-ink"}`}>{x.value}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] text-accent font-semibold uppercase tracking-wide">Top category</p>
-                <p className="text-sm font-bold text-text">{topCategory.name} · {formatCurrency(topCategory.value)}</p>
-              </div>
-            </div>
-          )}
+            ))}
         </div>
       )}
 
       {/* ── Spending trend + Category ─────────────────────────── */}
       <div className="grid md:grid-cols-5 gap-4">
-        <div className="md:col-span-3 bg-background rounded-2xl border border-surface p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
+        <div className="md:col-span-3 brut-card p-5">
+          <div className="flex items-center justify-between mb-4 border-b-2 border-ink pb-3">
             <div>
-              <h2 className="text-sm font-semibold text-text">Spending trend</h2>
-              <p className="text-xs text-accent font-light mt-0.5">Cumulative vs budget pace (dashed)</p>
+              <p className="brut-label">Spending trend</p>
+              <p className="text-xs text-ink-soft font-medium mt-0.5">Cumulative vs pace</p>
             </div>
-            {budget > 0 && (
-              <span className="text-xs text-accent bg-surface px-2 py-1 rounded-lg font-medium">{budgetPct.toFixed(0)}% used</span>
-            )}
+            {budget > 0 && <Badge variant="ink">{budgetPct.toFixed(0)}% used</Badge>}
           </div>
           {noSpends ? (
-            <div className="flex flex-col items-center justify-center h-[210px]">
-              <p className="text-accent text-sm font-light">Log a spend to see your trend</p>
+            <div className="flex flex-col items-center justify-center h-[210px] text-mute text-sm font-semibold">
+              Log a spend to see your trend
             </div>
           ) : (
             <SpendTrendChart data={trendData} />
           )}
         </div>
-        <div className="md:col-span-2 bg-background rounded-2xl border border-surface p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-text mb-0.5">By category</h2>
-          <p className="text-xs text-accent font-light mb-1">Where your money goes</p>
+        <div className="md:col-span-2 brut-card p-5">
+          <div className="mb-4 border-b-2 border-ink pb-3">
+            <p className="brut-label">By category</p>
+            <p className="text-xs text-ink-soft font-medium mt-0.5">Where your money goes</p>
+          </div>
           <CategoryChart data={categoryData} />
         </div>
       </div>
 
       {/* ── Spending heatmap ─────────────────────────────────── */}
-      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="brut-card p-5">
+        <div className="flex items-center justify-between mb-4 border-b-2 border-ink pb-3">
           <div>
-            <h2 className="text-sm font-semibold text-text">Spending heatmap</h2>
-            <p className="text-xs text-accent font-light mt-0.5">Last 3 months — darker = more spent</p>
+            <p className="brut-label">Spending heatmap</p>
+            <p className="text-xs text-ink-soft font-medium mt-0.5">Last 3 months — darker = more spent</p>
           </div>
-          <a href="/dashboard/heatmap" className="text-xs text-amber-600 hover:underline font-medium shrink-0">View full →</a>
+          <Link href="/dashboard/heatmap" className="text-xs font-black uppercase tracking-wider text-ink hover:text-accent">
+            View full →
+          </Link>
         </div>
         {heatData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-3">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-            </div>
-            <p className="text-sm font-medium text-text">No spend data yet</p>
-            <p className="text-xs text-accent font-light mt-1">Log a few transactions to see your heatmap</p>
-            <a href="/dashboard/transactions" className="mt-3 text-xs px-4 py-2 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-400 transition-all">+ Log a spend</a>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-14 h-14 border-2 border-ink bg-accent-soft flex items-center justify-center mb-3" />
+            <p className="text-sm font-black text-ink uppercase tracking-wide">No spend data</p>
+            <p className="text-xs text-ink-soft font-medium mt-1">Log a few transactions to see your heatmap</p>
+            <Link href="/dashboard/transactions" className="brut-btn bg-accent text-paper text-xs mt-4">
+              + Log a spend
+            </Link>
           </div>
         ) : (
           <HeatmapInline data={heatData} />
@@ -522,30 +503,34 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Portfolio tracker ────────────────────────────────── */}
-      <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="brut-card p-5">
+        <div className="flex items-center justify-between mb-4 border-b-2 border-ink pb-3">
           <div>
-            <h2 className="text-sm font-semibold text-text">Portfolio snapshot</h2>
-            <p className="text-xs text-accent font-light mt-0.5">Live quotes · refreshes every 15 min</p>
+            <p className="brut-label">Portfolio snapshot</p>
+            <p className="text-xs text-ink-soft font-medium mt-0.5">Live quotes · refreshes every 15 min</p>
           </div>
-          <a href="/dashboard/calculators" className="text-xs text-amber-600 hover:underline font-medium">SIP calculator →</a>
+          <Link href="/dashboard/calculators" className="text-xs font-black uppercase tracking-wider text-ink hover:text-accent">
+            SIP calculator →
+          </Link>
         </div>
         <div className="space-y-2">
           {investments.map((inv) => {
             const gain = inv.current - inv.invested;
             const up = gain >= 0;
             return (
-              <div key={inv.ticker} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface transition-colors">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
-                  <span className="text-[9px] font-black text-amber-700 uppercase leading-none text-center">{inv.ticker.replace(".NS","").slice(0,4)}</span>
+              <div key={inv.ticker} className="flex items-center gap-3 p-2.5 border-2 border-ink bg-paper">
+                <div className="w-10 h-10 bg-ink text-paper flex items-center justify-center shrink-0">
+                  <span className="text-[10px] font-black tracking-wider">{inv.ticker.replace(".NS", "").slice(0, 4)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-text truncate">{inv.name}</p>
-                  <p className="text-xs text-accent font-light">{inv.shares} shares · invested {formatCurrency(inv.invested)}</p>
+                  <p className="text-sm font-black text-ink truncate">{inv.name}</p>
+                  <p className="text-xs text-ink-soft font-semibold tabular">
+                    {inv.shares} shares · invested {formatCurrency(inv.invested)}
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-text">{formatCurrency(inv.current)}</p>
-                  <p className={`text-xs font-medium ${up ? "text-emerald-600" : "text-red-500"}`}>
+                  <p className="text-sm font-black text-ink tabular">{formatCurrency(inv.current)}</p>
+                  <p className={`text-xs font-black tabular ${up ? "text-good" : "text-bad"}`}>
                     {up ? "+" : ""}{inv.changePct.toFixed(2)}%
                   </p>
                 </div>
@@ -553,16 +538,22 @@ export default async function DashboardPage() {
             );
           })}
         </div>
-        <div className="mt-3 pt-3 border-t border-surface flex items-center justify-between">
-          <span className="text-xs text-accent font-medium">Total invested</span>
+        <div className="mt-4 pt-3 border-t-2 border-ink flex items-center justify-between">
+          <span className="brut-label">Total invested</span>
           <div className="text-right">
-            <span className="text-sm font-bold text-text">{formatCurrency(investments.reduce((s, i) => s + i.current, 0))}</span>
+            <span className="text-base font-black text-ink tabular">
+              {formatCurrency(investments.reduce((s, i) => s + i.current, 0))}
+            </span>
             {(() => {
               const totalInv = investments.reduce((s, i) => s + i.invested, 0);
               const totalCur = investments.reduce((s, i) => s + i.current, 0);
               const totalGain = totalCur - totalInv;
               const up = totalGain >= 0;
-              return <p className={`text-xs font-medium ${up ? "text-emerald-600" : "text-red-500"}`}>{up ? "+" : ""}{formatCurrency(totalGain)} overall</p>;
+              return (
+                <p className={`text-xs font-black tabular ${up ? "text-good" : "text-bad"}`}>
+                  {up ? "+" : ""}{formatCurrency(totalGain)} overall
+                </p>
+              );
             })()}
           </div>
         </div>
@@ -570,34 +561,37 @@ export default async function DashboardPage() {
 
       {/* ── Recent spends + Goals ─────────────────────────────── */}
       <div className="grid md:grid-cols-2 gap-4">
-
-        <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-text">Recent spends</h2>
-            <a href="/dashboard/transactions" className="text-xs text-amber-600 hover:underline font-medium">View all</a>
+        <div className="brut-card p-5">
+          <div className="flex items-center justify-between mb-4 border-b-2 border-ink pb-3">
+            <p className="brut-label">Recent spends</p>
+            <Link href="/dashboard/transactions" className="text-xs font-black uppercase tracking-wider text-ink hover:text-accent">
+              View all →
+            </Link>
           </div>
           {recentTx.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted text-sm">No transactions yet</p>
-              <a href="/dashboard/transactions" className="text-amber-600 text-xs hover:underline mt-1 inline-block font-medium">Add your first spend</a>
+              <p className="text-mute text-sm font-semibold">No transactions yet</p>
+              <Link href="/dashboard/transactions" className="text-accent text-xs font-black uppercase mt-2 inline-block hover:underline">
+                Add your first spend →
+              </Link>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {recentTx.map((tx) => (
-                <div key={tx.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-surface transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-bold text-amber-700 uppercase">{tx.category.slice(0, 2)}</span>
+                <div key={tx.id} className="flex items-center gap-3 p-2.5 border-2 border-ink bg-paper">
+                  <div className="w-9 h-9 bg-ink text-paper flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-black tracking-wider uppercase">{tx.category.slice(0, 2)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-text font-medium truncate">{tx.description}</p>
-                    <p className="text-xs text-accent font-light">
+                    <p className="text-sm text-ink font-bold truncate">{tx.description}</p>
+                    <p className="text-xs text-ink-soft font-semibold">
                       {tx.category} · {new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-text">{formatCurrency(tx.amount)}</p>
-                    {tx.isNecessary === false && <span className="text-[10px] text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded-md">skip</span>}
-                    {tx.isNecessary === true  && <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md">ok</span>}
+                  <div className="text-right shrink-0 flex flex-col items-end gap-0.5">
+                    <p className="text-sm font-black text-ink tabular">{formatCurrency(tx.amount)}</p>
+                    {tx.isNecessary === false && <Badge variant="bad" className="text-[9px]">skip</Badge>}
+                    {tx.isNecessary === true && <Badge variant="good" className="text-[9px]">ok</Badge>}
                   </div>
                 </div>
               ))}
@@ -605,35 +599,37 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="bg-background rounded-2xl border border-surface p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-text">Savings goals</h2>
-            <a href="/dashboard/goals" className="text-xs text-amber-600 hover:underline font-medium">Manage</a>
+        <div className="brut-card p-5">
+          <div className="flex items-center justify-between mb-4 border-b-2 border-ink pb-3">
+            <p className="brut-label">Savings goals</p>
+            <Link href="/dashboard/goals" className="text-xs font-black uppercase tracking-wider text-ink hover:text-accent">
+              Manage →
+            </Link>
           </div>
           {goals.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted text-sm">No goals yet</p>
-              <a href="/dashboard/goals" className="text-amber-600 text-xs hover:underline mt-1 inline-block font-medium">Set a goal</a>
+              <p className="text-mute text-sm font-semibold">No goals yet</p>
+              <Link href="/dashboard/goals" className="text-accent text-xs font-black uppercase mt-2 inline-block hover:underline">
+                Set a goal →
+              </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {goals.map((goal) => {
                 const pct = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
                 return (
-                  <div key={goal.id} className="p-3 rounded-xl bg-surface border border-amber-400">
+                  <div key={goal.id} className="p-3 border-2 border-ink bg-paper-2">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-text font-semibold">{goal.title}</span>
-                      <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
-                        {pct.toFixed(0)}%
-                      </span>
+                      <span className="text-sm text-ink font-black">{goal.title}</span>
+                      <Badge variant={pct >= 100 ? "good" : "accent"}>{pct.toFixed(0)}%</Badge>
                     </div>
-                    <div className="h-2 bg-background rounded-full overflow-hidden">
+                    <div className="h-2 bg-paper border-2 border-ink overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${pct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`}
+                        className={`h-full ${pct >= 100 ? "bg-good" : "bg-accent"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-accent mt-1.5 font-light">
+                    <div className="flex justify-between text-[11px] text-ink-soft mt-1.5 font-bold tabular">
                       <span>{formatCurrency(goal.savedAmount)} saved</span>
                       <span>{formatCurrency(goal.targetAmount)} target</span>
                     </div>
@@ -644,7 +640,6 @@ export default async function DashboardPage() {
           )}
         </div>
       </div>
-
     </div>
   );
 }

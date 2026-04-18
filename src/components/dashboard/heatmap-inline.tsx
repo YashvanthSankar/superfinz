@@ -5,11 +5,11 @@ import { formatCurrency } from "@/lib/utils";
 type HeatDay = { date: string; total: number; count: number };
 
 const INTENSITY = [
-  "bg-surface",
-  "bg-amber-100",
-  "bg-amber-200",
-  "bg-amber-400",
-  "bg-amber-600",
+  "bg-paper-2",
+  "bg-accent-soft",
+  "bg-accent-mid",
+  "bg-accent",
+  "bg-ink",
 ];
 
 function intensity(amount: number, max: number) {
@@ -65,39 +65,43 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
   return (
     <div>
       {/* Stats row */}
-      <div className="flex items-center gap-6 mb-4 text-xs text-accent">
-        <span><span className="font-semibold text-text">{formatCurrency(totalSpend)}</span> in 3 months</span>
-        <span><span className="font-semibold text-text">{activeDays}</span> active days</span>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 text-xs text-ink-soft font-semibold tabular">
+        <span><span className="font-black text-ink">{formatCurrency(totalSpend)}</span> in 3 months</span>
+        <span><span className="font-black text-ink">{activeDays}</span> active days</span>
         {activeDays > 0 && (
-          <span><span className="font-semibold text-text">{formatCurrency(totalSpend / activeDays)}</span> avg/active day</span>
+          <span><span className="font-black text-ink">{formatCurrency(totalSpend / activeDays)}</span> avg/active</span>
         )}
       </div>
 
       <div className="overflow-x-auto">
-        <div className="flex gap-1 min-w-fit">
+        <div className="flex gap-0.5 min-w-fit">
           {/* Day labels */}
-          <div className="flex flex-col gap-1 mr-1 shrink-0">
-            <div className="h-4" /> {/* spacer for month row */}
+          <div className="flex flex-col gap-0.5 mr-1 shrink-0">
+            <div className="h-4" />
             {DAY_LABELS.map((d, i) => (
-              <div key={d} className={`h-3 text-[9px] text-accent flex items-center ${i % 2 === 0 ? "opacity-0" : ""}`}>{d}</div>
+              <div
+                key={d}
+                className={`h-3 brut-label text-[9px] flex items-center ${i % 2 === 0 ? "opacity-0" : ""}`}
+              >
+                {d}
+              </div>
             ))}
           </div>
 
           {/* Week columns */}
           {cols.map((week, wi) => {
-            // Show month label at week start if day 1 falls here
             const monthStart = week.find((c) => !c.empty && c.date?.slice(8) === "01");
             const monthLabel = monthStart ? MONTH_LABELS[parseInt(monthStart.date.slice(5, 7)) - 1] : null;
 
             return (
-              <div key={wi} className="flex flex-col gap-1">
-                <div className="h-4 text-[9px] text-accent flex items-center whitespace-nowrap">
+              <div key={wi} className="flex flex-col gap-0.5">
+                <div className="h-4 brut-label text-[9px] flex items-center whitespace-nowrap">
                   {monthLabel ?? ""}
                 </div>
                 {week.map((cell, di) => (
                   <div
                     key={di}
-                    className={`w-3 h-3 rounded-[2px] cursor-default border border-amber-300/80 transition-transform hover:scale-125 ${
+                    className={`w-3 h-3 cursor-default border border-ink transition-transform hover:scale-125 ${
                       cell.empty ? "opacity-0" : INTENSITY[intensity(cell.total, max)]
                     }`}
                     onMouseEnter={(e) => {
@@ -122,30 +126,30 @@ export function HeatmapInline({ data }: { data: HeatDay[] }) {
       {/* Tooltip */}
       {tip && tip.date && (
         <div
-          className="fixed z-50 pointer-events-none bg-background border border-amber-400 rounded-xl px-3 py-2 text-xs shadow-lg"
+          className="fixed z-50 pointer-events-none bg-paper border-2 border-ink shadow-[2px_2px_0_var(--ink)] px-3 py-2 text-xs"
           style={{ left: tip.x + 14, top: tip.y + 14 }}
         >
-          <p className="font-semibold text-text">
+          <p className="brut-label">
             {new Date(tip.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
           </p>
           {tip.total > 0 ? (
             <>
-              <p className="text-accent mt-0.5">{formatCurrency(tip.total)}</p>
-              <p className="text-accent">{tip.count} transaction{tip.count !== 1 ? "s" : ""}</p>
+              <p className="text-ink mt-1 font-black tabular">{formatCurrency(tip.total)}</p>
+              <p className="text-ink-soft font-semibold">{tip.count} transaction{tip.count !== 1 ? "s" : ""}</p>
             </>
           ) : (
-            <p className="text-accent mt-0.5">No spend</p>
+            <p className="text-mute mt-1 font-semibold">No spend</p>
           )}
         </div>
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-1.5 mt-3">
-        <span className="text-[10px] text-accent">Less</span>
+      <div className="flex items-center gap-1.5 mt-4">
+        <span className="brut-label text-[10px]">Less</span>
         {INTENSITY.map((cls, i) => (
-          <div key={i} className={`w-3 h-3 rounded-[2px] border border-amber-300/80 ${cls}`} />
+          <div key={i} className={`w-3 h-3 border border-ink ${cls}`} />
         ))}
-        <span className="text-[10px] text-accent">More</span>
+        <span className="brut-label text-[10px]">More</span>
       </div>
     </div>
   );

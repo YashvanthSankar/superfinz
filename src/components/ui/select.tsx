@@ -10,19 +10,30 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, id, children, ...props }, ref) => (
     <div className="flex flex-col gap-1.5">
-      {label && <label htmlFor={id} className="text-xs font-medium text-muted">{label}</label>}
-      <select
-        ref={ref} id={id}
-        className={cn(
-          "w-full px-3.5 py-2.5 rounded-xl bg-background border border-amber-400 text-text text-sm transition-all focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 appearance-none cursor-pointer",
-          error && "border-red-400",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </select>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {label && (
+        <label htmlFor={id} className="brut-label">
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        <select
+          ref={ref}
+          id={id}
+          className={cn(
+            "w-full px-3 pr-9 h-11 bg-paper border-2 border-ink text-ink text-sm font-semibold",
+            "appearance-none cursor-pointer focus:outline-none focus:bg-accent-soft",
+            error && "border-bad bg-bad-soft",
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </select>
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink font-black text-xs">
+          ▼
+        </span>
+      </div>
+      {error && <p className="text-xs text-bad font-bold uppercase tracking-wide">{error}</p>}
     </div>
   )
 );

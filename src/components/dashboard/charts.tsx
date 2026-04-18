@@ -7,36 +7,37 @@ import { formatCurrency } from "@/lib/utils";
 import { categoryColor } from "@/lib/categories";
 
 type TrendPoint = { day: number; cumulative: number; pace: number };
-type CatPoint   = { name: string; value: number };
+type CatPoint = { name: string; value: number };
 
 // ─── Spending Trend ───────────────────────────────────────────────────────────
 export function SpendTrendChart({ data }: { data: TrendPoint[] }) {
   const over = data.at(-1) ? data[data.length - 1].cumulative > data[data.length - 1].pace : false;
+  const lineColor = over ? "var(--bad)" : "var(--ink)";
 
   return (
     <ResponsiveContainer width="100%" height={210}>
       <AreaChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="spendGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor={over ? "#f43f5e" : "#6366f1"} stopOpacity={0.18} />
-            <stop offset="95%" stopColor={over ? "#f43f5e" : "#6366f1"} stopOpacity={0} />
+            <stop offset="5%" stopColor={over ? "var(--bad)" : "var(--accent)"} stopOpacity={0.4} />
+            <stop offset="95%" stopColor={over ? "var(--bad)" : "var(--accent)"} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+        <CartesianGrid strokeDasharray="2 4" stroke="var(--border-soft)" vertical={false} />
         <XAxis
           dataKey="day"
-          stroke="#e2e8f0"
-          tick={{ fontSize: 10, fill: "#94a3b8" }}
+          stroke="var(--ink-soft)"
+          tick={{ fontSize: 10, fill: "var(--ink-soft)", fontWeight: 700 }}
           tickLine={false}
-          axisLine={false}
+          axisLine={{ stroke: "var(--ink)", strokeWidth: 2 }}
           tickFormatter={(v) => `${v}`}
           interval={4}
         />
         <YAxis
-          stroke="#e2e8f0"
-          tick={{ fontSize: 10, fill: "#94a3b8" }}
+          stroke="var(--ink-soft)"
+          tick={{ fontSize: 10, fill: "var(--ink-soft)", fontWeight: 700 }}
           tickLine={false}
-          axisLine={false}
+          axisLine={{ stroke: "var(--ink)", strokeWidth: 2 }}
           tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
           width={42}
         />
@@ -44,10 +45,10 @@ export function SpendTrendChart({ data }: { data: TrendPoint[] }) {
           content={({ active, payload, label }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-background border border-amber-400 rounded-xl p-3 text-xs shadow-md">
-                <p className="text-accent mb-1.5 font-medium">Day {label}</p>
+              <div className="bg-paper border-2 border-ink shadow-[2px_2px_0_var(--ink)] p-3 text-xs">
+                <p className="brut-label mb-1.5">Day {label}</p>
                 {payload.map((p) => (
-                  <p key={p.name as string} style={{ color: p.color as string }} className="font-semibold">
+                  <p key={p.name as string} className="font-black tabular" style={{ color: p.color as string }}>
                     {p.name}: {formatCurrency(p.value as number)}
                   </p>
                 ))}
@@ -58,9 +59,9 @@ export function SpendTrendChart({ data }: { data: TrendPoint[] }) {
         <Area
           type="monotone"
           dataKey="pace"
-          stroke="#e2e8f0"
+          stroke="var(--ink-soft)"
           fill="none"
-          strokeDasharray="5 4"
+          strokeDasharray="4 4"
           strokeWidth={1.5}
           name="Budget pace"
           dot={false}
@@ -68,9 +69,9 @@ export function SpendTrendChart({ data }: { data: TrendPoint[] }) {
         <Area
           type="monotone"
           dataKey="cumulative"
-          stroke={over ? "#f43f5e" : "#6366f1"}
+          stroke={lineColor}
           fill="url(#spendGrad)"
-          strokeWidth={2}
+          strokeWidth={3}
           name="Spent"
           dot={false}
         />
@@ -84,7 +85,7 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
   if (!data.length) {
     return (
       <div className="flex flex-col items-center justify-center h-[210px] text-center">
-        <p className="text-accent text-sm font-light">No spends yet</p>
+        <p className="text-mute text-sm font-semibold">No spends yet.</p>
       </div>
     );
   }
@@ -96,11 +97,12 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           data={data}
           cx="42%"
           cy="50%"
-          innerRadius={52}
-          outerRadius={80}
-          paddingAngle={3}
+          innerRadius={50}
+          outerRadius={82}
+          paddingAngle={0}
           dataKey="value"
-          strokeWidth={0}
+          stroke="var(--ink)"
+          strokeWidth={2}
         >
           {data.map((entry, i) => (
             <Cell key={entry.name} fill={categoryColor(entry.name, i)} />
@@ -110,9 +112,9 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           content={({ active, payload }) => {
             if (!active || !payload?.length) return null;
             return (
-              <div className="bg-background border border-amber-400 rounded-xl p-3 text-xs shadow-md">
-                <p className="font-semibold text-text">{payload[0].name as string}</p>
-                <p className="text-muted mt-0.5">{formatCurrency(payload[0].value as number)}</p>
+              <div className="bg-paper border-2 border-ink shadow-[2px_2px_0_var(--ink)] p-3 text-xs">
+                <p className="brut-label">{payload[0].name as string}</p>
+                <p className="font-black text-ink mt-0.5 tabular">{formatCurrency(payload[0].value as number)}</p>
               </div>
             );
           }}
@@ -121,10 +123,10 @@ export function CategoryChart({ data }: { data: CatPoint[] }) {
           layout="vertical"
           align="right"
           verticalAlign="middle"
-          iconType="circle"
-          iconSize={7}
+          iconType="square"
+          iconSize={10}
           formatter={(value) => (
-            <span className="text-[11px] text-muted">{value}</span>
+            <span className="text-[11px] text-ink font-bold uppercase tracking-wide">{value}</span>
           )}
         />
       </PieChart>

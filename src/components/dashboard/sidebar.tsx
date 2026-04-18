@@ -6,6 +6,11 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/fetcher";
 import { Logo } from "@/components/ui/logo";
+import {
+  LayoutDashboard, ArrowLeftRight, Calculator,
+  Newspaper, Target, LogOut, TrendingUp, BookOpen,
+  MoreHorizontal, Flame, Wallet, ChevronLeft, ChevronRight,
+} from "lucide-react";
 
 type BudgetCheck = { at: number; over: boolean };
 const BUDGET_TTL_MS = 60_000;
@@ -29,39 +34,31 @@ async function fetchBudgetAlert(): Promise<boolean> {
     return budgetCache.current?.over ?? false;
   }
 }
-import {
-  LayoutDashboard, ArrowLeftRight, Calculator,
-  Newspaper, Target, LogOut, TrendingUp, BookOpen,
-  MoreHorizontal, Flame, Wallet, ChevronLeft, ChevronRight,
-} from "lucide-react";
 
 const NAV = [
   { href: "/dashboard",              label: "Overview",     icon: LayoutDashboard },
-  { href: "/dashboard/transactions", label: "Transactions", icon: ArrowLeftRight  },
-  { href: "/dashboard/goals",        label: "Goals",        icon: Target          },
-  { href: "/dashboard/budgets",      label: "Budgets",      icon: Wallet          },
-  { href: "/dashboard/retirement",   label: "Retirement",   icon: TrendingUp      },
-  { href: "/dashboard/learn",        label: "Learn",        icon: BookOpen        },
-  { href: "/dashboard/calculators",  label: "Calculators",  icon: Calculator      },
-  { href: "/dashboard/news",         label: "News",         icon: Newspaper       },
-  { href: "/dashboard/heatmap",      label: "Heatmap",      icon: Flame           },
+  { href: "/dashboard/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { href: "/dashboard/goals",        label: "Goals",        icon: Target },
+  { href: "/dashboard/budgets",      label: "Budgets",      icon: Wallet },
+  { href: "/dashboard/retirement",   label: "Retirement",   icon: TrendingUp },
+  { href: "/dashboard/learn",        label: "Learn",        icon: BookOpen },
+  { href: "/dashboard/calculators",  label: "Calculators",  icon: Calculator },
+  { href: "/dashboard/news",         label: "News",         icon: Newspaper },
+  { href: "/dashboard/heatmap",      label: "Heatmap",      icon: Flame },
 ];
 
 const BOTTOM_NAV_PRIMARY = NAV.slice(0, 4);
-const BOTTOM_NAV_MORE    = NAV.slice(4);
+const BOTTOM_NAV_MORE = NAV.slice(4);
 
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  // Lazy initializer reads localStorage once at mount — avoids set-in-effect.
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("sidebar-collapsed") === "true";
   });
 
-  // Track last pathname so we can synchronously reset drawer when path changes
-  // (avoids the setState-in-effect React warning).
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
   if (pathname !== lastPath) {
@@ -83,30 +80,37 @@ export function Sidebar() {
 
   return (
     <>
-      {/* ─── Desktop sidebar — Tailwind classes work fine here ───── */}
-      <aside className={cn(
-        "hidden lg:flex shrink-0 bg-background border-r border-border flex-col h-screen sticky top-0 transition-all duration-200",
-        collapsed ? "w-[60px]" : "w-52"
-      )}>
-        <div className={cn(
-          "flex items-center border-b border-border",
-          collapsed ? "px-3 py-5 justify-center" : "px-5 py-5 justify-between"
-        )}>
+      {/* ─── Desktop sidebar ───────────────────────── */}
+      <aside
+        className={cn(
+          "hidden lg:flex shrink-0 flex-col h-screen sticky top-0 transition-all duration-200",
+          "bg-paper border-r-2 border-ink",
+          collapsed ? "w-[64px]" : "w-56"
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center border-b-2 border-ink",
+            collapsed ? "px-3 py-5 justify-center" : "px-5 py-5 justify-between"
+          )}
+        >
           {!collapsed && <Logo size="md" />}
           <button
-            onClick={() => setCollapsed((c) => {
-              const next = !c;
-              localStorage.setItem("sidebar-collapsed", String(next));
-              return next;
-            })}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-accent hover:text-text hover:bg-surface transition-all shrink-0"
+            onClick={() =>
+              setCollapsed((c) => {
+                const next = !c;
+                if (typeof window !== "undefined") window.localStorage.setItem("sidebar-collapsed", String(next));
+                return next;
+              })
+            }
+            className="w-8 h-8 border-2 border-ink bg-paper flex items-center justify-center text-ink hover:bg-accent hover:text-paper transition-colors shrink-0"
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            {collapsed ? <ChevronRight size={14} strokeWidth={2.5} /> : <ChevronLeft size={14} strokeWidth={2.5} />}
           </button>
         </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden">
+        <nav className="flex-1 px-2 py-3 space-y-1 overflow-y-auto overflow-x-hidden">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = isActive(href);
             const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
@@ -116,49 +120,53 @@ export function Sidebar() {
                 href={href}
                 title={collapsed ? label : undefined}
                 className={cn(
-                  "flex items-center rounded-xl text-sm transition-all relative",
-                  collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
+                  "flex items-center text-xs font-black uppercase tracking-wider relative border-2 transition-colors",
+                  collapsed ? "justify-center h-10" : "gap-2.5 px-3 h-10",
                   active
-                    ? "bg-amber-50 text-amber-700 font-semibold"
-                    : "text-muted hover:text-text hover:bg-surface font-medium"
+                    ? "bg-ink text-paper border-ink"
+                    : "bg-paper text-ink border-transparent hover:border-ink hover:bg-paper-2"
                 )}
               >
-                <Icon size={15} className={cn("shrink-0", active ? "text-amber-600" : "text-accent")} />
+                <Icon size={15} strokeWidth={2.5} className="shrink-0" />
                 {!collapsed && <span className="flex-1 truncate">{label}</span>}
                 {showBadge && (
-                  <span className={cn(
-                    "w-2 h-2 rounded-full bg-red-500 shrink-0",
-                    collapsed ? "absolute top-1.5 right-1.5" : ""
-                  )} />
+                  <span
+                    className={cn(
+                      "w-2 h-2 bg-bad border border-ink shrink-0",
+                      collapsed ? "absolute top-1 right-1" : ""
+                    )}
+                  />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-2 border-t border-border space-y-0.5">
+        <div className="p-2 border-t-2 border-ink space-y-1">
           {session?.user && (
             <Link
               href="/dashboard/profile"
               title={collapsed ? session.user.name ?? "Profile" : undefined}
               className={cn(
-                "flex items-center rounded-xl transition-all",
-                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
-                isActive("/dashboard/profile") ? "bg-amber-50 text-amber-700" : "hover:bg-surface"
+                "flex items-center border-2 border-transparent transition-colors",
+                collapsed ? "justify-center h-12" : "gap-2.5 px-3 h-12",
+                isActive("/dashboard/profile")
+                  ? "bg-ink text-paper border-ink"
+                  : "hover:border-ink hover:bg-paper-2"
               )}
             >
               {session.user.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={session.user.image} alt="" className="w-7 h-7 rounded-full ring-1 ring-border shrink-0" />
+                <img src={session.user.image} alt="" className="w-8 h-8 border-2 border-ink shrink-0" />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 border-2 border-ink bg-accent text-paper text-xs font-black flex items-center justify-center shrink-0">
                   {session.user.name?.[0]?.toUpperCase()}
                 </div>
               )}
               {!collapsed && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-text truncate">{session.user.name}</p>
-                  <p className="text-[10px] text-accent truncate">{session.user.email}</p>
+                  <p className="text-[11px] font-black truncate uppercase tracking-wide">{session.user.name}</p>
+                  <p className="text-[10px] opacity-70 truncate">{session.user.email}</p>
                 </div>
               )}
             </Link>
@@ -167,39 +175,36 @@ export function Sidebar() {
             onClick={() => signOut({ callbackUrl: "/" })}
             title={collapsed ? "Sign out" : undefined}
             className={cn(
-              "w-full flex items-center rounded-xl text-sm text-accent hover:text-red-500 hover:bg-red-50 transition-all font-medium",
-              collapsed ? "justify-center px-0 py-2" : "gap-2.5 px-3 py-2"
+              "w-full flex items-center text-xs font-black uppercase tracking-wider border-2 border-transparent transition-colors text-ink-soft",
+              collapsed ? "justify-center h-10" : "gap-2.5 px-3 h-10",
+              "hover:border-ink hover:bg-bad hover:text-paper"
             )}
           >
-            <LogOut size={14} />
+            <LogOut size={14} strokeWidth={2.5} />
             {!collapsed && "Sign out"}
           </button>
         </div>
       </aside>
 
-      {/* ─── Mobile top bar — inline styles (Tailwind vars unreliable on mobile) */}
-      <div
-        className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4"
-        style={{ background: "#fefce8", borderBottom: "1px solid #fde68a", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
-      >
+      {/* ─── Mobile top bar ─────────────────────── */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 bg-paper border-b-2 border-ink">
         <Logo size="md" />
         <div className="flex items-center gap-2">
           {budgetAlert && (
             <Link
               href="/dashboard/budgets"
-              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg"
-              style={{ color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca" }}
+              className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 h-8 border-2 border-ink bg-bad text-paper"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              Over budget
+              <span className="w-1.5 h-1.5 bg-paper animate-pulse" />
+              Over
             </Link>
           )}
           <Link href="/dashboard/profile">
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" style={{ outline: "1px solid #fde68a" }} />
+              <img src={session.user.image} alt="" className="w-8 h-8 border-2 border-ink" />
             ) : (
-              <div className="w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center" style={{ background: "#fef3c7", color: "#92400e" }}>
+              <div className="w-8 h-8 border-2 border-ink bg-accent text-paper text-xs font-black flex items-center justify-center">
                 {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
               </div>
             )}
@@ -207,24 +212,19 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* ─── Mobile "More" bottom sheet ──────────────────────────── */}
+      {/* ─── Mobile drawer ───────────────────────── */}
       {drawerOpen && (
         <>
           <div
-            className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className="lg:hidden fixed inset-0 z-50 bg-ink/60"
             onClick={() => setDrawerOpen(false)}
           />
-          <div
-            className="lg:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom duration-200"
-            style={{ background: "#fefce8", borderTop: "2px solid #fde68a", borderLeft: "1px solid #fde68a", borderRight: "1px solid #fde68a" }}
-          >
-            {/* Handle */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-paper border-t-2 border-ink">
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full" style={{ background: "#fde68a" }} />
+              <div className="w-12 h-1 bg-ink" />
             </div>
 
-            {/* Nav items — same style as desktop sidebar links */}
-            <nav className="px-3 py-3 space-y-0.5">
+            <nav className="px-3 py-3 space-y-1">
               {BOTTOM_NAV_MORE.map(({ href, label, icon: Icon }) => {
                 const active = isActive(href);
                 return (
@@ -232,48 +232,51 @@ export function Sidebar() {
                     key={href}
                     href={href}
                     onClick={() => setDrawerOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
-                    style={active
-                      ? { background: "#fef3c7", color: "#92400e", fontWeight: 600 }
-                      : { color: "#78350f", fontWeight: 500 }
-                    }
+                    className={cn(
+                      "flex items-center gap-3 px-3 h-11 text-xs font-black uppercase tracking-wider border-2 transition-colors",
+                      active
+                        ? "bg-ink text-paper border-ink"
+                        : "bg-paper text-ink border-transparent hover:border-ink"
+                    )}
                   >
-                    <Icon size={15} style={{ color: "#b45309" }} />
+                    <Icon size={15} strokeWidth={2.5} />
                     <span className="flex-1">{label}</span>
                   </Link>
                 );
               })}
             </nav>
 
-            {/* Profile + sign out */}
-            <div className="px-3 pt-1 space-y-0.5" style={{ borderTop: "1px solid #fde68a", paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }}>
+            <div className="px-3 pt-1 space-y-1 border-t-2 border-ink pb-safe">
               {session?.user && (
                 <Link
                   href="/dashboard/profile"
                   onClick={() => setDrawerOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
-                  style={isActive("/dashboard/profile") ? { background: "#fef3c7", color: "#92400e" } : { color: "#78350f" }}
+                  className={cn(
+                    "flex items-center gap-3 px-3 h-12 border-2 transition-colors",
+                    isActive("/dashboard/profile")
+                      ? "bg-ink text-paper border-ink"
+                      : "bg-paper text-ink border-transparent hover:border-ink"
+                  )}
                 >
                   {session.user.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={session.user.image} alt="" className="w-7 h-7 rounded-full shrink-0" style={{ outline: "1px solid #fde68a" }} />
+                    <img src={session.user.image} alt="" className="w-8 h-8 border-2 border-ink shrink-0" />
                   ) : (
-                    <div className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0" style={{ background: "#fef3c7", color: "#92400e" }}>
+                    <div className="w-8 h-8 border-2 border-ink bg-accent text-paper text-xs font-black flex items-center justify-center shrink-0">
                       {session.user.name?.[0]?.toUpperCase()}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate" style={{ color: "#713f12" }}>{session.user.name}</p>
-                    <p className="text-[10px] truncate" style={{ color: "#b45309" }}>{session.user.email}</p>
+                    <p className="text-xs font-black truncate uppercase tracking-wide">{session.user.name}</p>
+                    <p className="text-[10px] opacity-70 truncate">{session.user.email}</p>
                   </div>
                 </Link>
               )}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium"
-                style={{ color: "#dc2626" }}
+                className="w-full flex items-center gap-3 px-3 h-11 text-xs font-black uppercase tracking-wider border-2 border-transparent hover:border-ink hover:bg-bad hover:text-paper text-bad transition-colors"
               >
-                <LogOut size={14} />
+                <LogOut size={14} strokeWidth={2.5} />
                 Sign out
               </button>
             </div>
@@ -281,16 +284,8 @@ export function Sidebar() {
         </>
       )}
 
-      {/* ─── Mobile bottom nav ───────────────────────────────────── */}
-      <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch"
-        style={{
-          background: "#fefce8",
-          borderTop: "1px solid #fde68a",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
-        }}
-      >
+      {/* ─── Mobile bottom nav ───────────────────── */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch bg-paper border-t-2 border-ink pb-safe">
         {BOTTOM_NAV_PRIMARY.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           const showBadge = href === "/dashboard/budgets" && budgetAlert && !active;
@@ -298,28 +293,26 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
-              className="relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-all"
-              style={{ color: active ? "#92400e" : "#b45309" }}
-            >
-              {active && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full" style={{ background: "#b45309" }} />
+              className={cn(
+                "relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[9px] font-black uppercase tracking-wider transition-colors",
+                active ? "bg-ink text-paper" : "text-ink hover:bg-paper-2"
               )}
+            >
               <div className="relative">
-                <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
+                <Icon size={20} strokeWidth={active ? 2.75 : 2} />
                 {showBadge && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500" style={{ border: "2px solid #fefce8" }} />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-bad border-2 border-paper" />
                 )}
               </div>
-              <span style={{ fontWeight: active ? 700 : 500 }}>{label}</span>
+              <span>{label}</span>
             </Link>
           );
         })}
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium"
-          style={{ color: "#b45309" }}
+          className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[9px] font-black uppercase tracking-wider text-ink hover:bg-paper-2 transition-colors"
         >
-          <MoreHorizontal size={20} strokeWidth={1.75} />
+          <MoreHorizontal size={20} strokeWidth={2} />
           <span>More</span>
         </button>
       </nav>
