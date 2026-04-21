@@ -137,7 +137,7 @@ body {
   border: 2px solid var(--ink);
   box-shadow: var(--shadow-hard);
 }
-.brut-card-sm  { box-shadow: var(--shadow-hard-sm); border: 2px solid var(--ink); background: var(--paper); }
+.brut-card-sm  { box-shadow: var(--shadow-hard-sm); border: 2px solid var(--ink); }
 .brut-card-lg  { box-shadow: var(--shadow-hard-lg); border: 2px solid var(--ink); background: var(--paper); }
 
 .brut-btn {
@@ -172,6 +172,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 800;
+}
+:where(.brut-label) {
   color: var(--ink-soft);
 }
 

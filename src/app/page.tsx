@@ -415,7 +415,7 @@ export default function Landing() {
           }}
         />
         <div className="relative max-w-3xl mx-auto text-center">
-          <p className="brut-label text-accent mb-4 sm:mb-6">Start now</p>
+          <p className="brut-label text-accent mb-4 sm:mb-6 text-sm">Start now</p>
           <h2 className="brut-display text-[clamp(2.25rem,8vw,4.5rem)] leading-[0.95] mb-6 sm:mb-8">
             See your
             <br />
